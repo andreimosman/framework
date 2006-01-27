@@ -10,7 +10,6 @@ class MTemplate {
    
    public function MTemplate($template_dir="./") {
    
-   
       // Configurações do Smarty
       $this->__tpl = new Smarty();
       

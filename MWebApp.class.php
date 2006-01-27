@@ -4,10 +4,14 @@ require_once("MConfig.class.php");
 require_once("MTemplate.class.php");
 
 
-class MWebApp {
+abstract class MWebApp {
 
    protected $cfg;
    protected $tpl;
+   
+   
+   
+   protected $arquivoTemplate=null;
    
    
    
@@ -17,20 +21,34 @@ class MWebApp {
    public function MWebApp($arqConfig) {
       $this->_arqConfig = $arqConfig;
 
-      $cfg = new MConfig($arqConfig);
-      $tpl = new MTemplate();
-
-
-
+      $this->cfg = new MConfig($arqConfig);
+      $this->tpl = new MTemplate();
 
    }
    
    
+   
+   abstract public function processa();
+   
+   
+   
+   /**
+    * Exibe o arquivo de template definido em $this->arquivoTemplate
+    */
    public function exibe() {
-   
+      if( $this->arquivoTemplate != null ) {
+         $this->tpl->exibe($this->arquivoTemplate);
+      }
    }
+   
+   
+   
+   public function executa() {
+      
+      $this->processa();
+      $this->exibe();
 
-
+   }
 
 
 }

@@ -1,27 +1,45 @@
 <?
-
+   //require_once("MDatabase.class.php");
    require_once("MTemplate.class.php");
    require_once("MConfig.class.php");
-   
-   
-   $cfg = new MConfig("teste.ini");
-   
-   //echo $cfg->cfg["root"]["global"]["nome"] . "<br>\n";
+   require_once("MWebApp.class.php");
    
 
-   $tpl = new MTemplate();
 
-   $tpl->atribui("ze",$cfg->config["global"]["nome"]);
-   //$tpl->exibe("teste.html");
+   class MTesteApp extends MWebApp {
    
-   $pg = $tpl->obtemPagina("teste.html");
+       public function MTesteApp($arqConfig) {
+       
+          parent::MWebApp($arqConfig);
+          
+          $this->arquivoTemplate = "teste.html";
+       
+       
+       }
    
+       public function processa() {
+       
+          $this->tpl->atribui("ze", "Teste Muito Louco");
+       
+          echo "Faz qquer coisa";
+       
+       }
+   }
    
-   
-   echo "<br>PG (ini):<br>\n-----------------------<br>\n";
-   echo $pg;
-   echo "<br>PG (fim):<br>\n-----------------------<br>\n";
 
-   
+
+
+
+
+
+
+
+
+
+
+   $app = new MTesteApp("teste.ini");
+   $app->executa();
+
+
    
 ?>

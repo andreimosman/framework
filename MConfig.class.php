@@ -8,7 +8,7 @@ class MConfig {
 
    protected $__cfg;
    
-   protected $config;	// Variável p/ acesso externo;
+   public $config;	// Variável p/ acesso externo;
    
    public function MConfig($arquivo) {
    
