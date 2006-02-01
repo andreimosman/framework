@@ -18,11 +18,11 @@ abstract class MWebApp {
    protected $_arqConfig;
    
    
-   public function MWebApp($arqConfig) {
+   public function MWebApp($arqConfig,$pathTemplate='./') {
       $this->_arqConfig = $arqConfig;
 
       $this->cfg = new MConfig($arqConfig);
-      $this->tpl = new MTemplate();
+      $this->tpl = new MTemplate($pathTemplate);
 
    }
    

@@ -28,7 +28,7 @@ class MTemplate {
     * @param $valor    Valor da variável.
     */
    public function atribui($variavel,$valor) {
-      echo "Atribuindo: $variavel = $valor<br>\n";
+      // echo "Atribuindo: $variavel = $valor<br>\n";
       return($this->__tpl->assign($variavel,$valor));
    }
    
@@ -37,7 +37,7 @@ class MTemplate {
     * @param $arquivo Nome do arquivo que será exibido.
     */
    public function exibe($arquivo) {
-      echo "Exibindo arquivo: $arquivo <br>\n";
+      // echo "Exibindo arquivo: $arquivo <br>\n";
       return($this->__tpl->display($arquivo));
    }
    
@@ -49,7 +49,7 @@ class MTemplate {
     * @return Conteúdo do arquivo já processado pelo sistema de templates.
     */
    public function obtemPagina($arquivo) {
-      echo "Obtendo página: $arquivo<br>\n";
+      // echo "Obtendo página: $arquivo<br>\n";
       return($this->__tpl->fetch($arquivo));
    }
 
