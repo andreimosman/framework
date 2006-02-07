@@ -36,7 +36,7 @@
        * Zera a informação de erros.
        * Instancia o banco de dados caso tenha recebido o DSN.
        */
-      public function MDatabase($dsn==null) {
+      public function MDatabase($dsn=null) {
          $this->zeraErro();
          if( $dsn ) {
             $this->conecta($dsn);
@@ -75,13 +75,13 @@
             return(MTEMPLATE_ERRO_DSN);
          }
          
-         $this->bd =& DB::connect($dsn,$options);
-
 
          $options = array(
                           'debug' => 0,
                           'portability' => DB_PORTABILITY_ALL
                          );
+
+         $this->bd =& DB::connect($dsn,$options);
          
          if(PEAR::isError($this->bd)) {
             // Não foi possível se conectar ao banco de dados blablabla
@@ -151,9 +151,9 @@
          
          $res =& $bd->query($query);
          
-         if(PEAR:isError($res)) {
+         if(PEAR::isError($res)) {
             $codigo   = MDATABASE_ERRO;
-            $mensagem = Erro ao processar a query.
+            $mensagem = "Erro ao processar a query";
             switch ($res->getCode) {
                case DB_ERROR_INVALID:
                   $codigo   = MDATABASE_ERRO_QUERY_INVALIDA;
