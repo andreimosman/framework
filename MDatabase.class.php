@@ -27,7 +27,7 @@
       protected $erroMSG;	// Mensagem do erro.
       
       
-      protected estaConectado;	// Indica se o objeto está conectado ao banco de dados.
+      protected $estaConectado;	// Indica se o objeto está conectado ao banco de dados.
       
 
       /**
