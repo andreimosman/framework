@@ -7,6 +7,8 @@
    define('MDATABASE_ERRO_DSN',1);
    define('MDATABASE_ERRO_NAO_CONECTADO',2);
    
+   define('MDATABASE_ERRO',255);
+   define('MDATABASE_ERRO_QUERY_INVALIDA',254);
    
    
    

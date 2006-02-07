@@ -28,16 +28,16 @@ abstract class MWebApp {
    
    
    
-   abstract public function processa();
+   abstract public function processa($op=null);
    
    
    
    /**
     * Exibe o arquivo de template definido em $this->arquivoTemplate
     */
-   public function exibe() {
-      if( $this->arquivoTemplate != null ) {
-         $this->tpl->exibe($this->arquivoTemplate);
+   public function exibe($arquivo=null) {
+      if( $arquivo != null || $this->arquivoTemplate != null ) {
+         $this->tpl->exibe(($arquivo != null ? $arquivo : $this->arquivoTemplate));
       }
    }
    
