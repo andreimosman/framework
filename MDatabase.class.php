@@ -14,7 +14,7 @@
    
    
    
-   define('MDATABASE_RETORNA_NREG',0);
+   define('MDATABASE_RETORNA_NREGS',0);
    define('MDATABASE_RETORNA_UMA', 1);
    define('MDATABASE_RETORNA_TODAS',2);
    
@@ -78,7 +78,8 @@
 
          $options = array(
                           'debug' => 0,
-                          'portability' => DB_PORTABILITY_ALL
+                          'portability' => DB_PORTABILITY_NONE,
+                          'seqname_format' => '%s'
                          );
 
          $this->bd =& DB::connect($dsn,$options);
@@ -91,6 +92,9 @@
             // Seta o modo de fetch para matriz associativa
             $this->bd->setFetchMode(DB_FETCHMODE_ASSOC);
             $this->estaConectado = true;
+            
+            $this->erro     = MDATABASE_OK;
+            $this->erroMSG = "";
          }
 
       }
@@ -119,7 +123,7 @@
        */
       
       public function proximoID($nomesequence) {
-         $this->bd->nextID($nomesequence);
+         return($this->bd->nextID($nomesequence));
       }
       
       
@@ -148,16 +152,17 @@
          }
          
          
-         
-         $res =& $bd->query($query);
+         $res =& $this->bd->query($query);
          
          if(PEAR::isError($res)) {
             $codigo   = MDATABASE_ERRO;
-            $mensagem = "Erro ao processar a query";
-            switch ($res->getCode) {
+            //$mensagem = "Erro ao processar a query";
+            $mensagem = $res->getMessage();
+            switch ($res->getCode()) {
                case DB_ERROR_INVALID:
                   $codigo   = MDATABASE_ERRO_QUERY_INVALIDA;
-                  $mensagem = "Query Invalida.";
+                  //$mensagem = "Query Invalida.";
+                  $mensagem = $res->getMessage();
                   break;
             
             }
@@ -246,7 +251,10 @@
       }
       
       
-
+      
+      public function escape($valor) {
+         return($this->bd->escapeSimple($valor));
+      }
       
       
    

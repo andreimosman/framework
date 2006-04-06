@@ -18,6 +18,11 @@
        }
    
        public function processa() {
+          
+          
+          echo "CFG: " . $this->cfg->config["BD"]["dns"] . "<br>\n";
+
+
        
           $this->tpl->atribui("ze", "Teste Muito Louco");
        
