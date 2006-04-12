@@ -2,6 +2,7 @@
 
    require_once("DB.php");
    
+   define('DEBUG',0);
    
    define('MDATABASE_OK',0);
    define('MDATABASE_ERRO_DSN',1);
@@ -149,6 +150,10 @@
          if( !$this->estaConectado() ) {
             atribuiErro(MDATABASE_ERRO_NAO_CONECTADO,"Banco de dados desconectado.");
             return(MDATABASE_ERRO_NAO_CONECTADO);
+         }
+         
+         if( DEBUG ) {
+            echo "<!--" . $query . "-->\n";
          }
          
          

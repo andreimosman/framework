@@ -121,14 +121,14 @@ if (da && !pr && !mac) with (document) {
 
 
 
-<DIV STYLE="POSITION: absolute; top: 197px; left: 15px;  z-index: 2;" CLASS="Campo">TESTE - PAGAMENTO INTERNET</DIV>
+<DIV STYLE="POSITION: absolute; top: 197px; left: 15px;  z-index: 2;" CLASS="Campo">{$cedente}</DIV>
 <DIV STYLE="POSITION: absolute; top: 197px; left: 317px; z-index: 2; width: 120px;" CLASS="Campo">111111-1</DIV>
 <DIV STYLE="POSITION: absolute; top: 197px; left: 438px; z-index: 2; width: 28px;" 	CLASS="Campo">R$</DIV>
 <DIV STYLE="POSITION: absolute; top: 197px; left: 480px; z-index: 2; width: 50px;" 	CLASS="Campo">0001</DIV>
 <DIV STYLE="POSITION: absolute; top: 197px; left: 531px; z-index: 2; width: 118px;  text-align: right;" CLASS="Campo">00000000002212345</DIV>
 <DIV STYLE="POSITION: absolute; top: 222px; left: 15px;  z-index: 2; width: 110px;" CLASS="Campo">00000000456321789</DIV>
 <DIV STYLE="POSITION: absolute; top: 222px; left: 135px; z-index: 2; width: 70px;" 	CLASS="Campo">00.00.00</DIV>
-<DIV STYLE="POSITION: absolute; top: 222px; left: 214px; z-index: 2; width: 125px;" CLASS="Campo">001111111-11</DIV>
+<DIV STYLE="POSITION: absolute; top: 222px; left: 214px; z-index: 2; width: 125px;" CLASS="Campo">{$ccpf}</DIV>
 <DIV STYLE="POSITION: absolute; top: 222px; left: 353px; z-index: 2; width: 118px;" CLASS="Campo">{$vencimento}</DIV>
 <DIV STYLE="POSITION: absolute; top: 222px; left: 480px; z-index: 2; width: 169px;  text-align: right;" CLASS="Campo">{$valor}</DIV>
 <DIV STYLE="POSITION: absolute; top: 247px; left: 15px;  z-index: 2; width: 108px;  text-align: right;" CLASS="Campo"></DIV>
@@ -142,8 +142,8 @@ if (da && !pr && !mac) with (document) {
 
 
 <DIV STYLE="POSITION: absolute; top: 480px; left: 15px;  z-index: 2;" CLASS="Campo">Pagável em qualquer Banco até o vencimento</DIV>
-<DIV STYLE="POSITION: absolute; top: 480px; left: 480px; z-index: 2; width: 169px; text-align: right;" CLASS="Campo">06/06/2002</DIV>
-<DIV STYLE="POSITION: absolute; top: 505px; left: 15px;  z-index: 2;" CLASS="Campo">TESTE - PAGAMENTO INTERNET</DIV>
+<DIV STYLE="POSITION: absolute; top: 480px; left: 480px; z-index: 2; width: 169px; text-align: right;" CLASS="Campo">{$dia_venc}</DIV>
+<DIV STYLE="POSITION: absolute; top: 505px; left: 15px;  z-index: 2;" CLASS="Campo">{$cedente}</DIV>
 <DIV STYLE="POSITION: absolute; top: 505px; left: 480px; z-index: 2; width: 169px; text-align: right;" CLASS="Campo">18-3/111111-1</DIV>
 <DIV STYLE="POSITION: absolute; top: 530px; left: 15px;  z-index: 2; width: 110px;" CLASS="Campo">11/04/2006</DIV>
 <DIV STYLE="POSITION: absolute; top: 530px; left: 133px; z-index: 2; width: 160px;" CLASS="Campo">00000000456321789</DIV>
@@ -157,15 +157,15 @@ if (da && !pr && !mac) with (document) {
 <DIV STYLE="POSITION: absolute; top: 556px; left: 283px; z-index: 2;" CLASS="Campo">0001</DIV>
 <DIV STYLE="POSITION: absolute; top: 556px; left: 405px; z-index: 2; width: 65px; text-align: right;" CLASS="Campo">{$valor}</DIV>
 <DIV STYLE="POSITION: absolute; top: 556px; left: 480px; z-index: 2; width: 169px; text-align: right;" CLASS="Campo">{$valor}</DIV>
-<DIV STYLE="POSITION: absolute; top: 580px; left: 15px;  z-index: 2; width: 430px; text-align: justify;" CLASS="Campo"><layer name="helpns" width=430px align="left">Caso apos o pagamento deste boleto nao tenha recebido por e-mail em no maximo 3 dias as instrucoes de confirmacao, entre em contato com o Xavier pelo fone 61-xxx-xxxx.</layer></DIV>
+<DIV STYLE="POSITION: absolute; top: 580px; left: 15px;  z-index: 2; width: 430px; text-align: justify;" CLASS="Campo"><layer name="helpns" width=430px align="left">{$observacoes}.</layer></DIV>
 <DIV STYLE="POSITION: absolute; top: 580px; left: 480px; z-index: 2; width: 169px; text-align: right;" CLASS="Campo">&nbsp;</DIV>
 <DIV STYLE="POSITION: absolute; top: 605px; left: 480px; z-index: 2; width: 169px; text-align: right;" CLASS="Campo">&nbsp;</DIV>
 <DIV STYLE="POSITION: absolute; top: 631px; left: 480px; z-index: 2; width: 169px; text-align: right;" CLASS="Campo">&nbsp;</DIV>
 <DIV STYLE="POSITION: absolute; top: 656px; left: 480px; z-index: 2; width: 169px; text-align: right;" CLASS="Campo">&nbsp;</DIV>
 <DIV STYLE="POSITION: absolute; top: 581px; left: 480px; z-index: 2; width: 169px; text-align: right;" CLASS="Campo">&nbsp;</DIV>
-<DIV STYLE="POSITION: absolute; top: 704px; left: 15px;  z-index: 2;" CLASS="Campo">João M. S.</DIV>
-<DIV STYLE="POSITION: absolute; top: 717px; left: 15px;  z-index: 2;" CLASS="Campo">SQS 1 bloco J apart. x</DIV>
-<DIV STYLE="POSITION: absolute; top: 729px; left: 15px;  z-index: 2;" CLASS="Campo">Brasilia-DF-70000000</DIV>
+<DIV STYLE="POSITION: absolute; top: 704px; left: 15px;  z-index: 2;" CLASS="Campo">{$sacado}</DIV>
+<DIV STYLE="POSITION: absolute; top: 717px; left: 15px;  z-index: 2;" CLASS="Campo">{$sendereco}</DIV>
+<DIV STYLE="POSITION: absolute; top: 729px; left: 15px;  z-index: 2;" CLASS="Campo"></DIV>
 <DIV STYLE="POSITION: absolute; top: 830px; left: 7px;  z-index: 2;" CLASS="Titulo11">Corte na linha pontilhada</DIV>
 <DIV STYLE="POSITION: absolute; top: 827px; left: 7px;  z-index: 2;" CLASS="Titulo11"><img src="{$imagens}/linhaPontilhada.gif" width="650" height="5" border="0" alt=""></DIV>
 
@@ -173,7 +173,7 @@ if (da && !pr && !mac) with (document) {
 
 <DIV STYLE="POSITION: absolute; top: 760px; left: 12px;  height: 70px;  z-index: 2;" CLASS="Titulo11">
 <table border=0 cellPadding=0 cellSpacing=0 width="666">
-<tr><td colspan="2"><img src="{$smarty.server.PHP_SELF}?codigo={$codigo_boleto}">
+<tr><td colspan="2"><img src="{$smarty.server.PHP_SELF}?op=boleto&codigo={$codigo_boleto}">
 <!--img src="/barras/start.gif"><IMG src="/barras/codbar00.gif"><IMG src="/barras/codbar19.gif"><IMG src="/barras/codbar11.gif"><IMG src="/barras/codbar70.gif"><IMG src="/barras/codbar30.gif"><IMG src="/barras/codbar00.gif"><IMG src="/barras/codbar00.gif"><IMG src="/barras/codbar02.gif"><IMG src="/barras/codbar00.gif"><IMG src="/barras/codbar08.gif"><IMG src="/barras/codbar00.gif"><IMG src="/barras/codbar63.gif"><IMG src="/barras/codbar00.gif"><IMG src="/barras/codbar00.gif"><IMG src="/barras/codbar00.gif"><IMG src="/barras/codbar00.gif"><IMG src="/barras/codbar00.gif"><IMG src="/barras/codbar02.gif"><IMG src="/barras/codbar21.gif"><IMG src="/barras/codbar23.gif"><IMG src="/barras/codbar45.gif"><IMG src="/barras/codbar21.gif"><img src="/barras/stop.gif"-->
 </td></tr>
 </table>

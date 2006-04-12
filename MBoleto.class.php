@@ -50,7 +50,14 @@ class MBoleto {
 	protected $vencimento;	// Data de vencimento
 	protected $valor;		// Valor do documento
 	protected $id;			// identificação única do boleto (gerada pelo sistema mosman)
-	
+	protected $sacado;      // Nome do sacado
+	protected $scpf;		// CPF/CNPJ Sacado
+	protected $sendereco;	// Endereço Sacado
+	protected $cedente;		// Nome do Cedente
+	protected $ccpf;		// CPF/CNPJ do Cedente
+	protected $tx_juros;	// Taxa de Juros
+	protected $multa;		// Multa
+	protected $observacoes;	// Observações gerais (ex: Não receber após vencimento). Mandar observações ja tabulado em html
 	
 	
 	/**
@@ -60,6 +67,7 @@ class MBoleto {
 	/**
 	 * Valores Processados
 	 */
+	
 	protected $nossoNumero;	// convenio + id 
 	protected $campo1;
 	protected $campo2;
@@ -76,7 +84,8 @@ class MBoleto {
 	protected $imgPath;
 	
 
-	function MBoleto($banco,$carteira,$agencia,$conta,$convenio,$vencimento,$valor,$id)  {
+	function MBoleto($banco,$carteira,$agencia,$conta,$convenio,$vencimento,$valor,$id,$sacado,$scpf,$cedente,$ccpf,$tx_juros,$multa,$sendereco,$observacoes)  {
+				
 		$this->banco       = $banco;
 		
 		$this->carteira    = $carteira;
@@ -86,6 +95,17 @@ class MBoleto {
 		$this->vencimento  = $vencimento;
 		$this->valor       = $valor;
 		$this->id          = $id; // Seu numero
+		$this->sacado	   = $sacado;
+		$this->scpf		   = $scpf;
+		$this->cedente     = $cedente;
+		$this->ccpf		   = $ccpf;
+		$this->tx_juros    = $tx_juros;
+		$this->multa	   = $multa;
+		$this->sendereco   = $sendereco;
+		$this->observacoes = $observacoes;
+		
+		
+		
 		
 		// Valores estáticos pré-definidos
 		$this->moeda       = "9"; 		// Real
@@ -164,7 +184,7 @@ class MBoleto {
 		
 	}
 	
-	function barCode($cod="Teste") {
+	function barCode($cod) {
 	   // Imprime o código de barras.
 	   
 	   Image_Barcode::draw($cod,"int25", "png");
@@ -269,6 +289,22 @@ class MBoleto {
 		$this->tpl->atribui("codigo_boleto",$this->codigo_boleto);
 		$this->tpl->atribui("linha_digitavel",$this->linha_digitavel);
 		$this->tpl->atribui("valor",$this->valor);
+		$this->tpl->atribui("carteira",$this->carteira);
+		$this->tpl->atribui("agencia",$this->agencia);
+		$this->tpl->atribui("conta",$this->conta);
+		$this->tpl->atribui("convenio",$this->convenio);
+		$this->tpl->atribui("vencimento",$this->vencimento);
+		$this->tpl->atribui("id",$this->id);
+		$this->tpl->atribui("sacado",$this->sacado);
+		$this->tpl->atribui("scpf",$this->scpf);
+		$this->tpl->atribui("cedente",$this->cedente);
+		$this->tpl->atribui("ccpf",$this->ccpf);
+		$this->tpl->atribui("tx_juros",$this->tx_juros);
+		$this->tpl->atribui("multa",$this->multa);
+		$this->tpl->atribui("sendereco",$this->sendereco);
+		$this->tpl->atribui("observacoes",$this->observacoes);
+			
+		
 		//$this->tpl->atribui("vencimento",$this->vencimento);
 		//$this->tpl->atribui("",$this->);
 		//$this->tpl->atribui("",$this->);
@@ -286,7 +322,6 @@ class MBoleto {
 //
 // Teste
 //
-
 //$cod = @$_REQUEST["codigo"];
 //if( $cod ) {
 //   MBoleto::barCode($cod);
@@ -294,6 +329,7 @@ class MBoleto {
 //	$b = new MBoleto("001","18","6666","77777","888888","09/06/2005","53.26","22222");
 //	$b->setTplPath("boletos/");
 //	$b->setImgPath("boletos/");
+//	
 //	$b->exibe("001"); // Gera boleto para o banco "001";
 //}
 
