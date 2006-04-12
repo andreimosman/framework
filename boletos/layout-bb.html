@@ -1,0 +1,198 @@
+<html>
+<head>
+<script language="JavaScript">ready = "yes";</script>
+<script language="JavaScript">var estado=false; </script>
+<META http-equiv="PICS-Label" content='(PICS-1.1 "http://www.rsac.org/ratingsv01.html" l gen true comment "RSACi North America Server" for "https://www2.bb.com.br" on "2000.06.15T13:48-0800" r (n 0 s 0 v 0 l 0))'>
+<style>
+{include file="bb.css"}
+</style>
+{literal}
+<script language="JavaScript">
+var da = (document.all) ? 1 : 0;
+var pr = (window.print) ? 1 : 0;
+var mac = (navigator.userAgent.indexOf("Mac") != -1);
+
+function printPage() {
+  if (pr) // NS4, IE5
+    window.print()
+  else if (da && !mac) // IE4 (Windows)
+       vbPrintPage()
+  else // other browsers
+    alert("Desculpe seu browser não suporta esta função. Por favor utilize a barra de trabalho para imprimir a página.");
+}
+
+if (da && !pr && !mac) with (document) {
+  writeln('<OBJECT ID="WB" WIDTH="0" HEIGHT="0" CLASSID="clsid:8856F961-340A-11D0-A96B-00C04FD705A2"></OBJECT>');
+  writeln('<' + 'SCRIPT LANGUAGE="VBScript">');
+  writeln('Sub window_onunload');
+  writeln('  On Error Resume Next');
+  writeln('  Set WB = nothing');
+  writeln('End Sub');
+  writeln('Sub vbPrintPage');
+  writeln('  OLECMDID_PRINT = 6');
+  writeln('  OLECMDEXECOPT_DONTPROMPTUSER = 1');
+  writeln('  OLECMDEXECOPT_PROMPTUSER = 1');
+  writeln('  On Error Resume Next');
+  writeln('  WB.ExecWB OLECMDID_PRINT, OLECMDEXECOPT_DONTPROMPTUSER');
+  writeln('End Sub');
+  writeln('<' + '/SCRIPT>');
+}
+</script>
+{/literal}
+<!--link rel="stylesheet" type="text/css" href='/includes/estilo.css'-->
+</head>
+<body bgcolor="White"  leftmargin="0" topmargin="0" marginwidth="0" marginheight="0"  bgproperties="fixed">
+<a name="topo"></a>
+<table border="0" cellPadding="0" cellSpacing="0" width="660">
+	<tr><td class="Normal">
+		<div align="center"><b>O pagamento deste boleto também poderá ser efetuado pelo Auto-Atendimento BB na Internet (botões abaixo) ou pelos Terminais de Auto-Atendimento.</b></div><p>
+		&nbsp;<b>Instruções:</b><br>
+		<ol>
+			<li>Imprima em impressora jato de tinta (ink jet) ou laser em qualidade normal ou alta Não use modo econômico.<br>
+			<li>Utilize folha A4 (210 x 297mm) ou Carta (216 x 279mm) e margens mínimas à esquerda e à direita do formulário.<br>
+			<li>Corte na linha indicada. Não rasure, risque, fure ou dobre a região onde se encontra o código de barras.
+		</ol>
+	</td></tr>
+</table><br>
+
+
+<DIV STYLE="POSITION: absolute; top: 145px; left: 5px; height: 636px; width: 670px; z-index: 1;"><img src="{$imagens}/formularioBoleto.gif" width="647" height="636" border="0" alt=""></DIV>
+<DIV STYLE="POSITION: absolute; top: 161px; left: 7px; height: 22px;  width: 96px;  z-index: 2;"><img src="{$imagens}/imgbb.gif" width="150" height="22" border="0" alt=""></DIV>
+<DIV STYLE="POSITION: absolute; top: 444px; left: 7px; height: 22px;  width: 96px;  z-index: 2;"><img src="{$imagens}/imgbb.gif" width="150" height="22" border="0" alt=""></DIV>
+<DIV STYLE="POSITION: absolute; top: 127px; left: 7px;  z-index: 2;" CLASS="Titulo11">Corte na linha pontilhada</DIV>
+<DIV STYLE="POSITION: absolute; top: 138px; left: 5px;  z-index: 2;" CLASS="Titulo11"><img src="{$imagens}/linhaPontilhada.gif" width="650" height="5" border="0" alt=""></DIV>
+<DIV STYLE="POSITION: absolute; top: 145px; left: 549px;  z-index: 2;" CLASS="Campo"><b>Recibo do Sacado</b></DIV>
+<DIV STYLE="POSITION: absolute; top: 167px; left: 163px; z-index: 2;" CLASS="CampoTitulo">001-9</DIV>
+<DIV STYLE="POSITION: absolute; top: 166px; left: 210px; z-index: 2; width: 438px; text-align: right;" CLASS="CampoTitulo"><layer name="helpns" width=438px>{$linha_digitavel}</layer></DIV>
+<DIV STYLE="POSITION: absolute; top: 450px; left: 163px; z-index: 2;" CLASS="CampoTitulo">001-9</DIV>
+<DIV STYLE="POSITION: absolute; top: 449px; left: 210px; z-index: 2; width: 438px; text-align: right;" CLASS="CampoTitulo"><layer name="helpns" width=438px>{$linha_digitavel}</layer></DIV>
+
+<DIV STYLE="POSITION: absolute; top: 184px; left: 15px;  z-index: 2;" CLASS="Titulo11">Cedente</DIV>
+<DIV STYLE="POSITION: absolute; top: 184px; left: 317px; z-index: 2;" CLASS="Titulo11">Código do Cedente</DIV>
+<DIV STYLE="POSITION: absolute; top: 184px; left: 438px; z-index: 2;" CLASS="Titulo11">Espécie</DIV>
+<DIV STYLE="POSITION: absolute; top: 184px; left: 480px; z-index: 2;" CLASS="Titulo11">Quantidade</DIV>
+<DIV STYLE="POSITION: absolute; top: 184px; left: 536px; z-index: 2;" CLASS="Titulo11">Nosso número</DIV>
+<DIV STYLE="POSITION: absolute; top: 209px; left: 15px;  z-index: 2;" CLASS="Titulo11">Número do documento</DIV>
+<DIV STYLE="POSITION: absolute; top: 209px; left: 135px; z-index: 2;" CLASS="Titulo11">Contrato</DIV>
+<DIV STYLE="POSITION: absolute; top: 209px; left: 214px; z-index: 2;" CLASS="Titulo11">CPF/CEI/CNPJ</DIV>
+<DIV STYLE="POSITION: absolute; top: 209px; left: 353px; z-index: 2;" CLASS="Titulo11">Vencimento</DIV>
+<DIV STYLE="POSITION: absolute; top: 209px; left: 480px; z-index: 2;" CLASS="Titulo11">Valor documento</DIV>
+<DIV STYLE="POSITION: absolute; top: 234px; left: 15px;  z-index: 2;" CLASS="Titulo11">(-)Desconto/Abatimento</DIV>
+<DIV STYLE="POSITION: absolute; top: 234px; left: 135px; z-index: 2;" CLASS="Titulo11">(-)Outras opções</DIV>
+<DIV STYLE="POSITION: absolute; top: 234px; left: 251px; z-index: 2;" CLASS="Titulo11">(+)Mora/Multa</DIV>
+<DIV STYLE="POSITION: absolute; top: 234px; left: 367px; z-index: 2;" CLASS="Titulo11">(+)Outros acréscimos</DIV>
+<DIV STYLE="POSITION: absolute; top: 234px; left: 480px; z-index: 2;" CLASS="Titulo11">(=)Valor cobrado</DIV>
+<DIV STYLE="POSITION: absolute; top: 259px; left: 15px;  z-index: 2;" CLASS="Titulo11">Sacado</DIV>
+<DIV STYLE="POSITION: absolute; top: 284px; left: 15px;  z-index: 2;" CLASS="Titulo11">Instruções</DIV>
+<DIV STYLE="POSITION: absolute; top: 284px; left: 574px; z-index: 2;" CLASS="Titulo11">Autenticação Mecânica</DIV>
+<DIV STYLE="POSITION: absolute; top: 415px; left: 7px; 	z-index: 2;" CLASS="Titulo11">Corte na linha pontilhada</DIV>
+<DIV STYLE="POSITION: absolute; top: 426px; left: 5px;  	z-index: 2;" CLASS="Titulo11"><img src="{$imagens}/linhaPontilhada.gif" width="650" height="5" border="0" alt=""></DIV>
+
+
+<DIV STYLE="POSITION: absolute; top: 467px; left: 15px;  z-index: 2;" CLASS="Titulo11">Local de pagamento</DIV>
+<DIV STYLE="POSITION: absolute; top: 467px; left: 480px; z-index: 2;" CLASS="Titulo11">Vencimento</DIV>
+<DIV STYLE="POSITION: absolute; top: 492px; left: 15px;  z-index: 2;" CLASS="Titulo11">Cedente</DIV>
+<DIV STYLE="POSITION: absolute; top: 492px; left: 480px; z-index: 2;" CLASS="Titulo11">Agência/Código do cedente</DIV>
+<DIV STYLE="POSITION: absolute; top: 517px; left: 15px;  z-index: 2;" CLASS="Titulo11">Data do documento</DIV>
+<DIV STYLE="POSITION: absolute; top: 517px; left: 133px; z-index: 2;" CLASS="Titulo11">Nº do documento</DIV>
+<DIV STYLE="POSITION: absolute; top: 517px; left: 295px; z-index: 2;" CLASS="Titulo11">Espécie DOC</DIV>
+<DIV STYLE="POSITION: absolute; top: 517px; left: 364px; z-index: 2;" CLASS="Titulo11">Aceite</DIV>
+<DIV STYLE="POSITION: absolute; top: 517px; left: 405px; z-index: 2;" CLASS="Titulo11">Data process.</DIV>
+<DIV STYLE="POSITION: absolute; top: 517px; left: 480px; z-index: 2;" CLASS="Titulo11">Nosso Número</DIV>
+<DIV STYLE="POSITION: absolute; top: 542px; left: 15px;  z-index: 2;" CLASS="Titulo11">Uso do Banco/Convênio</DIV>
+<DIV STYLE="POSITION: absolute; top: 542px; left: 133px; z-index: 2;" CLASS="Titulo11">Carteira</DIV>
+<DIV STYLE="POSITION: absolute; top: 542px; left: 223px; z-index: 2;" CLASS="Titulo11">Espécie</DIV>
+<DIV STYLE="POSITION: absolute; top: 542px; left: 283px; z-index: 2;" CLASS="Titulo11">Quantidade</DIV>
+<DIV STYLE="POSITION: absolute; top: 542px; left: 405px; z-index: 2;" CLASS="Titulo11">xValor</DIV>
+<DIV STYLE="POSITION: absolute; top: 542px; left: 480px; z-index: 2;" CLASS="Titulo11">(=) Valor do documento</DIV>
+<DIV STYLE="POSITION: absolute; top: 567px; left: 15px;  z-index: 2;" CLASS="Titulo11">Instrucoes</DIV>
+<DIV STYLE="POSITION: absolute; top: 567px; left: 480px; z-index: 2;" CLASS="Titulo11">(-) Desconto / Abatimento</DIV>
+<DIV STYLE="POSITION: absolute; top: 592px; left: 480px; z-index: 2;" CLASS="Titulo11">(-) Outras deduções</DIV>
+<DIV STYLE="POSITION: absolute; top: 618px; left: 480px; z-index: 2;" CLASS="Titulo11">(+) Mora / Multa</DIV>
+<DIV STYLE="POSITION: absolute; top: 643px; left: 480px; z-index: 2;" CLASS="Titulo11">(+) Outros acréscimos</DIV>
+<DIV STYLE="POSITION: absolute; top: 668px; left: 480px; z-index: 2;" CLASS="Titulo11">(=) Valor cobrado</DIV>
+<DIV STYLE="POSITION: absolute; top: 573px; left: 463px; z-index: 2;" CLASS="Titulo11">27</DIV>
+<DIV STYLE="POSITION: absolute; top: 620px; left: 463px; z-index: 2;" CLASS="Titulo11">35</DIV>
+<DIV STYLE="POSITION: absolute; top: 596px; left: 463px; z-index: 2;" CLASS="Titulo11">19</DIV>
+<DIV STYLE="POSITION: absolute; top: 693px; left: 15px;  z-index: 2;" CLASS="Titulo11">Sacado</DIV>
+<DIV STYLE="POSITION: absolute; top: 739px; left: 480px; z-index: 2;" CLASS="Titulo11">Cód. baixa</DIV>
+<DIV STYLE="POSITION: absolute; top: 740px; left: 15px;  z-index: 2;" CLASS="Titulo11">Sacador/Avalista</DIV>
+<DIV STYLE="POSITION: absolute; top: 751px; left: 470px; z-index: 2;" CLASS="Titulo11">Autenticação mecânica - Ficha de Compensação</DIV>
+
+
+
+<DIV STYLE="POSITION: absolute; top: 197px; left: 15px;  z-index: 2;" CLASS="Campo">TESTE - PAGAMENTO INTERNET</DIV>
+<DIV STYLE="POSITION: absolute; top: 197px; left: 317px; z-index: 2; width: 120px;" CLASS="Campo">111111-1</DIV>
+<DIV STYLE="POSITION: absolute; top: 197px; left: 438px; z-index: 2; width: 28px;" 	CLASS="Campo">R$</DIV>
+<DIV STYLE="POSITION: absolute; top: 197px; left: 480px; z-index: 2; width: 50px;" 	CLASS="Campo">0001</DIV>
+<DIV STYLE="POSITION: absolute; top: 197px; left: 531px; z-index: 2; width: 118px;  text-align: right;" CLASS="Campo">00000000002212345</DIV>
+<DIV STYLE="POSITION: absolute; top: 222px; left: 15px;  z-index: 2; width: 110px;" CLASS="Campo">00000000456321789</DIV>
+<DIV STYLE="POSITION: absolute; top: 222px; left: 135px; z-index: 2; width: 70px;" 	CLASS="Campo">00.00.00</DIV>
+<DIV STYLE="POSITION: absolute; top: 222px; left: 214px; z-index: 2; width: 125px;" CLASS="Campo">001111111-11</DIV>
+<DIV STYLE="POSITION: absolute; top: 222px; left: 353px; z-index: 2; width: 118px;" CLASS="Campo">{$vencimento}</DIV>
+<DIV STYLE="POSITION: absolute; top: 222px; left: 480px; z-index: 2; width: 169px;  text-align: right;" CLASS="Campo">{$valor}</DIV>
+<DIV STYLE="POSITION: absolute; top: 247px; left: 15px;  z-index: 2; width: 108px;  text-align: right;" CLASS="Campo"></DIV>
+<DIV STYLE="POSITION: absolute; top: 247px; left: 133px; z-index: 2; width: 107px;  text-align: right;" CLASS="Campo"></DIV>
+<DIV STYLE="POSITION: absolute; top: 247px; left: 248px; z-index: 2; width: 108px;  text-align: right;" CLASS="Campo"></DIV>
+<DIV STYLE="POSITION: absolute; top: 247px; left: 361px; z-index: 2; width: 108px;  text-align: right;" CLASS="Campo"></DIV>
+<DIV STYLE="POSITION: absolute; top: 247px; left: 480px; z-index: 2; width: 169px;  text-align: right;" CLASS="Campo">&nbsp;</DIV>
+<DIV STYLE="POSITION: absolute; top: 272px; left: 15px;  z-index: 2;" CLASS="Campo">João M. S.</DIV>
+<DIV STYLE="POSITION: absolute; top: 312px; left: 15px;  z-index: 2; width: 498px; text-align: justify;" CLASS="Campo"><layer name="helpns" width=498px align="left">Caso apos o pagamento deste boleto nao tenha recebido por e-mail em no maximo 3 dias as instrucoes de confirmacao, entre em contato com o Xavier pelo fone 61-xxx-xxxx.</layer></DIV>
+
+
+
+<DIV STYLE="POSITION: absolute; top: 480px; left: 15px;  z-index: 2;" CLASS="Campo">Pagável em qualquer Banco até o vencimento</DIV>
+<DIV STYLE="POSITION: absolute; top: 480px; left: 480px; z-index: 2; width: 169px; text-align: right;" CLASS="Campo">06/06/2002</DIV>
+<DIV STYLE="POSITION: absolute; top: 505px; left: 15px;  z-index: 2;" CLASS="Campo">TESTE - PAGAMENTO INTERNET</DIV>
+<DIV STYLE="POSITION: absolute; top: 505px; left: 480px; z-index: 2; width: 169px; text-align: right;" CLASS="Campo">18-3/111111-1</DIV>
+<DIV STYLE="POSITION: absolute; top: 530px; left: 15px;  z-index: 2; width: 110px;" CLASS="Campo">11/04/2006</DIV>
+<DIV STYLE="POSITION: absolute; top: 530px; left: 133px; z-index: 2; width: 160px;" CLASS="Campo">00000000456321789</DIV>
+<DIV STYLE="POSITION: absolute; top: 530px; left: 295px; z-index: 2; width: 60px; " CLASS="Campo">R$</DIV>
+<DIV STYLE="POSITION: absolute; top: 530px; left: 364px; z-index: 2; width: 35px; " CLASS="Campo">N</DIV>
+<DIV STYLE="POSITION: absolute; top: 530px; left: 405px; z-index: 2; width: 60px; " CLASS="Campo">11/04/2006</DIV>
+<DIV STYLE="POSITION: absolute; top: 530px; left: 480px; z-index: 2; width: 169px; text-align: right;" CLASS="Campo">00000000456321789</DIV>
+<DIV STYLE="POSITION: absolute; top: 556px; left: 15px;  z-index: 2;" CLASS="Campo">0.000.000-0/800630</DIV>
+<DIV STYLE="POSITION: absolute; top: 556px; left: 133px; z-index: 2;" CLASS="Campo">018</DIV>
+<DIV STYLE="POSITION: absolute; top: 556px; left: 223px; z-index: 2;" CLASS="Campo">R$</DIV>
+<DIV STYLE="POSITION: absolute; top: 556px; left: 283px; z-index: 2;" CLASS="Campo">0001</DIV>
+<DIV STYLE="POSITION: absolute; top: 556px; left: 405px; z-index: 2; width: 65px; text-align: right;" CLASS="Campo">{$valor}</DIV>
+<DIV STYLE="POSITION: absolute; top: 556px; left: 480px; z-index: 2; width: 169px; text-align: right;" CLASS="Campo">{$valor}</DIV>
+<DIV STYLE="POSITION: absolute; top: 580px; left: 15px;  z-index: 2; width: 430px; text-align: justify;" CLASS="Campo"><layer name="helpns" width=430px align="left">Caso apos o pagamento deste boleto nao tenha recebido por e-mail em no maximo 3 dias as instrucoes de confirmacao, entre em contato com o Xavier pelo fone 61-xxx-xxxx.</layer></DIV>
+<DIV STYLE="POSITION: absolute; top: 580px; left: 480px; z-index: 2; width: 169px; text-align: right;" CLASS="Campo">&nbsp;</DIV>
+<DIV STYLE="POSITION: absolute; top: 605px; left: 480px; z-index: 2; width: 169px; text-align: right;" CLASS="Campo">&nbsp;</DIV>
+<DIV STYLE="POSITION: absolute; top: 631px; left: 480px; z-index: 2; width: 169px; text-align: right;" CLASS="Campo">&nbsp;</DIV>
+<DIV STYLE="POSITION: absolute; top: 656px; left: 480px; z-index: 2; width: 169px; text-align: right;" CLASS="Campo">&nbsp;</DIV>
+<DIV STYLE="POSITION: absolute; top: 581px; left: 480px; z-index: 2; width: 169px; text-align: right;" CLASS="Campo">&nbsp;</DIV>
+<DIV STYLE="POSITION: absolute; top: 704px; left: 15px;  z-index: 2;" CLASS="Campo">João M. S.</DIV>
+<DIV STYLE="POSITION: absolute; top: 717px; left: 15px;  z-index: 2;" CLASS="Campo">SQS 1 bloco J apart. x</DIV>
+<DIV STYLE="POSITION: absolute; top: 729px; left: 15px;  z-index: 2;" CLASS="Campo">Brasilia-DF-70000000</DIV>
+<DIV STYLE="POSITION: absolute; top: 830px; left: 7px;  z-index: 2;" CLASS="Titulo11">Corte na linha pontilhada</DIV>
+<DIV STYLE="POSITION: absolute; top: 827px; left: 7px;  z-index: 2;" CLASS="Titulo11"><img src="{$imagens}/linhaPontilhada.gif" width="650" height="5" border="0" alt=""></DIV>
+
+
+
+<DIV STYLE="POSITION: absolute; top: 760px; left: 12px;  height: 70px;  z-index: 2;" CLASS="Titulo11">
+<table border=0 cellPadding=0 cellSpacing=0 width="666">
+<tr><td colspan="2"><img src="{$smarty.server.PHP_SELF}?codigo={$codigo_boleto}">
+<!--img src="/barras/start.gif"><IMG src="/barras/codbar00.gif"><IMG src="/barras/codbar19.gif"><IMG src="/barras/codbar11.gif"><IMG src="/barras/codbar70.gif"><IMG src="/barras/codbar30.gif"><IMG src="/barras/codbar00.gif"><IMG src="/barras/codbar00.gif"><IMG src="/barras/codbar02.gif"><IMG src="/barras/codbar00.gif"><IMG src="/barras/codbar08.gif"><IMG src="/barras/codbar00.gif"><IMG src="/barras/codbar63.gif"><IMG src="/barras/codbar00.gif"><IMG src="/barras/codbar00.gif"><IMG src="/barras/codbar00.gif"><IMG src="/barras/codbar00.gif"><IMG src="/barras/codbar00.gif"><IMG src="/barras/codbar02.gif"><IMG src="/barras/codbar21.gif"><IMG src="/barras/codbar23.gif"><IMG src="/barras/codbar45.gif"><IMG src="/barras/codbar21.gif"><img src="/barras/stop.gif"-->
+</td></tr>
+</table>
+</DIV>
+
+<DIV STYLE="POSITION: absolute; top: 858px; left: 12px;  height: 30px;  z-index: 2;" CLASS="Titulo11">
+<table width="640" cellpadding="0" cellspacing="0" border="0">
+<tr>
+	<td coldspan=3 valign="bottom" align="center">
+	<table width="5%" border="0" cellpadding="3">
+	<tr><td valign="top" width="1%"><a href="lojaFim.jsp" tabindex="4"><img border="0" alt="Confirma a transação." src="{$imagens}/bbBotaoRetorna.gif"></a></td>
+	<td valign="top" width="1%"><a href="#" onClick="return printPage();"><img src="{$imagens}/bbBotaoImprime.gif" border="0" alt=""></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</DIV>
+<br><br><br><br>
+
+</body>
+</html>
