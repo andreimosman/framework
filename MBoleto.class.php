@@ -83,8 +83,19 @@ class MBoleto {
 	protected $tplPath;
 	protected $imgPath;
 	
+	
+	// Mapa de templates
+	protected $mapa;
+	
 
 	function MBoleto($banco,$carteira,$agencia,$conta,$convenio,$vencimento,$valor,$id,$sacado,$scpf,$cedente,$ccpf,$tx_juros,$multa,$sendereco,$observacoes)  {
+
+		$this->mapa = array(
+						"001" => "layout-bb.html",
+						"002" => "layout-bb-fechamento.html"
+		);
+
+
 				
 		$this->banco       = $banco;
 		
@@ -281,10 +292,7 @@ class MBoleto {
 		$this->tpl->atribui("imagens",$this->imgPath);
 	}	
 	
-	public function exibe($banco) {
-		$mapa = array(
-						"001" => "layout-bb.html"
-		);
+	protected function atribuiValores() {
 		
 		$this->tpl->atribui("codigo_boleto",$this->codigo_boleto);
 		$this->tpl->atribui("linha_digitavel",$this->linha_digitavel);
@@ -303,15 +311,21 @@ class MBoleto {
 		$this->tpl->atribui("multa",$this->multa);
 		$this->tpl->atribui("sendereco",$this->sendereco);
 		$this->tpl->atribui("observacoes",$this->observacoes);
-			
-		
-		//$this->tpl->atribui("vencimento",$this->vencimento);
-		//$this->tpl->atribui("",$this->);
-		//$this->tpl->atribui("",$this->);
-		
-		$this->tpl->exibe($mapa[$banco]);
-		
-		
+	
+	}
+	
+	public function exibe($banco) {
+		$this->atribuiValores();	
+		$this->tpl->exibe($this->mapa[$banco]);
+	}
+	
+	/**
+	 * Faz o mesmo que o exibe, so que retorna o HTML em uma variavel ao inves de
+	 * ecoar o arquivo
+	 */
+	public function obtem($banco) {
+	        $this->atribuiValores();
+	        return($this->tpl->obtemPagina($this->mapa[$banco]));
 	}
 	
 
