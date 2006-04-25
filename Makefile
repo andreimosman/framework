@@ -1,3 +1,7 @@
+#
+# ARQUIVO DE PUBLICAÇÃO
+#
+
 TARGET=/usr/mosman/php/framework/
 
 install:
