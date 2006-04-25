@@ -2,6 +2,9 @@
 // Módulo PEAR gerador de código de barras
 require_once("Image/Barcode.php");
 require_once("MTemplate.class.php");
+require_once("MHTML2PDF.class.php");
+
+require_once("MUtils.class.php");
 
 /**
  * Linha digitável: 4 campos mais um dígito contador;
@@ -324,31 +327,72 @@ class MBoleto {
 	 * ecoar o arquivo
 	 */
 	public function obtem($banco) {
-	        $this->atribuiValores();
-	        return($this->tpl->obtemPagina($this->mapa[$banco]));
+		$this->atribuiValores();
+		return($this->tpl->obtemPagina($this->mapa[$banco]));
 	}
 	
+	/**
+	 * Gera o arquivo PDF do boleto
+	 * $host indica o host que contem as imagens.
+	 * $defaultPath indica o caminho para obter as imagens no referido host.
+	 *
+	 * Retorna o nome do arquivo PDF gerado.
+	 */
+	public function geraPDF($banco,$host,$defaultPath='/') {
+		$pdf = new MHTML2PDF();
+		return( $pdf->converteHTML($this->obtem($banco),$host,$defaultPath) );
+		
+	}
+	
+	/**
+	 * Retorna o PDF
+	 */
+	public function obtemPDF($banco,$host,$defaultPath='/') {
+		$arqPDF = $this->geraPDF($banco,$host,$defaultPath);
+		
+		$fd = fopen($arqPDF,"r");
+		$conteudo = fread($fd,filesize($arqPDF));
+		fclose($fd);
+		
+		return($conteudo);
 
-
+	}
 
 }
 
 //
 // Teste
 //
-//$cod = @$_REQUEST["codigo"];
-//if( $cod ) {
-//   MBoleto::barCode($cod);
-//} else {
-//	$b = new MBoleto("001","18","6666","77777","888888","09/06/2005","53.26","22222");
-//	$b->setTplPath("boletos/");
-//	$b->setImgPath("boletos/");
-//	
-//	$b->exibe("001"); // Gera boleto para o banco "001";
-//}
 
+$cod = @$_REQUEST["codigo"];
+if( $cod ) {
+   MBoleto::barCode($cod);
+} else {
+	$b = new MBoleto("001","18","6666","77777","888888","09/06/2005","53.26","22222","Zé Ruela","123.123.123-12","Mosman Inc","321.321.321-23",1,3,"Rua tal, 123","Observacao megafocker do mal");
+    //MBoleto($banco,$carteira,$agencia,$conta,$convenio,$vencimento,$valor,$id, $sacado,$scpf,$cedente,$ccpf,$tx_juros,$multa,$sendereco,$observacoes)  {
+	$b->setTplPath("boletos/");
+	$b->setImgPath("boletos/");
+	
+	//$b->exibe("001"); // Gera boleto para o banco "001";
+	
+	$defaultPath = MUtils::getPwd();
+	
+	echo "LD: " . $b->obtemLinhaDigitavel() . "<br>\n";
+	echo "CB: " . $b->obtemCodigoBoleto(). "<br>\n";
+	
 
+	//echo "DP: $defaultPath<br>\n";
 
+	return;
 
+	header('Pragma: public');
+	header('Expires: 0');
+	header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+	header('Content-Type: application/pdf');
+	header('Content-Disposition: attachment; filename="example.pdf"');
+	
+	echo $b->obtemPDF("001","dev.mosman.com.br",$defaultPath);
+	
+}
 
 ?>
