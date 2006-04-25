@@ -363,7 +363,7 @@ class MBoleto {
 //
 // Teste
 //
-
+/**
 $cod = @$_REQUEST["codigo"];
 if( $cod ) {
    MBoleto::barCode($cod);
@@ -394,5 +394,5 @@ if( $cod ) {
 	echo $b->obtemPDF("001","dev.mosman.com.br",$defaultPath);
 	
 }
-
+*/
 ?>
