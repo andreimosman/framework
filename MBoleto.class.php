@@ -61,6 +61,8 @@ class MBoleto {
 	protected $tx_juros;	// Taxa de Juros
 	protected $multa;		// Multa
 	protected $observacoes;	// Observações gerais (ex: Não receber após vencimento). Mandar observações ja tabulado em html
+	protected $cendereco;   // Endereco do Cedente
+	protected $clocalidade; // Cidade do Cedente
 	
 	
 	/**
@@ -95,7 +97,8 @@ class MBoleto {
 
 		$this->mapa = array(
 						"001" => "layout-bb.html",
-						"002" => "layout-bb-fechamento.html"
+						"002" => "layout-bb-fechamento.html",
+						"003" => "layout-pc.html"
 		);
 
 
@@ -296,7 +299,8 @@ class MBoleto {
 	}	
 	
 	protected function atribuiValores() {
-		
+	
+				
 		$this->tpl->atribui("codigo_boleto",$this->codigo_boleto);
 		$this->tpl->atribui("linha_digitavel",$this->linha_digitavel);
 		$this->tpl->atribui("valor",$this->valor);
@@ -314,6 +318,8 @@ class MBoleto {
 		$this->tpl->atribui("multa",$this->multa);
 		$this->tpl->atribui("sendereco",$this->sendereco);
 		$this->tpl->atribui("observacoes",$this->observacoes);
+		$this->tpl->atribui("cendereco",$cendereco);
+		$this->tpl->atribui("clocalidade",$clocalidade);
 	
 	}
 	
