@@ -15,3 +15,4 @@ install:
 	install MRetornoPagContas.class.php ${TARGET}
 	install MUtils.class.php ${TARGET}
 	install MHTML2PDF.class.php ${TARGET}
+	install MArrecadacao.class.php ${TARGET}
