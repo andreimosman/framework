@@ -142,7 +142,7 @@ if(!defined('_M_HTML2PDF')) {
 			$pdf->setPs2Pdf($this->ps2pdf);
 			$pdf->setDefaultPath($defaultPath);
 			
-			if($this->debug) $pdf->debug($this->debug);
+			if($this->debug) $pdf->setDebug($this->debug);
 			
 			//$pdf->setTitle('Teste');
 			
