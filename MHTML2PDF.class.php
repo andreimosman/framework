@@ -56,11 +56,15 @@ if(!defined('_M_HTML2PDF')) {
 		protected $cabecalho;
 		protected $rodape;
 		
+		// Debug
+		protected $debug;
+		
 		
 		/**
 		 * Inicializa propriedades do objeto
 		 */
 		function initVars() {
+			$this->debug=0;
 			$this->tmpDir  = '/tmp';
 			$this->html2ps = "/usr/local/bin/html2ps";
 			$this->ps2pdf  = "/usr/bin/ps2pdf";
@@ -89,6 +93,10 @@ if(!defined('_M_HTML2PDF')) {
 		
 		function setFooter($op,$valor) {
 			$this->rodape[$op]=$valor;
+		}
+		
+		function setDebug($num) {
+			$this->debug = $num;
 		}
 		
 		/**
