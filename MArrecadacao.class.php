@@ -3,7 +3,8 @@
 if(!defined('_M_ARRECADACAO')) {
 	define('_M_ARRECADACAO',1);
 
-	require_once("Image/Barcode.php");
+	//require_once("Image/Barcode.php");
+	require_once("mimage_barcode_int25.class.php");
 
 
 	/**
@@ -179,9 +180,10 @@ if(!defined('_M_ARRECADACAO')) {
 		/**
 		 * Imprime a imagem do codigo de barras
 		 */
-		public static function barCode($cod) {
+		public static function barCode($cod,$target='') {
 		   // Imprime o código de barras.
-		   Image_Barcode::draw($cod,"int25", "png");
+		   $bc = new MImage_Barcode_int25();
+		   $bc->draw($cod, "png", $target);
 		}
 		
 	

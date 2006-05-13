@@ -16,3 +16,4 @@ install:
 	install MUtils.class.php ${TARGET}
 	install MHTML2PDF.class.php ${TARGET}
 	install MArrecadacao.class.php ${TARGET}
+	install mimage_barcode_int25.class.php ${TARGET}
