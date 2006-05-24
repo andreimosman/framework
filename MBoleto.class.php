@@ -2,7 +2,7 @@
 // Módulo PEAR gerador de código de barras
 require_once("Image/Barcode.php");
 require_once("MTemplate.class.php");
-require_once("MHTML2PDF.class.php");
+//require_once("MHTML2PDF.class.php");
 
 require_once("MUtils.class.php");
 
