@@ -1,6 +1,7 @@
 <?
 
 require_once("Smarty.class.php");
+require_once("MUtils.class.php");
 
 
 class MTemplate {
@@ -13,8 +14,17 @@ class MTemplate {
       // Configurações do Smarty
       $this->__tpl = new Smarty();
       
+      $wd = MUtils::getPwd();
+      
+      //echo "WD: " . $wd . "<br>\n";
+      //echo "MD: " . md5($wd) . "<br>\n";
+      
       $this->__tpl->template_dir = $template_dir;
-      $this->__tpl->compile_dir = '/tmp/templates_c';
+      $this->__tpl->compile_dir = '/tmp/templates_c/' . md5($wd) ;
+      
+      // Tenta criar o diretório de compile no sistema
+      
+      system("/usr/bin/install -d " . $this->__tpl->compile_dir);
       
       if( ! file_exists( $this->__tpl->compile_dir ) ) {
          mkdir($this->__tpl->compile_dir,0770,true);
