@@ -1,6 +1,6 @@
 <?
 
-require_once("Smarty.class.php");
+require_once("MSmarty.class.php");
 require_once("MUtils.class.php");
 
 
@@ -12,7 +12,7 @@ class MTemplate {
    public function MTemplate($template_dir="./") {
    
       // Configurações do Smarty
-      $this->__tpl = new Smarty();
+      $this->__tpl = new MSmarty();
       
       $wd = MUtils::getPwd();
       
