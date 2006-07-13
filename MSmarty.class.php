@@ -4,8 +4,13 @@ require_once("Smarty.class.php");
 
 class MSmarty extends Smarty {
 
-    function _read_file($filename)
+    function __construct() {
+        parent::__construct();
+    }
+
+    public final function _read_file($filename)
     {
+
         $res = false;
 
         if (file_exists($filename)) {
