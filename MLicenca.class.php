@@ -149,6 +149,9 @@ class MLicenca extends MConfig{
 	 * Gera a chave com base nos dados enviados
 	 */
 	public static function geraChave($local_id,$checksum) {
+	
+		$local_id = str_replace(":","",$local_id);
+	
 		$base1 = substr($local_id,0,4) . $checksum;
 		$p1 = substr(md5($base1),3,4);
 
@@ -162,6 +165,32 @@ class MLicenca extends MConfig{
 		
 	}
 	
+	
+	/**
+	 * Retorna a lista de informações sobre os IDs locais. 
+	 */
+	
+	public static function obtemInfoLocalID() {
+		$hostname = MLicenca::obtemInfoHostname();
+		
+		$inforede = MLicenca::obtemInfoRede();
+		
+		$retorno = array();
+		
+		while(list($iface,$dados)=each($inforede)){
+			if(@$dados["mac"] && count(@$dados["ips"])){
+				$i=0;
+				while($ip=@$dados["ips"][$i++]) {
+					$retorno[] = array( "interface" => $iface, "mac" => $dados["mac"],
+					                    "ip" => $ip, "local_id" => MLicenca::localIdFormatado($hostname,$dados["mac"],$ip) );
+					
+					//
+				}
+			}
+		}
+		
+		return($retorno);
+	}
 
 
 
