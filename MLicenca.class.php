@@ -291,7 +291,13 @@ class MLicenca extends MConfig{
 	public static function localId($hostname,$mac,$ip) {
 		$base = $ip."/".$mac."/".$hostname;
 		 
-		$hash = strtoupper(dechex(sprintf("%u",crc32($base))));
+		//$hash = strtoupper(dechex(sprintf("%u",crc32($base))));
+		
+		$hash = md5($base);
+		
+		$local_id = strtoupper(substr($hash,3,4) . substr($hash,7,4));
+		
+		
 		
 		return($hash);
 
