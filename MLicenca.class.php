@@ -299,7 +299,7 @@ class MLicenca extends MConfig{
 		
 		
 		
-		return($hash);
+		return($local_id);
 
 	}
 	
