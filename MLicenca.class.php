@@ -90,34 +90,42 @@ class MLicenca extends MConfig{
 		return $this->lic;
 	}
 	
-	protected static function checkSum($arquivo) {
-		$fd = fopen($arquivo,'r');
+	/**
+	 * CheckSum texto. 
+	 */
+	public static function cs($texto) {
+		$linhas = explode("\n",$texto);
+		$i=0;
 		
 		$conteudo = "";
-		while(($linha=fgets($fd)) && !feof($fd)) {
-			//echo $linha;
+		while( $linha = $linhas[$i++] ) {
 			if( strstr($linha,"[licenca]") ) {
 				break;
 			}
 			$conteudo .= $linha;
+
 		}
-		
-		// Prepara o conteudo pra checksum
-		//$conteudo = str_replace(" ","",$conteudo);
-		//$conteudo = str_replace("\n","",$conteudo);
+
 		$conteudo = preg_replace("/[\s\n\r]/","",$conteudo);
 		$conteudo = base64_encode($conteudo);
 		
-		//echo md5($conteudo)."<br>\n";
-		
 		return(md5($conteudo));
-		
+	}
+	
+	/**
+	 * Checksum de arquivo
+	 */
+	public static function checkSum($arquivo) {
+		$fd = fopen($arquivo,'r');
+		$texto = fread($fd,filesize($arquivo));
+		fclose($fd);
+		return(MLicenca::cs($texto));
 	}
 	
 	/**
 	 * Gera a array de chaves válidas locais
 	 */
-	protected function obtemChaves() {
+	public function obtemChaves() {
 		
 		$hostname = MLicenca::obtemInfoHostname();
 		$netinfo = MLicenca::obtemInfoRede();
@@ -163,6 +171,14 @@ class MLicenca extends MConfig{
 		
 		return(strtoupper($p1.":".$p2.":".$p3));
 		
+	}
+	
+	/**
+	 * Retorna a assinatura para ser utilizada no arquivo de licença
+	 */
+	public static function signature($chave) {
+		$sig  = "[licenca]\n";
+		$sig .= "chave=" . $chave . "\n";
 	}
 	
 	

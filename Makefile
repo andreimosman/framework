@@ -19,3 +19,6 @@ install:
 	install MArrecadacao.class.php ${TARGET}
 	install MLicenca.class.php ${TARGET}
 	install mimage_barcode_int25.class.php ${TARGET}
+	install SistemaOperacional.class.php ${TARGET}
+	install SOFreeBSD.class.php ${TARGET}
+
