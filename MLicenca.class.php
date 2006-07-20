@@ -179,6 +179,9 @@ class MLicenca extends MConfig{
 	public static function signature($chave) {
 		$sig  = "[licenca]\n";
 		$sig .= "chave=" . $chave . "\n";
+		
+		return($sig);
+
 	}
 	
 	
