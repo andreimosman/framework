@@ -58,6 +58,20 @@ class MLicenca extends MConfig{
 				//echo "CHAVE VALIDA<Br>\n";
 				$this->valida = true;
 				$this->lic = $cfg->config;
+				
+				
+				while(list($grp,$op) = each($this->lic)) {
+				
+					while(list($vr,$vl) = each($op)) {
+						if( is_array($vl) ) {
+							$this->lic[$grp][$vr] = implode(",",$vl);
+						}
+					}
+				
+				}
+				
+				
+				
 				return true;
 			}
 		}
