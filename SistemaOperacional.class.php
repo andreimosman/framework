@@ -3,10 +3,15 @@
 
 	class SistemaOperacional {
 	
-		public static $FW_SUB_BASERULE		= 2000;
-		public static $FW_IP_BASERULE		= 10000;
-		public static $FW_IP_BASEPIPE_IN	= 18000;
-		public static $FW_IP_BASEPIPE_OUT	= 26000;
+		public static $FW_SUB_BASERULE			= 2000;
+		public static $FW_IP_BASERULE			= 10000;
+		public static $FW_IP_BASEPIPE_IN		= 18000;
+		public static $FW_IP_BASEPIPE_OUT		= 26000;
+
+		public static $FW_PPPoE_BASERULE		= 34000;
+		public static $FW_PPPoE_BASEPIPE_IN		= 42000;
+		public static $FW_PPPoE_BASEPIPE_OUT	= 50000;
+
 	
 		public static $IFCONFIG	= "/sbin/ifconfig";
 		public static $HOSTNAME	= "/bin/hostname";

@@ -7,8 +7,6 @@
 		public static $IPFW 	= "/sbin/ipfw -q";
 		public static $PFCTL	= "/sbin/pfctl";
 		
-		
-		
 		/****************************************************
 		 *                                                  *
 		 * FUNCOES DA INTERFACE                             *
@@ -52,7 +50,7 @@
 			///////////////////////////////////////////
 
 			if( $mac ) {
-				$comando = ipfw . " add " . $rule . " deny layer2 src-ip " . ip . " not MAC any " . $mac . " via " . $int_iface;
+				$comando = $ipfw . " add " . $rule . " deny layer2 src-ip " . $ip . " not MAC any " . $mac . " via " . $int_iface;
 				SistemaOperacional::executa($comando);
 			}
 
@@ -132,6 +130,46 @@
 			SistemaOperacional::executa($comando);
 		}
 
+		public static function obtemEstatisticas() {
+			$ipfw = SoFreeBSD::$IPFW;
+			$comando = $ipfw . " -b show ";
+			
+			
+			$fd = fopen("/home/mosman/cvs/virtex/teste.ipfw","r");
+			
+			$retorno = array();
+			
+			while(($linha=fgets($fd)) && !feof($fd) ) {
+				$linha = str_replace("\n","",$linha);
+				
+				@list($id,$pacotes,$bytes,$rule,$resto) = split("[ ]+",$linha,5);
+				$tmp = split("[ ]+",$resto);
+				$comentario = $tmp[ count($tmp)-1 ];
+				
+				//if($id) {
+				//	echo "ID: $id / RULE: $rule / COMENTARIO: $comentario\n";
+				//}
+				
+				if( $rule == "pipe" ) {
+					//echo "PIPE: $comentario\n";
+					@list($usuario,$tipo) = explode("::",$comentario);
+					//echo $usuario . "/" . $tipo . "\n";
+					$retorno[$usuario][$tipo] = $bytes;
+				}
+				
+				
+			}
+			
+			while(list($usuario,$dados) = each($retorno)) {
+				if(!@$retorno[$usuario]["up"])		$retorno[$usuario]["up"] = "0";
+				if(!@$retorno[$usuario]["down"])	$retorno[$usuario]["down"] = "0";
+			}
+			
+			fclose($fd);
+			reset($retorno);
+			return($retorno);
+			
+		}
 
 
 		/****************************************************
