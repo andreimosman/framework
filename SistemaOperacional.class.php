@@ -34,11 +34,11 @@
 		 * retorna o resultado da execução deste comando.
 		 */
 		public static function executa($comando,$post=NULL) {
-			echo($comando."\n");
+			//echo($comando."\n");
 			
-			$retorno = "";
+			//$retorno = "";
 			
-			/**
+			
 			
 			$fd = popen($comando, ($post ? 'w' : 'r'));
 			
@@ -52,7 +52,7 @@
 			
 			pclose($fd);
 			
-			*/
+			
 			
 			return($retorno);
 
