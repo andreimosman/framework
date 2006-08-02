@@ -34,7 +34,7 @@
 		 * retorna o resultado da execução deste comando.
 		 */
 		public static function executa($comando,$post=NULL) {
-			/**
+			
 			$fd = popen($comando, ($post ? 'w' : 'r'));
 			if($post) {
 				fputs($fd,$post);
@@ -50,9 +50,9 @@
 			
 			pclose($fd);
 			
-			*/			
 			
-			$retorno = shell_exec($comando);
+			
+			//$retorno = shell_exec($comando);
 			
 			return($retorno);
 
