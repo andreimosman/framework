@@ -2,7 +2,7 @@
 
    require_once("DB.php");
    
-   define('DEBUG',0);
+   define('DEBUG',1);
    
    define('MDATABASE_OK',0);
    define('MDATABASE_ERRO_DSN',1);
