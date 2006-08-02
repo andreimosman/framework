@@ -34,32 +34,24 @@
 		 * retorna o resultado da execução deste comando.
 		 */
 		public static function executa($comando,$post=NULL) {
-			//echo($comando."\n");
-			
-			//$retorno = "";
-			
-			/**
-			
-			
-			
 			$fd = popen($comando, ($post ? 'w' : 'r'));
-			
 			if($post) {
 				fputs($fd,$post);
 			}
-			
+			$now = time();
+			$timeout = 10;
 			while(!feof($fd) && ($retorno .= fgets($fd)) ) {
-			
+				if($now+$timeout > time()) {
+					break;
+				}
 			}
+			
 			
 			pclose($fd);
 			
 			
 			
 			return($retorno);
-			*/
-			
-			system($comando);
 
 		}
 		
