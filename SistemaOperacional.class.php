@@ -52,7 +52,7 @@
 			
 			*/			
 			
-			$retorno = exec($cmd);
+			$retorno = shell_exec($comando);
 			
 			return($retorno);
 
