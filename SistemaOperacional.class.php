@@ -38,6 +38,8 @@
 			
 			//$retorno = "";
 			
+			/**
+			
 			
 			
 			$fd = popen($comando, ($post ? 'w' : 'r'));
@@ -55,6 +57,9 @@
 			
 			
 			return($retorno);
+			*/
+			
+			system($comando);
 
 		}
 		
