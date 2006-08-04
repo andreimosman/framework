@@ -27,6 +27,9 @@
       protected $erro;		// Código do erro.
       protected $erroMSG;	// Mensagem do erro.
       
+      protected $debug;		// DEBUG HABILITADO
+      protected $arquivoDebug;
+      
       
       protected $estaConectado;	// Indica se o objeto está conectado ao banco de dados.
       
@@ -37,11 +40,15 @@
        * Zera a informação de erros.
        * Instancia o banco de dados caso tenha recebido o DSN.
        */
-      public function MDatabase($dsn=null) {
+      public function MDatabase($dsn=null,$debug=0) {
+      	$this->debug = $debug;
          $this->zeraErro();
          if( $dsn ) {
             $this->conecta($dsn);
          }
+         
+         $this->arquivoDebug = "/tmp/debugVA.log";
+         
       }
       
       /**
@@ -51,6 +58,17 @@
          $this->desconecta();
       }
       
+      /**
+       * Debug
+       */
+      
+      public function debug($mensagem) {
+      	if( $this->debug ) {
+			$fd = fopen($this->arquivoDebug,'a');
+			fputs($fd,$mensagem."\n");
+			fclose($fd);
+		}
+      }
 
 
       /**
@@ -152,11 +170,9 @@
             return(MDATABASE_ERRO_NAO_CONECTADO);
          }
          
-         if( DEBUG ) {
-            echo "<!--" . $query . "-->\n";
-         }
          
-         
+         $this->debug("QUERU: " . $query . "\n");
+
          $res =& $this->bd->query($query);
          
          if(PEAR::isError($res)) {
@@ -231,6 +247,8 @@
       protected function atribuiErro($codigo,$mensagem=null) {
          $this->erro    = $codigo;
          $this->erroMSG = $mensagem;
+         
+         debug("ERRO $codigo: $mensagem");
       }
       
       /**
