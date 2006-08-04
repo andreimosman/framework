@@ -249,7 +249,7 @@
          $this->erro    = $codigo;
          $this->erroMSG = $mensagem;
          
-         debug("ERRO $codigo: $mensagem");
+         $this->debug("ERRO $codigo: $mensagem");
       }
       
       /**
