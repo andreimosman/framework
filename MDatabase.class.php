@@ -2,7 +2,7 @@
 
    require_once("DB.php");
    
-   define('DEBUG',0);
+   //define('DEBUG',0);
    
    define('MDATABASE_OK',0);
    define('MDATABASE_ERRO_DSN',1);
@@ -42,12 +42,13 @@
        */
       public function MDatabase($dsn=null,$debug=0) {
       	$this->debug = $debug;
-         $this->zeraErro();
-         if( $dsn ) {
-            $this->conecta($dsn);
-         }
+      	$this->arquivoDebug = "/tmp/debug.framework.log";
+        $this->zeraErro();
+        if( $dsn ) {
+           $this->conecta($dsn);
+        }
          
-         $this->arquivoDebug = "/tmp/debugVA.log";
+         
          
       }
       
@@ -171,7 +172,7 @@
          }
          
          
-         $this->debug("QUERU: " . $query . "\n");
+         $this->debug("QUERY: " . $query . "\n");
 
          $res =& $this->bd->query($query);
          
