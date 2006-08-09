@@ -235,7 +235,40 @@
 
 			$comando = $install . " -d " . $target;
 			SistemaOperacional::executa($comando);
+		}
+		
 
+		public static function obtemARP($ip="") {
+			$arp = array();
+			
+			$comando = "/usr/sbin/arp -dan";
+			
+			if( $ip != "-a" ) {
+				// Ping para assegurar que o host está ok
+				$cmd = "/sbin/ping -c 1 '" . $ip . "' 2>&1 > /dev/null";
+				SOFreeBSD::executa($cmd);
+				
+				$comando .= "|grep '(" . $ip . ")' 2>&1 ";
+			}
+			
+			$arptable = SOFreeBSD::executa($comando);
+			
+			$linhas = explode("\n",$arptable);
+			
+			for($i=0;$i<count($linhas);$i++) {
+				if( trim($linhas[$i]) ) {
+					@list($shit,$addr,$at,$mac,$on,$on,$iface) = preg_split('/[\s]+/',$linhas[$i]);
+					if( strstr($mac,"incomplete")) {
+						$mac = "ARP Não Enviado";
+						$iface = "N/A";
+					}
+					$arp[] = array("addr" => $addr, "mac" => $mac , "iface" => $iface);
+				}
+
+			}
+			
+			
+			return($arp);
 
 		}
 
