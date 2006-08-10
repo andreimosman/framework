@@ -258,7 +258,7 @@
 			for($i=0;$i<count($linhas);$i++) {
 				if( trim($linhas[$i]) ) {
 					//@list($shit,$addr,$at,$mac,$on,$on,$iface) = preg_split('/[\s]+/',$linhas[$i]);
-					@list($shit,$addr,$at,$mac,$on,$iface,$on) = preg_split('/[\s]+/',$linhas[$i]);
+					@list($shit,$addr,$at,$mac,$on,$iface,$on) = preg_split('/[ ]+/',$linhas[$i]);
 					if( strstr($mac,"incomplete")) {
 						$mac = "ARP Não Enviado";
 						$iface = "N/A";
