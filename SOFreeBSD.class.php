@@ -241,7 +241,7 @@
 		public static function obtemARP($ip="") {
 			$arp = array();
 			
-			$comando = "/usr/sbin/arp -dan";
+			$comando = "/usr/sbin/arp -an";
 			
 			if( $ip != "-a" ) {
 				// Ping para assegurar que o host está ok
