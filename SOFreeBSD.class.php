@@ -135,7 +135,8 @@
 			$comando = $ipfw . " -b show ";
 			
 			
-			$fd = fopen("/home/mosman/cvs/virtex/teste.ipfw","r");
+			//$fd = fopen("/home/mosman/cvs/virtex/teste.ipfw","r");
+			$fd = popen($comando,"r");
 			
 			$retorno = array();
 			
