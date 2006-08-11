@@ -151,11 +151,13 @@
 				//	echo "ID: $id / RULE: $rule / COMENTARIO: $comentario\n";
 				//}
 				
-				if( $rule == "pipe" ) {
+				if( $rule == "pipe" || $rule == "allow") {
 					//echo "PIPE: $comentario\n";
 					@list($usuario,$tipo) = explode("::",$comentario);
+					if( $usuario && $tipo ) {
 					//echo $usuario . "/" . $tipo . "\n";
-					$retorno[$usuario][$tipo] = $bytes;
+						$retorno[$usuario][$tipo] = $bytes;
+					}
 				}
 				
 				
