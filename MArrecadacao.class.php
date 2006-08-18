@@ -3,9 +3,7 @@
 if(!defined('_M_ARRECADACAO')) {
 	define('_M_ARRECADACAO',1);
 
-	//require_once("Image/Barcode.php");
-	require_once("mimage_barcode_int25.class.php");
-
+	require_once('MBanco.class.php');
 
 	/**
 	 *
@@ -15,38 +13,8 @@ if(!defined('_M_ARRECADACAO')) {
 	 *
 	 */
 	
-	class MArrecadacao {
+	class MArrecadacao extends MBanco {
 	
-		/**
-		 * Soma()
-		 * Realiza a soma de todos os dígitos de uma sequencia
-		 */
-		public static function soma($p) {
-		   $soma = 0;
-		   $c=0;
-		   for($i=strlen($p)-1;$i>=0;--$i) {
-			  $c++;
-			  //$mul = ($i+1)%2 ? 2 : 1;
-			  $mul = ($c)%2 ? 2 : 1;
-			  $v = $p[$i] * $mul;
-			  if($v>9) $v-=9;
-			  //echo $p[$i] . " x " . $mul . " = " . $v . "<br>\n";
-			  $soma += $v;
-		   }
-
-		   return($soma);
-
-		}
-
-		/**
-		 * Modulo10()
-		 * Calcula o Modulo10 (utilizado no digito verificador)
-		 */
-		public static function modulo10($soma) {
-		   $dv = 10 - ($soma % 10);
-		   if( $dv==10 ) $dv = 0;
-		   return($dv);
-		}
 	
 	
 		/**
@@ -176,17 +144,7 @@ if(!defined('_M_ARRECADACAO')) {
 			$codigo_moeda = 7;
 			return(MArrecadacao::obtemCodigoBarras($id_produto,$id_segmento,$codigo_moeda,$valor,$id_empresa,$nosso_numero,$vencimento));
 		}
-		
-		/**
-		 * Imprime a imagem do codigo de barras
-		 */
-		public static function barCode($cod,$target='') {
-		   // Imprime o código de barras.
-		   $bc = new MImage_Barcode_int25();
-		   $bc->draw($cod, "png", $target);
-		}
-		
-	
+
 	}
 
 }
@@ -194,7 +152,8 @@ if(!defined('_M_ARRECADACAO')) {
 	/**
 	 * Teste
 	 */
-/**	
+	
+	/**
 	$id_produto = 8;
 	$id_segmento = 6;
 	$codigo_moeda = 7;
@@ -211,5 +170,6 @@ if(!defined('_M_ARRECADACAO')) {
 	
 	$linha_digitavel = MArrecadacao::linhaDigitavel($codigo_barras);
 	//echo "LD: $linha_digitavel<br>\n";
-*/
+	*/
+
 ?>
