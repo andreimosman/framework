@@ -35,6 +35,9 @@
 		 */
 		public static function executa($comando,$post=NULL) {
 			$retorno = "";
+			
+			//echo $comando . "\n";
+			
 			$fd = popen($comando, ($post ? 'w' : 'r'));
 			if($post) {
 				fputs($fd,$post);
@@ -46,8 +49,6 @@
 			
 			
 			pclose($fd);
-			
-			
 			
 			//$retorno = shell_exec($comando);
 			

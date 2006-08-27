@@ -55,7 +55,47 @@ if(!defined('_M_RETORNO_BANCO')) {
 		/**
 		 * Obtem lista de registros
 		 */
-		abstract function obtemRegistros();
+		//abstract function obtemRegistros();
+
+
+
+
+
+		public function formataValor($valor,$tipo="pt_BR",$decimais=2) {
+			$vl = (float) $valor;
+			$tamanho = strlen($vl);
+			$inteiro = substr($vl,0,$tamanho - $decimais);
+			$decimal = substr($vl,-$decimais);
+			
+			$num = "$inteiro.$decimal";
+			
+			/**
+			echo "VALOR: $valor<br>\n";
+			echo "VL: $vl<br>\n";
+			echo "TAM: $tamanho<br>\n";
+			echo "INT: $inteiro<br>\n";
+			echo "DEC: $decimal<br>\n";
+			echo "NUM: $num<br>\n";
+			echo "<hr>\n";
+			*/
+			
+			
+
+			return($tipo == "bd" ? (float)$num : number_format($num,$decimais,",","."));
+		}
+		
+		public function obtemRegistros() {
+			return($this->registros);
+		}
+
+
+
+
+
+
+
+
+
 	}
 }	
 ?>

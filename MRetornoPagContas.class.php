@@ -192,35 +192,7 @@ if(!defined('_M_RETORNO_PAG_CONTAS')) {
 			
 		}
 		
-		public function formataValor($valor,$tipo="pt_BR") {
-			$vl = (int) $valor;
-			$tamanho = strlen($vl);
-			$inteiro = substr($vl,0,$tamanho - 2);
-			$decimal = substr($vl,-2);
-			
-			$num = "$inteiro.$decimal";
-			
-			/**
 
-			echo "VALOR: $valor<br>\n";
-			echo "VL: $vl<br>\n";
-			echo "TAM: $tamanho<br>\n";
-			echo "INT: $inteiro<br>\n";
-			echo "DEC: $decimal<br>\n";
-			echo "NUM: $num<br>\n";
-			echo "<hr>\n";
-			
-			*/
-			
-
-
-			return($tipo == "bd" ? (float)$num : number_format($num,2,",","."));
-		}
-		
-		public function obtemRegistros() {
-			return($this->registros);
-		}
-	
 	}
 	
 	

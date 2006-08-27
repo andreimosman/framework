@@ -14,8 +14,8 @@
 		 ****************************************************/
 		
 		// Configura IP na interface
-		public static function ifConfig($iface,$ip,$mascara) {
-			$comando = SistemaOperacional::$IFCONFIG . " " . $iface . " inet alias " . $ip . " netmask " . $mascara;
+		public static function ifConfig($iface,$ip="",$mascara="") {
+			$comando = SistemaOperacional::$IFCONFIG . " " . $iface . " " . ($ip && $mascara ? "inet alias " . $ip . " netmask " . $mascara : "up");
 			return(SistemaOperacional::executa($comando));
 		}
 		

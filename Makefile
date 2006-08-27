@@ -14,6 +14,7 @@ install:
 	install MBoleto.class.php $(TARGET)
 	install MRetornoBanco.class.php ${TARGET}
 	install MRetornoPagContas.class.php ${TARGET}
+	install MRetornoCBR643.class.php ${TARGET}
 	install MUtils.class.php ${TARGET}
 	install MHTML2PDF.class.php ${TARGET}
 	install MArrecadacao.class.php ${TARGET}
