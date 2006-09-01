@@ -762,8 +762,8 @@ if(!defined('_M_RETORNO_CBR643')) {
  * Teste
  */
 
-$arquivo = "retornos-bb/CBR64300.RET";
-$r = new MRetornoCBR643($arquivo);
+//$arquivo = "retornos-bb/CBR64300.RET";
+//$r = new MRetornoCBR643($arquivo);
 
 
 
