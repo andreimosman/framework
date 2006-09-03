@@ -20,6 +20,9 @@
 		
 		public static $INSTALL	= "/usr/bin/install";
 		
+		public static $DEFAULT_NTP_SERVER = "146.164.48.5";
+
+		
 		/**
 		 * Construtor
 		 */
@@ -140,6 +143,15 @@
 		 * Cria um diretório
 		 */
 		public static function installDir($target) {
+		
+		}
+		
+		/**
+		 * ntpUpdate
+		 *
+		 * Atualiza a data via NTP
+		 */
+		public static function ntpDate($server="") {
 		
 		}
 

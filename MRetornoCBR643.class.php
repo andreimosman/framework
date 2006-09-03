@@ -31,6 +31,8 @@ if(!defined('_M_RETORNO_CBR643')) {
 		
 		protected $registros_processados;
 		protected $vl_total_processado;
+		
+		protected $valid;
 
 
 
@@ -43,11 +45,13 @@ if(!defined('_M_RETORNO_CBR643')) {
 			$this->nome_empresa	= "";
 			$this->data			= "";
 			$this->seq_retorno	= "";
+			
+			$this->valid = false;
 		}
 		
 		// Dummy
 		public function checkSum() {
-			return true;
+			return $this->valid;
 		}
 
 
@@ -57,6 +61,8 @@ if(!defined('_M_RETORNO_CBR643')) {
 		 */
 		public function processa() {
 			$fd = fopen($this->_arquivo,"r");
+			
+			if( !$fd ) return;
 			
 			// Varre o arquivo.
 			echo "<pre>";
@@ -735,6 +741,7 @@ if(!defined('_M_RETORNO_CBR643')) {
 
 			}
 			
+			$this->valid = true;
 			//echo "</pre>";
 
 		}

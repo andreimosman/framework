@@ -6,6 +6,9 @@
 	
 		public static $IPFW 	= "/sbin/ipfw -q";
 		public static $PFCTL	= "/sbin/pfctl";
+		public static $NTPDATE  = "/usr/sbin/ntpdate";
+
+
 		
 		/****************************************************
 		 *                                                  *
@@ -286,7 +289,18 @@
 
 
 
-
+		/**
+		 * ntpUpdate
+		 *
+		 * Atualiza a data via NTP
+		 */
+		public static function ntpDate($server="") {
+			$serverlist = array();
+			if( $server ) $serverlist[] = escapeshellcmd( $server );
+			$serverlist[] = escapeshellcmd( SistemaOperacional::$DEFAULT_NTP_SERVER );
+			$cmd = SoFreeBSD::$NTPDATE . " " . implode(" ", $serverlist) . "> /dev/null 2>&1 ";
+			SOFreeBSD::executa($cmd);
+		}
 
 
 
