@@ -19,7 +19,7 @@
  * @author     Marcelo Subtil Marcal <msmarcal@php.net>
  * @copyright  2005 The PHP Group
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    CVS: $Id: mbarcode_int25.class.php,v 1.1 2006/05/13 02:30:11 mosman Exp $
+ * @version    CVS: $Id: mbarcode_int25.class.php,v 1.2 2006/09/05 12:18:34 mosman Exp $
  * @link       http://pear.php.net/package/Image_Barcode
  */
 
@@ -195,3 +195,4 @@ class Image_Barcode_int25 extends Image_Barcode
     } // function create
 
 } // class
+?>
