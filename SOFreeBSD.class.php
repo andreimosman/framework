@@ -186,7 +186,7 @@
 
 		public static function setNAT($iface){
 			$pfctl = SoFreeBSD::$PFCTL;
-			$comando = $pfctl . " -Nf- ";
+			$comando = $pfctl . " -Nf - ";
 
 			//FILE *p = popen(comando.c_str(),"w");
 
