@@ -315,7 +315,7 @@
 		
 		// Cálculo do número de slots
 		private static function obtemNumSlotsIdeal($banda) {
-		   return(50);
+		   //return(50);
 		   $kbps_geral = 600.00;
 		   $pipes = 50.00;
 		   $b = $banda;
