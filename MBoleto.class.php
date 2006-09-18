@@ -198,12 +198,12 @@
 			 * Base do código de barras (para calculo do DC (quarto campo da linha digitável)
 			 * ERRO DO DC
 			 */
-			$cb_base = $this->banco.$this->moeda.$fatvenc.$valordoc.$campoLivre;
+			$cb_base = $this->padZero($this->banco,3).$this->moeda.$fatvenc.$valordoc.$campoLivre;
 			$dc = $this->modulo11( $this->soma11( $cb_base ) );	// Quarto Campo.
 
 
 			$this->linha_digitavel = $campo1." ".$campo2." ".$campo3." ".$dc." ".$campo5;
-			$this->codigo_boleto      = $this->banco.$this->moeda.$dc.$fatvenc.$valordoc.$campoLivre;
+			$this->codigo_boleto      = $this->padZero($this->banco,3).$this->moeda.$dc.$fatvenc.$valordoc.$campoLivre;
 			
 			//echo "LD: " . $this->linha_digitavel . "<br>\n";
 			//echo "CB: " . $this->codigo_boleto . "<br>\n";
