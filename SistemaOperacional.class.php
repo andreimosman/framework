@@ -145,6 +145,14 @@
 		public static function installDir($target) {
 		
 		}
+
+		/**
+		 * fping
+		 */
+		
+		public static function fping($ip,$num_pacotes=2,$tamanho="") {
+			return( array() );
+		}
 		
 		/**
 		 * ntpUpdate

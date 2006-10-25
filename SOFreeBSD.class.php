@@ -301,6 +301,22 @@
 			$cmd = SoFreeBSD::$NTPDATE . " " . implode(" ", $serverlist) . "> /dev/null 2>&1 ";
 			SOFreeBSD::executa($cmd);
 		}
+		
+		/**
+		 * fping
+		 */
+		
+		public static function fping($ip,$num_pacotes=2,$tamanho="") {
+			$result = exec("/usr/local/sbin/fping -C $num_pacotes -q $ip 2>&1");
+			list($host,$info) = explode(":",$result,2);
+			$host=trim($host);
+			$info=trim($info);
+			
+			$r = explode(" ",$info);
+			
+			return($r);
+		
+		}
 
 
 
