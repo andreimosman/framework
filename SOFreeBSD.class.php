@@ -306,8 +306,8 @@
 		 * fping
 		 */
 		
-		public static function fping($ip,$num_pacotes=2,$tamanho="") {
-			$result = exec("/usr/local/sbin/fping -C $num_pacotes -q $ip 2>&1");
+		public static function fping($ip,$num_pacotes=2,$tamanho="",$timeout=1200) {
+			$result = exec("/usr/local/sbin/fping -C $num_pacotes -t $timeout -q $ip 2>&1");
 			list($host,$info) = explode(":",$result,2);
 			$host=trim($host);
 			$info=trim($info);

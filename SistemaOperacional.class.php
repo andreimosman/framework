@@ -150,7 +150,7 @@
 		 * fping
 		 */
 		
-		public static function fping($ip,$num_pacotes=2,$tamanho="") {
+		public static function fping($ip,$num_pacotes=2,$tamanho="",$timeout=1200) {
 			return( array() );
 		}
 		
