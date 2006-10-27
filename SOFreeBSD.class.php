@@ -307,12 +307,66 @@
 		 */
 		
 		public static function fping($ip,$num_pacotes=2,$tamanho="",$timeout=1200) {
-			$result = exec("/usr/local/sbin/fping -C $num_pacotes -t $timeout -q $ip 2>&1");
-			list($host,$info) = explode(":",$result,2);
-			$host=trim($host);
-			$info=trim($info);
+			//$result = exec("/usr/local/sbin/fping -C $num_pacotes -t $timeout -q $ip 2>&1");
 			
-			$r = explode(" ",$info);
+			$r=array();
+			
+			$comando = "/sbin/ping -c $num_pacotes ";
+			if( $tamanho ) $comando .= " -s $tamanho ";
+			$comando .= " $ip ";
+			$comando .= " 2>&1 ";
+			
+			$result = SistemaOperacional::executa($comando);
+			
+			$linhas = explode("\n",$result);
+			
+			$lastseq=-1;
+			
+			for($i=0;$i<count($linhas);$i++) {
+				if( strstr($linhas[$i],":") && strstr($linhas[$i],"=") ) {
+					// retono de ping
+					list($lixo,$info) = explode(":",$linhas[$i]);
+					$info=trim($info);
+
+					$tmp = explode(" ",$info);
+					for($x=0;$x<count($tmp);$x++) {
+						if( strstr($tmp[$x],"=") ) {
+							list($vr,$vl) = explode("=",$tmp[$x]);
+							$$vr=$vl;
+						}
+					}
+
+					if( ($lastseq+1) != $icmp_seq ) {
+						for($y=0;$y<($icmp_seq-$lastseq);$y++) {
+							$r[]="-"; // Perda de pacotes
+						}
+					}
+
+					$r[] = $time;
+					$lastseq = $icmp_seq;
+				}
+			}
+
+			for($y=0;$y<($num_pacotes - 1 -$lastseq);$y++) {
+				$r[]="-"; // Perda de pacotes
+			}
+			
+			
+			/**
+			 * Tratar resultado
+			 */
+			//echo $result;
+			
+			//for($i=0;$i<count($r);$i++) {
+			//	echo $r[$i]."\n";
+			//}
+			//echo "---------------\n";
+			
+			//list($host,$info) = explode(":",$result,2);
+			//$host=trim($host);
+			//$info=trim($info);
+			
+			//$r = explode(" ",$info);
 			
 			return($r);
 		
