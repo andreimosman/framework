@@ -337,7 +337,8 @@
 					}
 
 					if( ($lastseq+1) != $icmp_seq ) {
-						for($y=0;$y<($icmp_seq-$lastseq);$y++) {
+						$num = $lastseq == -1 ? $icmp_seq : $icmp_seq - 1 - $lastseq;
+						for($y=0;$y<$num;$y++) {
 							$r[]="-"; // Perda de pacotes
 						}
 					}
