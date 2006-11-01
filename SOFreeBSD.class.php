@@ -337,7 +337,7 @@
 					}
 
 					if( ($lastseq+1) != $icmp_seq ) {
-						$num = $lastseq == -1 ? $icmp_seq : $icmp_seq - 1 - $lastseq;
+						$num = ($lastseq == -1 ? $icmp_seq : $icmp_seq - 1 - $lastseq);
 						for($y=0;$y<$num;$y++) {
 							$r[]="-"; // Perda de pacotes
 						}
@@ -347,6 +347,8 @@
 					$lastseq = $icmp_seq;
 				}
 			}
+			
+			$num = ($lastseq == -1 ? $num_pacotes - 1 : $num_pacotes - 1 - $lastseq);
 
 			for($y=0;$y<($num_pacotes - 1 -$lastseq);$y++) {
 				$r[]="-"; // Perda de pacotes
