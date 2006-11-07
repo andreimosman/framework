@@ -145,7 +145,7 @@ class MLicenca extends MConfig{
 		$cfg = new MConfig($arquivo);
 		$this->arqCheckSum = $this->checkSum($arquivo);
 		
-		//unlink($arquivo);
+		@unlink($arquivo);
 		
 		/**
 		 * Obtem lista de chaves válidas
