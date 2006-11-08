@@ -294,7 +294,7 @@
             $campos[$x]["nome"] 	= $info[$x]["name"];
             $campos[$x]["tipo"] 	= $info[$x]["type"];
             $campos[$x]["tamanho"] 	= $info[$x]["len"];
-            $campos[$x]["flags"]	= $info[$x]["flags"];
+            $campos[$x]["flags"]	= str_replace("public.","",$info[$x]["flags"]);
          }
          return($campos);
       }
