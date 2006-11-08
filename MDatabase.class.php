@@ -281,6 +281,25 @@
       }
       
       
+      
+      
+      /**
+       * Obtem informações sobre uma tabela.
+       */
+      public function tableInfo($tabela) {
+         $info = $this->bd->tableInfo($tabela);
+         
+         $campos = array();
+         for($x=0;$x<count($info);$x++) {
+            $campos[$x]["nome"] 	= $info[$x]["name"];
+            $campos[$x]["tipo"] 	= $info[$x]["type"];
+            $campos[$x]["tamanho"] 	= $info[$x]["len"];
+            $campos[$x]["flags"]	= $info[$x]["flags"];
+         }
+         return($campos);
+      }
+      
+      
    
    
    }
