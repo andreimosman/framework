@@ -118,11 +118,22 @@
 			$ipfw = SoFreeBSD::$IPFW;
 
 			$rule     = (int)($baserule + $id);
-
+			
+			
+			// Bloquear conexões pela interface externa
+			$comando = $ipfw . " add " . $rule . " deny ip from " . $rede . " to any via " . $ext_iface;
+			SistemaOperacional::executa($comando);
+			$comando = $ipfw . " add " . $rule . " deny ip from any to " . $rede . " via " . $ext_iface;
+			SistemaOperacional::executa($comando);
+			
+			// Liberar acessos partindo da rede de infra
+			//$comando = $ipfw . " add " . $rule . " allow ip from " . $rede . " to any keep-state";
 			$comando = $ipfw . " add " . $rule . " allow ip from " . $rede . " to any keep-state";
 			SistemaOperacional::executa($comando);
-			$comando = $ipfw . " add " . $rule . " allow ip from any to " . $rede . " recv " . $ext_iface . " keep-state ";
-			SistemaOperacional::executa($comando);
+			
+			// Não estamos liberando mais de qquer cliente pra rede de infra. REGRAS COMENTADAS:
+			//$comando = $ipfw . " add " . $rule . " allow ip from any to " . $rede ;
+			//SistemaOperacional::executa($comando);
 		}
 
 		public static function deletaRegraSP($id,$baserule) {
