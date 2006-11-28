@@ -30,6 +30,8 @@
       protected $debug;		// DEBUG HABILITADO
       protected $arquivoDebug;
       
+      protected $listaSQL;	// Armazena todas as instruções SQL executadas.
+      
       
       protected $estaConectado;	// Indica se o objeto está conectado ao banco de dados.
       
@@ -47,9 +49,19 @@
         if( $dsn ) {
            $this->conecta($dsn);
         }
+        
+        $this->zeraListaSQL();
          
          
          
+      }
+      
+      public function zeraListaSQL() {
+      	$this->listaSQL = array();
+      }
+      
+      public function obtemListaSQL() {
+      	return($this->listaSQL);
       }
       
       /**
@@ -161,7 +173,7 @@
        *		- 2 para retorno de múltipas linhas de um select.
        */
       protected function __query($query,$tipo_retorno=MDATABASE_RETORNA_NREGS) {
-      
+      	$this->listaSQL[] = $query;
          
          /**
           * Executa apenas se o banco de dados estiver conectado.
@@ -299,7 +311,26 @@
          return($campos);
       }
       
+      /**
+       * Inicia a transação.
+       */
+      public function begin() {
+      	return($this->consulta("BEGIN"));
+      }
       
+      /**
+       * Finaliza e persiste a transação.
+       */
+      public function commit() {
+      	return($this->consulta("COMMIT"));
+      }
+      
+      /**
+       * Finaliza de descarta a transação.
+       */
+      public function rollback() {
+      	return($this->consulta("ROLLBACK"));
+      }
    
    
    }
