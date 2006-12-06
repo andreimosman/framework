@@ -1,338 +1,1019 @@
 <?
 
-   require_once("DB.php");
-   
-   //define('DEBUG',0);
-   
-   define('MDATABASE_OK',0);
-   define('MDATABASE_ERRO_DSN',1);
-   define('MDATABASE_ERRO_NAO_CONECTADO',2);
-   
-   define('MDATABASE_ERRO',255);
-   define('MDATABASE_ERRO_QUERY_INVALIDA',254);
-   
-   
-   
-   
-   
-   define('MDATABASE_RETORNA_NREGS',0);
-   define('MDATABASE_RETORNA_UMA', 1);
-   define('MDATABASE_RETORNA_TODAS',2);
-   
-   class MDatabase {
-      
-      protected $bd;		// Objeto de conexão com o banco de dados
-      protected $dsn;		// String de conexão. Utilizada geralmente para reconexões perdidas.
-      
-      protected $erro;		// Código do erro.
-      protected $erroMSG;	// Mensagem do erro.
-      
-      protected $debug;		// DEBUG HABILITADO
-      protected $arquivoDebug;
-      
-      protected $listaSQL;	// Armazena todas as instruções SQL executadas.
-      
-      
-      protected $estaConectado;	// Indica se o objeto está conectado ao banco de dados.
-      
+	require_once("MDB2.php");
 
-      /**
-       * Construtor.
-       *
-       * Zera a informação de erros.
-       * Instancia o banco de dados caso tenha recebido o DSN.
-       */
-      public function MDatabase($dsn=null,$debug=0) {
-      	$this->debug = $debug;
-      	$this->arquivoDebug = "/tmp/debug.framework.log";
-        $this->zeraErro();
-        if( $dsn ) {
-           $this->conecta($dsn);
-        }
-        
-        $this->zeraListaSQL();
-         
-         
-         
-      }
-      
-      public function zeraListaSQL() {
-      	$this->listaSQL = array();
-      }
-      
-      public function obtemListaSQL() {
-      	return($this->listaSQL);
-      }
-      
-      /**
-       * Destrutor: Fecha o banco de dados.
-       */
-      function __destruct() {
-         $this->desconecta();
-      }
-      
-      /**
-       * Debug
-       */
-      
-      public function debug($mensagem) {
-      	if( $this->debug ) {
-			$fd = fopen($this->arquivoDebug,'a');
-			fputs($fd,$mensagem."\n");
+	//define('DEBUG',0);
+	
+	define('MDATABASE_OK',0);
+	define('MDATABASE_ERRO_DSN',1);
+	define('MDATABASE_ERRO_NAO_CONECTADO',2);
+	
+	define('MDATABASE_ERRO',255);
+	define('MDATABASE_ERRO_QUERY_INVALIDA',254);
+	
+	define('MDATABASE_RETORNA_NREGS',0);
+	define('MDATABASE_RETORNA_UMA', 1);
+	define('MDATABASE_RETORNA_TODAS',2);
+
+
+	class MDatabase {
+		
+		protected $bd;		// Objeto de conexão com o banco de dados
+		protected $dsn;		// String de conexão. Utilizada geralmente para reconexões perdidas.
+		
+		protected $erro;		// Código do erro.
+		protected $erroMSG;	// Mensagem do erro.
+		
+		protected $debug;		// DEBUG HABILITADO
+		protected $arquivoDebug;
+		
+		protected $listaSQL;	// Armazena todas as instruções SQL executadas.
+		
+		
+		protected $estaConectado;	// Indica se o objeto está conectado ao banco de dados.
+		
+		protected $schema;
+		protected $options;
+		
+
+		/**
+		 * Construtor.
+		 *
+		 * Zera a informação de erros.
+		 * Instancia o banco de dados caso tenha recebido o DSN.
+		 */
+		public function MDatabase($dsn=null,$debug=0) {
+			$this->debug = $debug;
+			$this->arquivoDebug = "/tmp/debug.framework.log";
+			$this->zeraErro();
+			if( $dsn ) {
+				$this->conecta($dsn);
+			}
+		  
+			$this->zeraListaSQL();
+		}
+		
+		public function zeraListaSQL() {
+			$this->listaSQL = array();
+		}
+		
+		public function obtemListaSQL() {
+			return($this->listaSQL);
+		}
+		
+		/**
+		 * Destrutor: Fecha o banco de dados.
+		 */
+		function __destruct() {
+			$this->desconecta();
+		}
+		
+		/**
+		 * Debug
+		 */
+		
+		public function debug($mensagem) {
+			if( $this->debug ) {
+				$fd = fopen($this->arquivoDebug,'a');
+				fputs($fd,$mensagem."\n");
+				fclose($fd);
+			}
+		}
+
+
+		/**
+		 * Conecta no banco de dados.
+		 * @param $dsn String DSN para conexão com o banco de dados.
+		 */
+		public function conecta($dsn=null) {
+		
+			$this->estaConectado = false;		// Não está conectado ainda.
+			
+			
+			if( !$dsn ) {
+				// Se não recebeu o DSN tenta pegar o valor setado no próprio objeto.
+				$dsn = $this->dsn;
+			} else {
+				// Se recebeu atualiza na classe.
+				$this->dsn = $dsn;
+			}
+			
+			// Se aindassim não conseguiu pegar o DSN seta um erro e retorna.
+			if( !$dsn ) {
+				atribuiErro(MTEMPLATE_ERRO_DSN,"conecta() não recebeu o DSN");
+				return(MTEMPLATE_ERRO_DSN);
+			}
+			
+			
+
+			$options = array(
+								  'debug' => 0,
+								  'portability' => MDB2_PORTABILITY_NONE,
+								  'seqname_format' => '%s',
+								  'idxname_format' => '%s'
+								 );
+
+			$this->bd =& MDB2::factory($dsn,$options);
+			$this->options = $options;
+			
+			if(PEAR::isError($this->bd)) {
+				// Não foi possível se conectar ao banco de dados blablabla
+				$this->erro	 = $this->bd->getCode();
+				$this->erroMSG = $this->bd->getMessage();
+			} else {
+				// Seta o modo de fetch para matriz associativa
+				$this->bd->setFetchMode(MDB2_FETCHMODE_ASSOC);
+				$this->estaConectado = true;
+				
+				$this->erro	  = MDATABASE_OK;
+				$this->erroMSG = "";
+			}
+
+		}
+		
+		/**
+		 * Desconecta do banco de dados.
+		 */
+		public function desconecta() {
+			if(!PEAR::isError($this->bd)) {
+				$this->bd->disconnect();
+			}
+			$this->estaConectado = false;
+		}
+		
+		/**
+		 * Indica se o banco de dados está conectado.
+		 */
+		public function estaConectado() {
+			return $this->estaConectado;
+		}
+		
+		
+		
+		/**
+		 * Obtem o próximo valor de uma sequence. Caso a sequence não exista o sistema irá criá-lá.
+		 */
+		
+		public function proximoID($nomesequence) {
+			return($this->bd->nextID($nomesequence));
+		}
+		
+		
+		
+		
+		
+		/**
+		 * Implementa internamente as funçoes de consulta(), obtemRegistros() e obtemUnicoRegistro() 
+		 * com base no tipo de retorno especificado.
+		 *
+		 * @param $query Query SQL.
+		 * @param $tipo_retorno 
+		 *		- 0 para retorno com o número de linhas afetadas (em inserts e updates).
+		 *		- 1 para retorno de apenas uma linha (a primeira) de um select
+		 *		- 2 para retorno de múltipas linhas de um select.
+		 */
+		protected function __query($query,$tipo_retorno=MDATABASE_RETORNA_NREGS) {
+			$this->listaSQL[] = $query;
+			
+			/**
+			 * Executa apenas se o banco de dados estiver conectado.
+			 */
+			if( !$this->estaConectado() ) {
+				atribuiErro(MDATABASE_ERRO_NAO_CONECTADO,"Banco de dados desconectado.");
+				return(MDATABASE_ERRO_NAO_CONECTADO);
+			}
+			
+			
+			$this->debug("QUERY: " . $query . "\n");
+
+			$res =& $this->bd->query($query);
+			
+			if(PEAR::isError($res)) {
+				$codigo	= MDATABASE_ERRO;
+				//$mensagem = "Erro ao processar a query";
+				$mensagem = $res->getMessage();
+				switch ($res->getCode()) {
+					case MDB2_ERROR_INVALID:
+						$codigo	= MDATABASE_ERRO_QUERY_INVALIDA;
+						//$mensagem = "Query Invalida.";
+						$mensagem = $res->getMessage();
+						break;
+				
+				}
+				$this->atribuiErro($codigo,$mensagem);
+				return($codigo);
+			}
+			
+			// Não deu erro, processa o retorno de acordo com o tipo solicitado.
+			
+			switch($tipo_retorno) {
+				case MDATABASE_RETORNA_NREGS:
+					return($res);
+					break;		// Neste caso é DB_OK.
+				
+				case MDATABASE_RETORNA_UMA:
+					$linha = $res->fetchRow();
+					return($linha ? $linha : array()); // Se $linha não for nulo retorna $linha, senão retorna um array vazio.
+					break;
+
+				case MDATABASE_RETORNA_TODAS:
+					$retorno = array();
+					while($linha=$res->fetchRow()) {
+						$retorno[]=$linha;
+					}
+					return($retorno);
+			}
+			
+		}
+		
+
+		/**
+		 * Executa uma consulta no banco de dados.
+		 */
+		public function consulta($query) {
+			return( $this->__query($query) );
+		}
+
+		
+		/**
+		 * Retorna um array contendo TODOS os registros retornados por uma query SQL
+		 */
+		public function obtemRegistros($query) {
+			return( $this->__query($query,MDATABASE_RETORNA_TODAS) );
+		}
+		
+		/**
+		 * Retorna um array contendo um ÚNICO registro retornado pela query (por padronização é o primeiro registro).
+		 */
+		public function obtemUnicoRegistro($query) {
+			return( $this->__query($query,MDATABASE_RETORNA_UMA) );
+		}
+		
+		
+		
+		
+		/**
+		 * Atribui um erro ao objeto. Este método só deve ser usado internamente ou pelas classes-filhas.
+		 * @param $codigo		Código do erro.
+		 * @param $mensagem	Mensagem de erro.
+		 */
+		protected function atribuiErro($codigo,$mensagem=null) {
+			$this->erro	 = $codigo;
+			$this->erroMSG = $mensagem;
+			
+			$this->debug("ERRO $codigo: $mensagem");
+		}
+		
+		/**
+		 * Retorna o código do erro da última operação executada.
+		 */
+		public function obtemErro() {
+			return($this->erro);
+		}
+		
+		/**
+		 * Retorna a mensagem de erro da última operação executada.
+		 */
+		public function obtemMensagemErro() {
+			return($this->erroMSG);
+		}
+		
+		/**
+		 * Zera as variáveis internas de erro.
+		 */
+		public function zeraErro() {
+			$this->erro	 = MDATABASE_OK;
+			$this->erroMSG = null;
+		}
+		
+		
+		
+		public function escape($valor) {
+			//return($this->bd->escapeSimple($valor));
+			return($this->bd->escape($valor));
+		}
+		
+		
+
+
+
+
+		/**
+		 * Prepara para operacao reversa
+		 */
+		public function preparaReverso() {
+			$this->bd->loadModule('Reverse');
+			$this->bd->loadModule('Manager');
+		}
+		
+		/**
+		 * Obtem a lista de tabelas
+		 */
+		public function obtemListaTabelas() {
+			return($this->bd->manager->listTables());
+		}
+		
+		/**
+		 * Obtem a lista de campos de uma tabela
+		 */
+		public function obtemListaCampos($tabela) {
+			return($this->bd->manager->listTableFields($tabela));
+		}
+		
+		/**
+		 * Obtem a definicão do camp
+		 */
+		public function obtemDefinicaoCampo($tabela,$campo) {
+			$info = $this->bd->reverse->getTableFieldDefinition($tabela, $campo);
+			
+			if($info[0]["nativetype"] == "numeric"){
+				// Calcular o camanho
+				$len = $info[0]["length"];
+				if( $len != "-1" ) {
+					$sSQL = "SELECT (int4($len)) >> 16 AS inteiro, (int4($len)) & int4('65535') AS decimal";
+					$ilen = $this->obtemUnicoRegistro($sSQL);
+					$info[0]["length"] = $ilen["inteiro"] . "," . $ilen["decimal"];
+				}
+			}
+			return($info);
+		}
+		
+		/**
+		 * Obtem a lista de sequences
+		 */
+		public function obtemListaSequencias() {
+			return($this->bd->manager->listSequences());
+		}
+		
+		public function obtemDefinicaoSequencia($sequencia) {
+			$sSQL = "SELECT last_value + 1 as start, increment_by as increment FROM $sequencia";
+			$def = $this->obtemUnicoRegistro($sSQL);
+			return($def);
+		
+			//return($this->bd->reverse->getSequenceDefinition($sequencia));
+		}
+		
+		/**
+		 * Integridade referencial. Atualmente só trabalha com chave primária
+		 * Obtem as constraints de uma tabela.
+		 */
+		public function obtemListaConstraints($tabela) {
+			//$sSQL = "SELECT conname FROM pg_constraint WHERE type_in
+			//return($this->bd->manager->listTableConstraints($tabela));
+			
+			$sSQL  = "SELECT ";
+			$sSQL .= "   cn.conname ";
+			$sSQL .= "FROM ";
+			$sSQL .= "   pg_constraint cn INNER JOIN pg_class tl ON( tl.oid = cn.conrelid ) ";
+			$sSQL .= "WHERE ";
+			$sSQL .= "   tl.relname = '".$this->escape($tabela)."' ";
+			$l = $this->obtemRegistros($sSQL);
+			$lista = array();
+			for($i=0;$i<count($l);$i++) {
+				$lista[] = $l[$i]["conname"];	
+			}
+			
+			return($lista);
+			
+
+		}
+		
+		public function obtemAttrInfo($oidTabela,$campo) {
+			if( !$campo ) return array();
+			$sSQL  = "SELECT ";
+			$sSQL .= "   a.attname,t.typname,a.atttypmod ";
+			$sSQL .= "FROM ";
+			$sSQL .= "   pg_attribute a INNER JOIN pg_type t ON( t.oid = a.atttypid ) ";
+			$sSQL .= "WHERE ";
+			$sSQL .= "   attrelid='".$this->escape($oidTabela)."'";
+			//if( is_numeric($campo) ) {
+				$sSQL .= "   AND attnum = '".$this->escape($campo)."'";
+			//} else {
+			//	$sSQL .= "   AND attname = '".$this->escape($campo)."'";
+			//}
+			$info = $this->obtemUnicoRegistro($sSQL);
+			return(@$info);
+		}
+		
+		public function obtemDefinicaoConstraint($tabela,$constraint) {
+			$sSQL  = "SELECT  ";
+			$sSQL .= "   contype as type, ";
+			$sSQL .= "   cn.conrelid as table_oid, tl.relname as table,  ";
+			$sSQL .= "   cn.confrelid as foreign_oid, tr.relname as foreign_table, ";
+			$sSQL .= "   cn.conkey, cn.confkey, ";
+			$sSQL .= "   cn.confupdtype as update_action, cn.confdeltype as delete_action, ";
+			$sSQL .= "   cn.confmatchtype as match ";
+			$sSQL .= "FROM ";
+			$sSQL .= "   pg_class tl  ";
+			$sSQL .= "   RIGHT OUTER JOIN pg_constraint cn ON(tl.oid = cn.conrelid) ";
+			$sSQL .= "   LEFT OUTER JOIN pg_class tr ON(tr.oid = cn.confrelid) ";
+			$sSQL .= "WHERE ";
+			$sSQL .= "   cn.conname = '".$this->escape($constraint)."' ";
+			$info = $this->obtemUnicoRegistro($sSQL);
+			
+			/**
+			 * Traduz os campos da tabela local
+			 */
+			$campos = explode(",",str_replace("{","",str_replace("}","",$info["conkey"])));
+			$fields = array();
+			for($i=0;$i<count($campos);$i++) {
+				$infoCampo=$this->obtemAttrInfo($info["table_oid"],$campos[$i]);
+				$nomeCampo = @$infoCampo["attname"];
+
+				if(trim($nomeCampo)) {
+					$fields[]=$nomeCampo;
+				}
+			}
+			
+			$info["fields"] = $fields;
+
+
+			/**
+			 * Traduz os campos da tabela estrangeira
+			 */
+			$campos = explode(",",str_replace("{","",str_replace("}","",$info["confkey"])));
+			$ffields = array();
+			for($i=0;$i<count($campos);$i++) {
+				$infoCampo = $this->obtemAttrInfo($info["foreign_oid"],$campos[$i]);
+				$nomeCampo = @$infoCampo["attname"];
+				if(trim($nomeCampo)) {
+					$ffields[]=$nomeCampo;
+				}
+			}			
+			
+			$info["foreign_fields"] = $ffields;
+			return($info);
+
+		}
+		
+		public function obtemListaIndices($tabela) {
+			return($this->bd->manager->listTableIndexes($tabela));
+		}
+		
+		public function obtemDefinicaoIndice($tabela,$indice) {
+			$this->bd->reverse->getTableIndexDefinition($tabela, $indice);
+		}
+		
+		/**
+		 * Obtem a estrutura do Banco de Dados na representação interna.
+		 */
+		public function obtemEstrutura() {
+			$estrutura = array(
+			                   "tables" => array(),
+			                   "sequences" => array()
+			                  );
+			
+			$lista_tabelas = $this->obtemListaTabelas();
+			// Varre as tabelas
+			for($i=0;$i<count($lista_tabelas);$i++) {
+				$tabela = array(); // Informações da tabela
+				$lista_campos = $this->obtemListaCampos($lista_tabelas[$i]);
+				$lista_consts = $this->obtemListaConstraints($lista_tabelas[$i]);
+				$lista_index  = $this->obtemListaIndices($lista_tabelas[$i]);
+				
+				//echo "TABELA: ".$lista_tabelas[$i]."\n";
+				
+				$campos = array();
+				for($x=0;$x<count($lista_campos);$x++) {
+					$campo = $this->obtemDefinicaoCampo($lista_tabelas[$i],$lista_campos[$x]);
+					$campos[$lista_campos[$x]] = $campo[0];
+				}
+				$tabela["fields"] = $campos;
+
+				$indices = array();
+				for($x=0;$x<count($lista_index);$x++) {
+					$indice = $this->obtemDefinicaoIndice($lista_tabelas[$i],$lista_index[$x]);
+					$indices[$lista_index[$x]] = $indice;
+				}
+				$tabela["indexes"] = $indices;
+				
+				$consts = array();
+				for($x=0;$x<count($lista_consts);$x++) {
+					$constr = $this->obtemDefinicaoConstraint($lista_tabelas[$i],$lista_consts[$x]);
+					$consts[$lista_consts[$x]] = $constr;
+				}
+				$tabela["constraints"] = $consts;
+
+				
+				// Joga na estrutura
+				$estrutura["tables"][$lista_tabelas[$i]] = $tabela;
+			}
+			
+			$lista_sequencias = $this->obtemListaSequencias();
+			for($i=0;$i<count($lista_sequencias);$i++) {
+				$seq = $this->obtemDefinicaoSequencia($lista_sequencias[$i]);
+				$estrutura["sequences"][$lista_sequencias[$i]] = $seq;
+			}
+			
+			return($estrutura);
+		
+		}
+		
+		/**
+		 * Converte um array (estrutura) em um XML
+		 */
+		/**
+		public function array2XML($estrutura) {
+			$tmpArq = tempnam("/tmp","a2x-");
+			$fd=fopen($tmpArq,"w");
+			if(!$fd) return;
+			
+			fputs($fd,'<?xml version="1.0" encoding="ISO-8859-1" ?>'."\n");
+			//fputs($fd,"<rss version='2.0'>\n");
+			//fputs($fd,"<item>\n");
+			fputs($fd,"<database>\n");
+
+			// Varre a tabela
+			while(list($table,$tableinfo)=each($estrutura["tables"])) {
+				fputs($fd," <table>\n");
+				fputs($fd,"   <name>$table</name>\n");
+				fputs($fd,"   <declaration>\n");
+
+
+				// Varre os campos
+				while(list($field,$fieldinfo)=each($tableinfo["fields"])) {
+					fputs($fd,"     <field>\n");
+					fputs($fd,"      <name>$field</name>\n");
+					while(list($vr,$vl)=each($fieldinfo)){
+						fputs($fd,"      <$vr>$vl</$vr>\n");
+					}
+					fputs($fd,"     </field>\n");
+				}
+
+				// Varre as constrains
+				while(list($constr,$constinfo)=each($tableinfo["constraints"])) {
+					fputs($fd,"     <constraint>\n");
+					fputs($fd,"      <name>$constr</name>\n");
+					while(list($vr,$vl)=each($constinfo)){
+						if($vr == "fields" || $vr == "foreign_fields") {
+							fputs($fd,"      <$vr>\n");
+							$nm = substr($vr,0,strlen($vr)-1);
+							for($i=0;$i<count($vl);$i++) {
+								fputs($fd,"        <$nm>".$vl[$i]."</$nm>\n");	
+							}
+							fputs($fd,"      </$vr>\n");
+						} else {
+							fputs($fd,"      <$vr>$vl</$vr>\n");
+						}
+					}
+					fputs($fd,"     </constraint>\n");
+				}
+
+
+
+				fputs($fd,"   </declaration>\n");
+				fputs($fd," </table>\n\n");
+			}
+
+			fputs($fd,"</database>\n");
+			//fputs($fd,"</item>\n");
+			//fputs($fd,"</rss>\n");
+			fclose($fd);
+			
+			// Exibe
+			$fd=fopen($tmpArq,"r");
+			while(!feof($fd)) {
+				echo fgets($fd);
+			}
 			fclose($fd);
 		}
-      }
+		*/
+		
+		protected function sqlFieldDefinition($fieldinfo) {
+			$sql="";
+			switch(trim(strtolower($fieldinfo["nativetype"]))) {
+				case 'int2':
+				case 'int4':
+				case 'integer':
+				case 'inet':
+				case 'cidr':
+				case 'macaddr':
+				case 'date':
+				case 'timestamp':
+				case 'bpchar':
+				case 'text':
+				case 'bool':
+					/**
+					 * Campos que não recebem o tamanho
+					 */
+					$sql .= $fieldinfo["nativetype"];
+					break;
+
+				case 'char':
+				case 'character':
+				case 'varchar':
+				case 'numeric':
+					/**
+					 * Campos que recebem um único parametro (tamanho)
+					 */
+					$sql .= $fieldinfo["nativetype"] . "(" . $fieldinfo["length"] . ")";
+					break;
 
 
-      /**
-       * Conecta no banco de dados.
-       * @param $dsn String DSN para conexão com o banco de dados.
-       */
-      public function conecta($dsn=null) {
-      
-         $this->estaConectado = false;		// Não está conectado ainda.
-         
-         
-         if( !$dsn ) {
-            // Se não recebeu o DSN tenta pegar o valor setado no próprio objeto.
-            $dsn = $this->dsn;
-         } else {
-            // Se recebeu atualiza na classe.
-            $this->dsn = $dsn;
-         }
-         
-         // Se aindassim não conseguiu pegar o DSN seta um erro e retorna.
-         if( !$dsn ) {
-            atribuiErro(MTEMPLATE_ERRO_DSN,"conecta() não recebeu o DSN");
-            return(MTEMPLATE_ERRO_DSN);
-         }
-         
+			}		
 
-         $options = array(
-                          'debug' => 0,
-                          'portability' => DB_PORTABILITY_NONE,
-                          'seqname_format' => '%s'
-                         );
+			if( $fieldinfo["notnull"] ) {
+				$sql .= " NOT NULL";
+			}
 
-         $this->bd =& DB::connect($dsn,$options);
-         
-         if(PEAR::isError($this->bd)) {
-            // Não foi possível se conectar ao banco de dados blablabla
-            $this->erro    = $this->bd->getCode();
-            $this->erroMSG = $this->bd->getMessage();
-         } else {
-            // Seta o modo de fetch para matriz associativa
-            $this->bd->setFetchMode(DB_FETCHMODE_ASSOC);
-            $this->estaConectado = true;
-            
-            $this->erro     = MDATABASE_OK;
-            $this->erroMSG = "";
-         }
+			if( trim($fieldinfo["default"]) ) {
+				$sql .= " DEFAULT " . $fieldinfo["default"];
+			}
+			
+			return($sql);
 
-      }
-      
-      /**
-       * Desconecta do banco de dados.
-       */
-      public function desconecta() {
-         if(!PEAR::isError($this->bd)) {
-            $this->bd->disconnect();
-         }
-         $this->estaConectado = false;
-      }
-      
-      /**
-       * Indica se o banco de dados está conectado.
-       */
-      public function estaConectado() {
-         return $this->estaConectado;
-      }
-      
-      
-      
-      /**
-       * Obtem o próximo valor de uma sequence. Caso a sequence não exista o sistema irá criá-lá.
-       */
-      
-      public function proximoID($nomesequence) {
-         return($this->bd->nextID($nomesequence));
-      }
-      
-      
-      
-      
-      
-      /**
-       * Implementa internamente as funçoes de consulta(), obtemRegistros() e obtemUnicoRegistro() 
-       * com base no tipo de retorno especificado.
-       *
-       * @param $query Query SQL.
-       * @param $tipo_retorno 
-       *		- 0 para retorno com o número de linhas afetadas (em inserts e updates).
-       *		- 1 para retorno de apenas uma linha (a primeira) de um select
-       *		- 2 para retorno de múltipas linhas de um select.
-       */
-      protected function __query($query,$tipo_retorno=MDATABASE_RETORNA_NREGS) {
-      	$this->listaSQL[] = $query;
-         
-         /**
-          * Executa apenas se o banco de dados estiver conectado.
-          */
-         if( !$this->estaConectado() ) {
-            atribuiErro(MDATABASE_ERRO_NAO_CONECTADO,"Banco de dados desconectado.");
-            return(MDATABASE_ERRO_NAO_CONECTADO);
-         }
-         
-         
-         $this->debug("QUERY: " . $query . "\n");
+		}
+		
+		/**
+		 * 
+		 */
+		protected function sqlAlterTableAddColumn($table,$field,$fieldinfo) {
+			$sql = "ALTER TABLE $table ADD COLUMN $field ";
+			$sql .= $this->sqlFieldDefinition($fieldinfo);
+			return($sql);
+		}
+		
+		/**
+		 * sqlCreateTable() 
+		 */
+		public function sqlCreateTable($table,$fields) {
+			$sql = "CREATE TABLE $table (\n";
+			
+			$cnt=1;
 
-         $res =& $this->bd->query($query);
-         
-         if(PEAR::isError($res)) {
-            $codigo   = MDATABASE_ERRO;
-            //$mensagem = "Erro ao processar a query";
-            $mensagem = $res->getMessage();
-            switch ($res->getCode()) {
-               case DB_ERROR_INVALID:
-                  $codigo   = MDATABASE_ERRO_QUERY_INVALIDA;
-                  //$mensagem = "Query Invalida.";
-                  $mensagem = $res->getMessage();
-                  break;
-            
-            }
-            $this->atribuiErro($codigo,$mensagem);
-            return($codigo);
-         }
-         
-         // Não deu erro, processa o retorno de acordo com o tipo solicitado.
-         
-         switch($tipo_retorno) {
-            case MDATABASE_RETORNA_NREGS:
-               return($res);
-               break;		// Neste caso é DB_OK.
-            
-            case MDATABASE_RETORNA_UMA:
-               $linha = $res->fetchRow();
-               return($linha ? $linha : array()); // Se $linha não for nulo retorna $linha, senão retorna um array vazio.
-               break;
+			while(list($field,$fieldinfo)=each($fields)) {
+				$sql .= "   " . $field . " ";
+				$sql .= $this->sqlFieldDefinition($fieldinfo);
+				
+				if( $cnt++ < count($fields) ) {
+					$sql .= ",";
+				}
 
-            case MDATABASE_RETORNA_TODAS:
-               $retorno = array();
-               while($linha=$res->fetchRow()) {
-                  $retorno[]=$linha;
-               }
-               return($retorno);
-         }
-         
-      }
-      
 
-      /**
-       * Executa uma consulta no banco de dados.
-       */
-      public function consulta($query) {
-         return( $this->__query($query) );
-      }
+				$sql .= "\n";
+			}
+			
+			$sql .= ")";
+			
+			return($sql);
+		}
+		
+		/**
+		 * SQL para adicionar uma constraint
+		 */
+		public function sqlAddConstraint($table,$constr,$constinfo) {
+			$sql  = "ALTER TABLE ONLY $table ADD CONSTRAINT $constr";
+			$PG_ON_FLAGS = array("c" => "cascade", "r" => "restrict");
+			
+			switch($constinfo["type"]) {
 
-      
-      /**
-       * Retorna um array contendo TODOS os registros retornados por uma query SQL
-       */
-      public function obtemRegistros($query) {
-         return( $this->__query($query,MDATABASE_RETORNA_TODAS) );
-      }
-      
-      /**
-       * Retorna um array contendo um ÚNICO registro retornado pela query (por padronização é o primeiro registro).
-       */
-      public function obtemUnicoRegistro($query) {
-         return( $this->__query($query,MDATABASE_RETORNA_UMA) );
-      }
-      
-      
-      
-      
-      /**
-       * Atribui um erro ao objeto. Este método só deve ser usado internamente ou pelas classes-filhas.
-       * @param $codigo		Código do erro.
-       * @param $mensagem	Mensagem de erro.
-       */
-      protected function atribuiErro($codigo,$mensagem=null) {
-         $this->erro    = $codigo;
-         $this->erroMSG = $mensagem;
-         
-         $this->debug("ERRO $codigo: $mensagem");
-      }
-      
-      /**
-       * Retorna o código do erro da última operação executada.
-       */
-      public function obtemErro() {
-         return($this->erro);
-      }
-      
-      /**
-       * Retorna a mensagem de erro da última operação executada.
-       */
-      public function obtemMensagemErro() {
-         return($this->erroMSG);
-      }
-      
-      /**
-       * Zera as variáveis internas de erro.
-       */
-      public function zeraErro() {
-         $this->erro    = MDATABASE_OK;
-         $this->erroMSG = null;
-      }
-      
-      
-      
-      public function escape($valor) {
-         return($this->bd->escapeSimple($valor));
-      }
-      
-      
-      
-      
-      /**
-       * Obtem informações sobre uma tabela.
-       */
-      public function tableInfo($tabela) {
-         $info = $this->bd->tableInfo($tabela);
-         
-         $campos = array();
-         for($x=0;$x<count($info);$x++) {
-            $campos[$x]["nome"] 	= $info[$x]["name"];
-            $campos[$x]["tipo"] 	= $info[$x]["type"];
-            $campos[$x]["tamanho"] 	= $info[$x]["len"];
-            $campos[$x]["flags"]	= str_replace("public.","",$info[$x]["flags"]);
-         }
-         return($campos);
-      }
-      
-      /**
-       * Inicia a transação.
-       */
-      public function begin() {
-      	return($this->consulta("BEGIN"));
-      }
-      
-      /**
-       * Finaliza e persiste a transação.
-       */
-      public function commit() {
-      	return($this->consulta("COMMIT"));
-      }
-      
-      /**
-       * Finaliza de descarta a transação.
-       */
-      public function rollback() {
-      	return($this->consulta("ROLLBACK"));
-      }
-   
-   
-   }
+				case 'p':
+					/**
+					 * Primary key
+					 */
+					$sql .= " PRIMARY KEY(" . implode(',',$constinfo["fields"]) .")";
+					break;
+				case 'u':
+					$sql .= " UNIQUE(" . implode(',',$constinfo["fields"]) . ")";
+					break;
+				case 'f':
+					$delayed=1;	// Integridade referencial irá rodar depois.
+					$sql .= " FOREIGN KEY(" . implode(',',$constinfo["fields"]) . ")";
+					$sql .= " REFERENCES " . $constinfo["foreign_table"] . "(" . implode(',',$constinfo["foreign_fields"]) . ")";
+
+					if( @$PG_ON_FLAGS[$constinfo["update_action"]] ) {
+						$sql .= " on update " . $PG_ON_FLAGS[$constinfo["update_action"]];
+					}
+
+					if( @$PG_ON_FLAGS[$constinfo["delete_action"]] ) {
+						$sql .= " on delete " . $PG_ON_FLAGS[$constinfo["delete_action"]];
+					}
+					break;
+			}
+			return($sql);
+		}
+		
+		/**
+		 * Cria um script de criação do banco
+		 *
+		 * Retorna um array:
+		 *     "begin"	=> Queries para rodar no começo; (geralmente a criacao das sequences).
+		 *     "struct"	=> Estrutura (geralmente create table e alter p/ primary e unique).
+		 *     "end"	=> Queries para rodar no fim. (geralmente os alter tables de integridade referencial).
+		 */
+		public function scriptCriacao($estrutura) {
+		
+			$script = array("begin" => array(), "struct" => array(), "dados" => array(), "end" => array(), "comments" => array() );
+			$delayed_constraints = array();		// Constraints para executar posterormente (ao termino do script).
+			
+			//print_r($estrutura);
+			
+			/**
+			 * SEQUENCES
+			 */
+
+			while(list($seq,$seqinfo)=each($estrutura["sequences"])) {
+				$sql = "CREATE SEQUENCE $seq INCREMENT BY " . $seqinfo["increment"];
+				$script["begin"][] = $sql;
+			}
+			
+			/**
+			 * Tables
+			 */
+			while(list($table,$tableinfo)=each($estrutura["tables"])) {
+				// CREATE TABLE
+				$sql = $this->sqlCreateTable($table,$tableinfo["fields"]);
+				$script["struct"][] = $sql;
+				
+
+				
+				
+				/**
+				 * Constraints
+				 * Varre as constraints e joga as foreign keys para o final
+				 */
+				while(list($constr,$constinfo)=each($tableinfo["constraints"])){
+					$sql  = $this->sqlAddConstraint($table,$constr,$constinfo);
+					
+					//print_r($constinfo);
+					$delayed=0; // Indica se a query será executada agora ou posteriormente
+					
+					switch($constinfo["type"]) {
+						case 'p':
+							break;
+						case 'u':
+							break;
+						case 'f':
+							$delayed=1;	// Integridade referencial irá rodar no final.
+							break;
+					}
+					
+					if($delayed) {
+						$script["end"][] = $sql;
+					} else {
+						$script["struct"][] = $sql;
+					}
+					
+				}
+
+			}
+
+
+			//$script = array_merge($script,$delayed_constraints);
+			
+			return($script);
+			
+		}
+		
+		/**
+		 * Gera script de modificação da estrutura
+		 * Considera o primeiro parametro como estrutura atual e o segundo como nova estrutura
+		 */
+		public function scriptModificacao($original,$novo) {
+			
+			// lista de tabelas
+			$tabelasOriginal 	= array_keys($original["tables"]);
+			$tabelasNovo		= array_keys($novo["tables"]);	
+
+			// Lista de sequences
+			$seqOriginal		= array_keys($original["sequences"]);
+			$seqNovo			= array_keys($novo["sequences"]);
+
+			// Tabelas faltando/sobrando
+			$tabelasFaltando = array_diff($tabelasNovo,$tabelasOriginal);
+			$tabelasSobrando = array_diff($tabelasOriginal,$tabelasNovo);
+
+			// Sequences faltando/sobrando
+			$seqFaltando = array_diff($seqNovo,$seqOriginal);
+			$seqSobrando = array_diff($seqOriginal,$seqNovo);
+
+			// Define uma array de estrutura
+			 
+			$arr = array( "tables" => array(), "sequences" => array() );
+
+			$script = array();
+
+			// Armazena informação das tabelas faltando
+			while(list($vr,$vl)=each($tabelasFaltando)) {
+				$arr["tables"][$vl] = $novo["tables"][$vl];
+			}
+
+			// Armazena informação das sequences faltando
+			while(list($vr,$vl)=each($seqFaltando)) {
+				$arr["sequences"][$vl] = $novo["sequences"][$vl];
+			}
+
+			$script = $this->scriptCriacao($arr);
+
+
+			// Verificar campos faltando
+			// Verificar constraints faltando
+			// Pegando baseado na tabela original pois as tabelas faltando e sequences já foram resolvidas.
+			foreach($tabelasOriginal as $tabela) {
+				// CAMPOS
+				$camposOriginal	= array_keys($original["tables"][$tabela]["fields"]);
+				$camposNovo		= array_keys($novo["tables"][$tabela]["fields"]);
+
+				$camposFaltando = array_diff($camposNovo,$camposOriginal);
+				$camposSobrando = array_diff($camposOriginal,$camposNovo);
+
+				//echo "VERIFICANDO: $tabela\n";
+
+				foreach($camposFaltando as $campo) {
+					$script["struct"][] = $this->sqlAlterTableAddColumn($tabela,$campo,$novo["tables"][$tabela]["fields"][$campo]);
+				}
+
+				// INFO -- CAMPOS DIFERENTES
+				
+				$comments = array();
+				foreach($camposOriginal as $campo) {
+					$diff = array_diff($novo["tables"][$tabela]["fields"][$campo],$original["tables"][$tabela]["fields"][$campo]);
+
+					if( count($diff) ) {
+						$comments[]  = "=";
+						$comments[] .= "DIFERENCAS DETECTADAS";
+						$comments[] .= "TABELA: $tabela";
+						$comments[] .= "CAMPO: $campo";
+						$comments[] .= "-";
+
+						while(list($vr,$vl)=each($diff)) {
+							$co = $original["tables"][$tabela]["fields"][$campo];
+							$cn = $novo["tables"][$tabela]["fields"][$campo];
+							//$comments[] .= "-- $vr    -- \n";
+							$comments[] .= $vr . "...:   ATUAL: " . $co[$vr] . " | NOVO: " . $cn[$vr];
+						}
+
+						$comments[]  = "=";
+
+					}
+				}
+				
+				$script["comments"] = array_merge($script["comments"],$comments);
+
+
+				// CONSTS
+				$constsOriginal	= array_keys($original["tables"][$tabela]["constraints"]);
+				$constsNovo		= array_keys($novo["tables"][$tabela]["constraints"]);
+
+				$constsFaltando = array_diff($constsNovo,$constsOriginal);
+				$constsSobrando = array_diff($constsOriginal,$constsNovo);
+
+				foreach($constsFaltando as $constr) {
+					$sql = $this->sqlAddConstraint($tabela,$constr,$novo["tables"][$tabela]["constraints"][$constr]);
+					if($novo["tables"][$tabela]["constraints"][$constr]["type"]=="f") {
+						$script["end"][] = $sql;
+					} else {
+						$script["struct"][] = $sql;
+					}
+				}
+
+			}
+			
+			return($script);
+
+		}
+		
+		protected function sqlComment($texto="",$size=70) {
+			if(!$texto){
+				$texto = "\n";
+				return($texto);
+			}
+			if($texto=="-"){ 
+				$texto = str_repeat("-",$size);
+			} else if($texto=="=") { 
+				$texto = str_repeat("=",$size);
+			} else {
+				$texto = " " . $texto;
+			}
+
+			$retorno = "--" . $texto;
+			if( strlen($texto) < $size ) {
+				$retorno .= str_repeat(" ",70 - strlen($texto));
+			}
+			$retorno .= "--\n";
+			
+			return($retorno);
+		
+		}
+		
+		/**
+		 * Gera o texto de um script.
+		 * Na ordem correta.
+		 */
+		public function script2text($script) {
+			$retorno = "";
+			$retorno .= $this->sqlComment();
+			$retorno .= $this->sqlComment("-");			
+			$retorno .= $this->sqlComment("BEGIN");
+			$retorno .= $this->sqlComment("-");
+			$retorno .= $this->sqlComment();
+			
+			for($i=0;$i<count(@$script["begin"]);$i++){
+				$retorno .= $script["begin"][$i].";\n";
+			}
+			
+			$retorno .= $this->sqlComment();
+			$retorno .= $this->sqlComment("-");
+			$retorno .= $this->sqlComment("STRUCT");
+			$retorno .= $this->sqlComment("-");
+			$retorno .= $this->sqlComment();
+
+			for($i=0;$i<count($script["struct"]);$i++){
+				$retorno .= $script["struct"][$i].";\n";
+			}
+			
+			$retorno .= $this->sqlComment();
+			$retorno .= $this->sqlComment("-");
+			$retorno .= $this->sqlComment("END");
+			$retorno .= $this->sqlComment("-");
+			$retorno .= $this->sqlComment();
+			for($i=0;$i<count($script["end"]);$i++){
+				$retorno .= $script["end"][$i].";\n";
+			}
+			
+			
+			$retorno .= $this->sqlComment();
+			$retorno .= $this->sqlComment("-");
+			$retorno .= $this->sqlComment("COMENTARIOS");
+			$retorno .= $this->sqlComment("-");
+			$retorno .= $this->sqlComment();
+			for($i=0;$i<count($script["comments"]);$i++){
+				$retorno .= $this->sqlComment($script["comments"][$i]);
+			}
+			
+			return($retorno);
+			
+			
+		}
+		
+
+		/**
+		 * Obtem informações sobre uma tabela.
+		 */
+		public function tableInfo($tabela) {
+			
+			if( PEAR::isError($tabela) ) {
+				// Erro !!!
+				echo $tabela->getMessage . "\n";
+			}
+			
+			
+			$rev =& $this->bd->loadModule('Reverse');
+			$this->bd->loadModule('Manager');
+
+
+			$info = $this->bd->reverse->tableInfo($tabela);
+
+			if( PEAR::isError($info) ) {
+				echo $info->getMessage() . "\n";
+				return;
+			}
+			
+			$campos = array();
+			for($x=0;$x<count($info);$x++) {
+			
+				//$k = array_keys($info[$x]);
+				//for($i=0;$i<count($k);$i++) {
+				//	echo $k[$i] ."=".$info[$x][$k[$i]]. "\n";
+				//}
+				//echo "-----\n";
+				
+				$campos[$x]["nome"] 	  = $info[$x]["name"];
+				$campos[$x]["tipo"] 	  = $info[$x]["nativetype"]; // No lugar de type
+				$campos[$x]["tamanho"] 	  = @$info[$x]["length"];
+				$campos[$x]["flags"]	  = str_replace("public.","",$info[$x]["flags"]);
+				//$campos[$x]["notnull"]    = $info[$x]["notnull"];
+				//$campos[$x]["nativetype"] = $info[$x]["nativetype"];
+				
+				
+			}
+			return($campos);
+		}
+		
+		/**
+		 * Inicia a transação.
+		 */
+		public function begin() {
+			//return($this->consulta("BEGIN"));
+			return($this->bd->beginTransaction());
+		}
+		
+		/**
+		 * Finaliza e persiste a transação.
+		 */
+		public function commit() {
+			//return($this->consulta("COMMIT"));
+			return($this->bd->commit());
+		}
+		
+		/**
+		 * Finaliza de descarta a transação.
+		 */
+		public function rollback() {
+			//return($this->consulta("ROLLBACK"));
+			return($this->bd->rollback());
+		}
+		
+	}
 
 ?>

@@ -22,4 +22,6 @@ install:
 	install mimage_barcode_int25.class.php ${TARGET}
 	install SistemaOperacional.class.php ${TARGET}
 	install SOFreeBSD.class.php ${TARGET}
-	install MBanco.class.php $(TARGET)
+	install MBanco.class.php ${TARGET}
+	install MXMLUtils.class.php ${TARGET}
+	install autoload.def.php ${TARGET}
