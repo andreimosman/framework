@@ -1,5 +1,7 @@
 <?
 
+	define('MXMLUTILS_PRIMEIRO_NIVEL',0);
+
 	class MXMLUtils {
 		protected $ptr;
 
@@ -8,14 +10,53 @@
 		}
 		
 		/**
+		 * Funcoes pra criação de TAG
+		 */
+		public function beginTag($tag) {
+			return("<$tag>");
+		}
+		
+		public function endTag($tag) {
+			return("</$tag>");
+		}
+		
+		public function intBeginTag($num,$comDelimitadores=true) {
+			$texto = 'int i="'.((int)$num).'"';
+			if($comDelimitadores) {
+				$texto = '<' . $texto . '>';
+			}
+			
+			return($texto);
+		}
+		
+		public function intEndTag() {
+			return('</int>');
+		}
+
+		public static function htmlnumericentities($str){
+		  return preg_replace('/[^!-%\x27-;=?-~ ]/e', '"&#".ord("$0").chr(59)', $str);
+		}
+
+		public static function numericentitieshtml($str){
+		  return utf8_encode(preg_replace('/&#(\d+);/e', 'chr(str_replace(";","",str_replace("&#","","$0")))', $str));
+		}
+		
+		
+		public function headerTag($encoding="ISO-8859-1") {
+			return('<?xml version="1.0" encoding="'.$encoding.'" ?>');
+		}
+		
+		/**
 		 * Converte um Array para um XML
 		 * Funcao recursiva
 		 */
-		public function a2x($arr,$majortag,$nivel=0) {
+		public function a2x($arr,$majortag,$nivel=MXMLUTILS_PRIMEIRO_NIVEL,$exibe_header=true) {
 			$output = "";
 			if( is_array($arr) ) {
-				if($nivel==0 ) {
-					$output .= '<?xml version="1.0" encoding="ISO-8859-1" ?>' . "\n";
+				if($nivel==MXMLUTILS_PRIMEIRO_NIVEL) {
+					if( $exibe_header ) {
+						$output .= $this->headerTag() . "\n";
+					}
 
 					if( $majortag ) {
 						$output .= "<$majortag>\n";
@@ -37,14 +78,16 @@
 							if( ($vl==""||$vl==null)){
 								$vl="<null/>";
 							} else {
-								$vl=htmlentities($vl);
+								//$vl=htmlentities($vl);
+								$vl=MXMLUtils::htmlnumericentities($vl);
 							}
 						}
 						$output .= str_repeat(" ",$nivel)."<$vr $att>$vl</$vr>\n";
 					}
 				}
-				if($nivel==0 && $majortag) {
-					$output .= "</$majortag>\n";
+				if($nivel==MXMLUTILS_PRIMEIRO_NIVEL && $majortag) {
+					$tmp = explode(" ",$majortag);
+					$output .= "</".$tmp[0].">\n";
 				}
 
 			}
@@ -94,7 +137,8 @@
 							if( is_array($vl) || $vl=="<null/>" ) {
 								$vl = "";
 							} else {
-								$vl=html_entity_decode($vl);
+								//$vl=html_entity_decode($vl);
+								$vl=MXMLUtils::numericentitieshtml($vl);
 							}
 						}
 						

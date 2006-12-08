@@ -6,6 +6,7 @@ TARGET=/usr/mosman/php/framework/
 
 install:
 	install -d ${TARGET}
+	install MBackup.class.php ${TARGET}
 	install MConfig.class.php ${TARGET}
 	install MDatabase.class.php ${TARGET}
 	install MDatabaseResultado.class.php ${TARGET}
@@ -25,5 +26,7 @@ install:
 	install SOFreeBSD.class.php ${TARGET}
 	install MBanco.class.php ${TARGET}
 	install MXMLUtils.class.php ${TARGET}
+	install MXMLParser.class.php ${TARGET}
+	install MXMLBackupParser.class.php ${TARGET}
 	install autoload.def.php ${TARGET}
 	install MBackup.class.php ${TARGET}

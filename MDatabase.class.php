@@ -1,6 +1,7 @@
 <?
 
 	require_once("MDB2.php");
+	require_once("MDatabaseResultado.class.php");
 
 	//define('DEBUG',0);
 	
@@ -14,6 +15,9 @@
 	define('MDATABASE_RETORNA_NREGS',0);
 	define('MDATABASE_RETORNA_UMA', 1);
 	define('MDATABASE_RETORNA_TODAS',2);
+	define('MDATABASE_RETORNA_RESULTADO',3);
+	
+	
 
 
 	class MDatabase {
@@ -35,7 +39,6 @@
 		protected $schema;
 		protected $options;
 		
-
 		/**
 		 * Construtor.
 		 *
@@ -43,6 +46,8 @@
 		 * Instancia o banco de dados caso tenha recebido o DSN.
 		 */
 		public function MDatabase($dsn=null,$debug=0) {
+			$this->fetch=array();
+		
 			$this->debug = $debug;
 			$this->arquivoDebug = "/tmp/debug.framework.log";
 			$this->zeraErro();
@@ -222,6 +227,10 @@
 						$retorno[]=$linha;
 					}
 					return($retorno);
+					break;
+				case MDATABASE_RETORNA_RESULTADO:
+					return(new MDatabaseResultado($res));
+					break;
 			}
 			
 		}
@@ -240,6 +249,13 @@
 		 */
 		public function obtemRegistros($query) {
 			return( $this->__query($query,MDATABASE_RETORNA_TODAS) );
+		}
+		
+		/**
+		 * Retorna um resultado (resultset)
+		 */
+		public function obtemResultado($query) {
+			return( $this->__query($query,MDATABASE_RETORNA_RESULTADO) );
 		}
 		
 		/**
