@@ -8,6 +8,7 @@ install:
 	install -d ${TARGET}
 	install MConfig.class.php ${TARGET}
 	install MDatabase.class.php ${TARGET}
+	install MDatabaseResultado.class.php ${TARGET}
 	install MTemplate.class.php ${TARGET}
 	install MSmarty.class.php ${TARGET}
 	install MWebApp.class.php ${TARGET}
@@ -25,3 +26,4 @@ install:
 	install MBanco.class.php ${TARGET}
 	install MXMLUtils.class.php ${TARGET}
 	install autoload.def.php ${TARGET}
+	install MBackup.class.php ${TARGET}
