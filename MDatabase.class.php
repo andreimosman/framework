@@ -710,6 +710,57 @@
 		}
 		
 		/**
+		 * Comentarios SQL
+		 */
+		protected function sqlComment($texto="",$size=70) {
+			if(!$texto){
+				$texto = "\n";
+				return($texto);
+			}
+			if($texto=="-"){ 
+				$texto = str_repeat("-",$size);
+			} else if($texto=="=") { 
+				$texto = str_repeat("=",$size);
+			} else {
+				$texto = " " . $texto;
+			}
+
+			$retorno = "--" . $texto;
+			if( strlen($texto) < $size ) {
+				$retorno .= str_repeat(" ",70 - strlen($texto));
+			}
+			$retorno .= "--\n";
+			
+			return($retorno);
+		
+		}
+
+		/**
+		 * Cria um SQL para insert
+		 * @param	$tabela		Nome da tabela
+		 * @param	$dados		Matriz associativa "campo" => $dado.
+		 */
+		
+		public function sqlInsert($tabela,$dados) {
+			$sql  = "INSERT INTO $tabela (";
+			$keys = array_keys($dados);
+			$fields = array();
+			$values = array();
+
+			foreach($keys as $k) {
+				$fields[] = $k;
+				$vl = $dados[$k];
+				$values[] = is_null($vl) ? 'NULL' : "'" . $this->bd->escape($vl) . "'";
+			}
+			
+			$sql .= implode(",",$fields) . ") VALUES ( " . implode(',',$values) . ") ";
+			
+			return($sql);
+		
+		}
+		
+
+		/**
 		 * Cria um script de criação do banco
 		 *
 		 * Retorna um array:
@@ -887,29 +938,6 @@
 			
 			return($script);
 
-		}
-		
-		protected function sqlComment($texto="",$size=70) {
-			if(!$texto){
-				$texto = "\n";
-				return($texto);
-			}
-			if($texto=="-"){ 
-				$texto = str_repeat("-",$size);
-			} else if($texto=="=") { 
-				$texto = str_repeat("=",$size);
-			} else {
-				$texto = " " . $texto;
-			}
-
-			$retorno = "--" . $texto;
-			if( strlen($texto) < $size ) {
-				$retorno .= str_repeat(" ",70 - strlen($texto));
-			}
-			$retorno .= "--\n";
-			
-			return($retorno);
-		
 		}
 		
 		/**

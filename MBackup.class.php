@@ -117,27 +117,8 @@
 			$p->processaArquivo($arquivo_xml);
 			
 			while( $dado = $p->fetch() ) {
-				//echo "FETCHED!!!!\n";
-				//print_r($dado);
-				//break;
-				
-				$sql  = "INSERT INTO " . $dado["table"] . "(";
-				$keys = array_keys($dado["data"]);
-				
-				$fields = array();
-				$values = array();
-				
-				foreach($keys as $k) {
-					$fields[] = $k;
-					$vl = $dado["data"][$k];
-					$values[] = is_null($vl) ? 'NULL' : "'" . $this->bd->escape($vl) . "'";
-				}
-				
-				$sql .= implode(",",$fields) . ") VALUES ( " . implode(',',$values) . ") ";
-				
-				
+				$sql = $this->bd->sqlInsert($dado["table"],$dado["data"]);				
 				fputs($fd,$sql.";\n");
-							
 			}
 			
 			fclose($fd);
