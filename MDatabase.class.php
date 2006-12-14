@@ -759,6 +759,59 @@
 		
 		}
 		
+		/**
+		 * Montagem de clausula WHERE
+		 */
+		public function sqlWhere($condicao) {
+			$sql = "";
+			$cnt=0;
+			while(list($campo,$valor) = each($condicao)) {
+				$cnt++;
+				if( $cnt > 1 ) {
+					$sql .= " AND";
+				}
+				$sql .= " $campo " . (is_null($valor)?"is NULL" : "= '" . $this->bd->escape($valor) . "'");
+			}
+			
+			if( trim($sql) ) {
+				$sql = " WHERE $sql";
+			}
+			
+			return($sql);
+		}
+		
+		/**
+		 * Cria um SQL para update
+		 */
+		public function sqlUpdate($tabela,$dados,$condicao) {
+			$sql = "UPDATE $tabela SET ";
+			
+			$cnt=0;
+			while(list($campo,$valor) = each($dados) ) {
+				$sql .= " $campo = " . (is_null($valor)?"NULL" : "'" . $this->bd->escape($valor) . "'");
+				$cnt++;
+				if($cnt < count($dados)) {
+					$sql .=", ";
+				}
+			
+			}
+			
+			$sql .= $this->sqlWhere($condicao);
+			
+			return($sql);
+
+		}
+		
+		/**
+		 * Cria um SQL para select
+		 */
+		public function sqlSelect($tabela,$campos,$condicao) {
+			$sql = "SELECT " . implode(",",$campos) . " FROM " . $tabela;
+			$sql .= $this->sqlWhere($condicao);
+			return($sql);
+		}
+
+
 
 		/**
 		 * Cria um script de criação do banco
