@@ -760,6 +760,18 @@
 		}
 		
 		/**
+		 *SQL PARA DELETE BY 'AMARRA'
+		 */
+		public function sqlDelete($tabela,$condicao) {
+			
+			$sql = "DELETE FROM $tabela ";
+			$sql .= $this->sqlWhere($condicao);
+			
+			return($sql);
+
+		}
+				
+		/**
 		 * Montagem de clausula WHERE
 		 */
 		public function sqlWhere($condicao) {
