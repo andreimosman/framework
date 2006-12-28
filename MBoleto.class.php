@@ -15,14 +15,17 @@
 		 */
 		protected $banco;		// Código do banco
 		protected $moeda;	 	// Código da moeda (real = 9)
-		protected $carteira; 	// Número fornecido pelo banco
+		protected $carteira; 		// Número fornecido pelo banco
 		protected $agencia;		// Sem o dígito
 		protected $conta;		// Sem o dígito
-		protected $convenio;	// Fornecido pelo banco
-		protected $vencimento;	// Data de vencimento
+		protected $convenio;		// Fornecido pelo banco
+		protected $vencimento;		// Data de vencimento
 		protected $valor;		// Valor do documento
-		protected $id;			// identificação única do boleto (gerada pelo sistema mosman)	
+		protected $id;			// identificação única do boleto (gerada pelo sistema mosman)
 		
+		protected $cnpj_ag_cedente;	// CNPJ da Agencia Cedente (utilizado pela CEF)
+		protected $codigo_cedente;	// Código do Cedente (CEF)
+		protected $operacao_cedente;	// Operação código cedente
 		
 		// Variáveis para cache
 		protected $nosso_numero;
@@ -34,7 +37,7 @@
 		/**
 		 * Construtor - Instancia o objeto com as variáveis necessárias para geração dos valores relevantes
 		 */
-		public function __construct($banco,$agencia,$conta,$carteira,$convenio,$vencimento,$valor,$id,$moeda=9) {
+		public function __construct($banco,$agencia,$conta,$carteira,$convenio,$vencimento,$valor,$id,$moeda=9,$cnpj_ag_cedente="",$codigo_cedente="",$operacao_cedente="") {
 			$this->banco       = $banco;
 
 			$this->carteira    = $carteira;
@@ -47,6 +50,10 @@
 
 			$this->moeda       = $moeda;	// 9 por padrão
 			
+			// CEF
+			$this->cnpj_ag_cedente 	= $cnpj_ag_cedente;
+			$this->codigo_cedente  	= $codigo_cedente;
+			$this->operacao_cedente	= $operacao_cedente;
 			$linha_digitavel   = "";
 			$codigo_barras     = "";
 			
@@ -80,6 +87,15 @@
 
 					}
 					break;
+				
+				case 237: /** Bradesco */
+					$campoLivre = $this->padZero($this->agencia,4) . $this->padZero($this->carteira,2) . $this->padZero($this->obtemNossoNumero(),11) . $this->padZero($this->conta,7) . "0";				
+					break;
+
+				case 104: /** Caixa Economica Federal */
+					$campoLivre = $this->padZero($this->nossoNumero,10) . $this->padZero($this->cnpj_ag_cedente,4) . $this->padZero($this->operacao_cedente,3) . $this->padZero($this->codigo_cedente,8);
+					break;
+					
 
 			}
 			return($this->padZero($campoLivre,25));
@@ -105,6 +121,24 @@
 					}
 					
 					break;
+
+				case 237: /** Bradesco */
+					$nossoNumero = $this->padZero($this->id,11);
+					break;
+				
+				case 104: /** Caixa Economica Federal */
+					if( $this->carteira == "SR" || $this->carteira == "82" ) {
+						// Carteira sem registro
+						$nossoNumero = "82" . $this->padZero($this->id,8);
+					} else {
+						// Carteira Rapida
+						$nossoNumero = "9" . $this->padZero($this->id,9);
+					}
+					
+					// Calcula DV do Nosso Número.
+					//$d1 = $this->modulo11( $this->soma11( $nossoNumero ) );
+					//$nossoNumero = $nossoNumero . $d1;
+					
 
 			}
 			

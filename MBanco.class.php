@@ -43,9 +43,15 @@
 			$Quant = strlen($Partes); 
 			$Mod11 = '4329876543298765432987654329876543298765432'; 
 			$Soma=0;
+			
+			$ptrMod = strlen($Mod11) - 1;
+			
+			
 			for ($i = $Quant-1; $i >= 0; $i--) { 
-				$Y = $Partes[$i]*$Mod11[$i]; 
+				$Y = $Partes[$i]*$Mod11[$ptrMod]; 
+				//echo $Partes[$i] . "*" . $Mod11[$ptrMod] . " = $Y\n";
 				$Soma += $Y; 
+				--$ptrMod;
 			} 
 			return($Soma); 
 		}
