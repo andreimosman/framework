@@ -80,14 +80,14 @@
 			///////////////////////////////////////////
 			// CONFIGURA OS PIPES                    //
 			///////////////////////////////////////////
-			if($upload){
-			   $slots_out = SOFreeBSD::obtemNumSlotsIdeal($upload_kbps);
-			   $comando = $ipfw . " pipe " . $pipe_out . " config bw " . $upload . "Kbit/s queue " . $slots_out;
+			if($download){
+			   $slots_out = SOFreeBSD::obtemNumSlotsIdeal($download_kbps);
+			   $comando = $ipfw . " pipe " . $pipe_out . " config bw " . $download . "Kbit/s queue " . $slots_out;
 			   SistemaOperacional::executa($comando);
 			}
 
-			if($download){
-				$slots_in  = SOFreeBSD::obtemNumSlotsIdeal($download_kbps);
+			if($upload){
+				$slots_in  = SOFreeBSD::obtemNumSlotsIdeal($upload_kbps);
 				$comando = $ipfw . " pipe " . $pipe_in . " config bw " . $download . "Kbit/s queue " . $slots_in;
 				SistemaOperacional::executa($comando);
 			}
