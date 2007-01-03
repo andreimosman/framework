@@ -25,9 +25,13 @@
 		// Tira o IP da interface
 		public static function ifUnConfig($iface,$ip) {
 
-			$comando = SistemaOperacional::$IFCONFIG . " " . $iface . " delete " . $ip;
-			return(SistemaOperacional::executa($comando));
 
+			if (trim($ip)){
+				$comando = SistemaOperacional::$IFCONFIG . " " . $iface . " delete " . $ip;
+				return(SistemaOperacional::executa($comando));
+			}
+			
+			
 		}
 
 
