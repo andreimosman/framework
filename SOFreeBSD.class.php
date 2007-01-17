@@ -92,7 +92,7 @@
 
 			if($upload){
 				$slots_in  = SOFreeBSD::obtemNumSlotsIdeal($upload_kbps);
-				$comando = $ipfw . " pipe " . $pipe_in . " config bw " . $download . "Kbit/s queue " . $slots_in;
+				$comando = $ipfw . " pipe " . $pipe_in . " config bw " . $upload . "Kbit/s queue " . $slots_in;
 				SistemaOperacional::executa($comando);
 			}
 
