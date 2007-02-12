@@ -30,3 +30,5 @@ install:
 	install MXMLBackupParser.class.php ${TARGET}
 	install autoload.def.php ${TARGET}
 	install MBackup.class.php ${TARGET}
+	install MPersiste.class.php ${TARGET}
+	install MException.class.php ${TARGET}

@@ -21,6 +21,8 @@
 
 
 	class MDatabase {
+		protected static $instancia = array();	// Guarda a instancia do objeto para uso em singleton
+		protected static $dsn_padrao; // Na ausencia da especificacao do DNS usar o padrao
 		
 		protected $bd;		// Objeto de conexão com o banco de dados
 		protected $dsn;		// String de conexão. Utilizada geralmente para reconexões perdidas.
@@ -45,7 +47,7 @@
 		 * Zera a informação de erros.
 		 * Instancia o banco de dados caso tenha recebido o DSN.
 		 */
-		public function MDatabase($dsn=null,$debug=0) {
+		protected function __construct($dsn=null,$debug=0) {
 			$this->fetch=array();
 		
 			$this->debug = $debug;
@@ -56,6 +58,32 @@
 			}
 		  
 			$this->zeraListaSQL();
+		}
+		
+		/**
+		 * Singleton
+		 */
+		public static function &getInstance($dsn=null,$debug=0) {
+			if( $dsn == null ) {
+				// Pegar o DSN padrao
+				if( isset(self::$dsn_padrao) ) {
+					$dsn = self::$dsn_padrao;
+				}
+			} else {
+				if( !isset(self::$dsn_padrao) ) {
+					self::$dsn_padrao = $dsn;
+				}
+			}
+			
+			if( $dsn == null ) {
+				// Retorna erro
+			}
+
+			if( !isset(self::$instancia[$dsn]) ) {
+				self::$instancia[$dsn] = new MDatabase($dsn,$debug);
+			}
+			
+			return self::$instancia[$dsn];
 		}
 		
 		public function zeraListaSQL() {
@@ -91,7 +119,10 @@
 		 * @param $dsn String DSN para conexão com o banco de dados.
 		 */
 		public function conecta($dsn=null) {
-		
+			if( self::$dsn_padrao == null ) {
+				$this->dsn_padrao = $dsn;
+			}
+
 			$this->estaConectado = false;		// Não está conectado ainda.
 			
 			
