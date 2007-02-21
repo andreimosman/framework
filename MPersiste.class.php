@@ -51,7 +51,7 @@
     protected function _where($condArray) {
       $cond = array();
       
-      $operadores = array( "=" => "=", "%" => "ilike", "!" => "!=", "in" => "*especial*", "!in" => "*especial*" );
+      $operadores = array( "=" => "=", "%" => "ilike", "!" => "!=", "in" => "*especial*", "!in" => "*especial*", "array in" => "*especial*" );
       
       $keys = array_keys($condArray);
       
@@ -80,8 +80,22 @@
           
           $cnd = $campo . " ";
           
-          if( $operadores[$operador] == '*especial' ) {
+          //echo "OP: " . $operadores[$operador] . " <br>\n";
+          
+          if( $operadores[$operador] == '*especial*' ) {
+          	//echo "OPERADOR ESPECIAL: $operador<br>\n";
             switch($operador) {
+              case "array in":
+              	//echo "array in<br>\n";
+                 // Operador array in inclui ":tipo";
+                 list($tipo,$valor) = explode(":",$valor,2);
+                 
+                 //$cnd .= " >= ARRAY['$valor'::$tipo]";
+                 $cnd = "array_to_string($campo,' ') ilike '%$valor%'";
+                 
+                 //echo "CND: $cnd<br>\n";
+                 break;
+                 
               case "in":
               case "!in":
                 $elementos = explode("::",$valor);
@@ -95,10 +109,11 @@
                 break;            
             }
           } else {
-            $cnd = $operadores[$operador] . "'" . $this->bd->escape($valor) . "'";
+            $cnd = $campo . " " . $operadores[$operador] . "'" . $this->bd->escape($valor) . "'";
           }
         
-          $cond[] = $campo . " " . $operadores[$operador] . "'" . $this->bd->escape($valor) . "'";
+          //$cond[] = $campo . " " . $operadores[$operador] . "'" . $this->bd->escape($valor) . "'";
+          $cond[] = $cnd;
         }
       }
       
@@ -107,6 +122,8 @@
       if( count($cond) ) {
         $retorno = "WHERE " . implode(" AND ",$cond);
       }
+      
+      //echo "RETORNO: " . $retorno . "<br>\n";
       
       return($retorno);
       
@@ -232,7 +249,7 @@
       }
       
       
-      //echo "SQL: $sql<br><br>\n";
+      // echo "SQL: $sql<br><br>\n";
       
       return( $unico?$this->bd->obtemUnicoRegistro($sql):$this->bd->obtemRegistros($sql));
     }

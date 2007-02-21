@@ -41,6 +41,9 @@
 		protected $schema;
 		protected $options;
 		
+		protected static $instructPointer;	// Ponteiro pra processamento de instruções;
+		
+		
 		/**
 		 * Construtor.
 		 *
@@ -58,6 +61,101 @@
 			}
 		  
 			$this->zeraListaSQL();
+		}
+		
+
+		protected static function processArrayInstructs($instructs,$pointer=0) {
+				$arrayRetorno = array();
+				//$arrayPointer = 0;
+				
+				for(self::$instructPointer=$pointer;self::$instructPointer<count($instructs);self::$instructPointer++) {
+					//echo $instructs[self::$instructPointer] . "\n";
+					switch(substr($instructs[self::$instructPointer],0,3)) {
+						case 'BEG':
+							//echo "BEG\n";
+							$arrayRetorno[] = self::processArrayInstructs($instructs,self::$instructPointer+1);
+							break;
+						case 'END':
+							//echo "END\n";
+							return($arrayRetorno);
+						case 'TXT':
+							$arrayRetorno[] = substr($instructs[self::$instructPointer],4);
+							break;
+						default:
+							break;							
+					}
+				}
+				//echo "FIM";
+				return(@$arrayRetorno[0]);
+				
+		}
+
+
+		/**
+		 * Trabalha com arrays no estilo do pgsql
+		 */
+		public static function parseArray($valor) {
+			// Tira o {} (pra entrar dentro do array)
+			//$valor = substr($valor,1,strlen($valor)-2);
+			//echo "Valor: $valor\n";
+			
+			$instructs = array();
+			$buffer = "";
+			
+			$coma="";
+
+			for($i=0;$i<strlen($valor);$i++) {
+				switch($valor[$i]) {
+					case ',':
+						if( $buffer ) {
+							$instructs[] = "TXT:" . $buffer;
+							$buffer="";
+						}
+						$instructs[] = "SEP";
+						break;
+					case '{':
+						$buffer = "";
+						$instructs[] = 'BEG';
+						break;
+					case '}':
+						if( $buffer ) {
+							$instructs[] = "TXT:".$buffer;
+							$buffer = "";
+						}
+						$instructs[] = 'END';
+						break;
+
+					// COMAS
+					case '"':
+					case "'":
+						if( trim($buffer) == "" ) {
+							$coma = $valor[$i];
+							while( ($c=$valor[++$i]) && $i<strlen($valor)) {
+								if( $c == $coma ) {
+									$coma = "";
+									$instructs[] = "TXT:".$buffer;
+									$buffer = "";
+									break;
+								} else {
+									$buffer .= $c;
+								}
+								
+							}
+						}
+						break;
+					default:
+						$buffer .= $valor[$i];
+						break;
+				
+				}
+			
+			}
+			
+			if( $buffer ) $instructs[] = "TXT:".$buffer;
+			$buffer = "";
+			
+			return(self::processArrayInstructs($instructs));
+			
 		}
 		
 		/**
@@ -255,6 +353,12 @@
 				case MDATABASE_RETORNA_TODAS:
 					$retorno = array();
 					while($linha=$res->fetchRow()) {
+						while(list($campo,$valor) = each($linha)) {
+							if( $valor[0] == '{' && $valor[ strlen($valor) - 1 ] == '}' ) {
+								// É array();
+								$linha[$campo] = self::parseArray($valor);								
+							}
+						}
 						$retorno[]=$linha;
 					}
 					return($retorno);
