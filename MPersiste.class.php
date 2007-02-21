@@ -127,12 +127,17 @@
     	
     	$maxPagina = (int) ($numeroRegistros / $regsPorPagina);
     	
-    	if( $numeroRegistros % $regsPorPagina == 0 ) {
-    		--$maxPagina;
+//    	echo "MaxPagina: $maxPagina<br>\n";
+    	
+    	
+    	if( $numeroRegistros % $regsPorPagina != 0 ) {
+    		$maxPagina++;
     	}
+
+//    	if( $numeroRegistros < $regsPorPagina ) $maxPagina = 1;
     	
     	
-    	$offset = $pagina * $regsPorPagina;
+    	$offset = ($pagina -1) * $regsPorPagina;
     	
     	$limite = $regsPorPagina . "," . $offset;
     	
@@ -225,6 +230,7 @@
       	$info = $this->bd->obtemUnicoRegistro($sql);
       	return($info["num_regs"]);
       }
+      
       
       //echo "SQL: $sql<br><br>\n";
       
