@@ -83,7 +83,7 @@
           //echo "OP: " . $operadores[$operador] . " <br>\n";
           
           if( $operadores[$operador] == '*especial*' ) {
-          	//echo "OPERADOR ESPECIAL: $operador<br>\n";
+          	// echo "OPERADOR ESPECIAL: $operador<br>\n";
             switch($operador) {
               case "array in":
               	//echo "array in<br>\n";
@@ -109,7 +109,7 @@
                 break;            
             }
           } else {
-            $cnd = $campo . " " . $operadores[$operador] . "'" . $this->bd->escape($valor) . "'";
+            $cnd = $campo . " " . $operadores[$operador] . " '" . $this->bd->escape($valor) . "'";
           }
         
           //$cond[] = $campo . " " . $operadores[$operador] . "'" . $this->bd->escape($valor) . "'";
@@ -249,7 +249,7 @@
       }
       
       
-      // echo "SQL: $sql<br><br>\n";
+      //echo "SQL: $sql<br><br>\n";
       
       return( $unico?$this->bd->obtemUnicoRegistro($sql):$this->bd->obtemRegistros($sql));
     }
