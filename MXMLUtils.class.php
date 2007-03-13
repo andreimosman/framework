@@ -106,7 +106,12 @@
 			$brk=false;
 			$vl=null;
 			
+			//echo "MACHINE\n";
+			
 			while($this->ptr<count($instructs)) {
+				//echo "INSTRUCT: \n";
+				//print_r($instructs[$this->ptr]);
+				//echo "\n-----------------------\n";
 				//echo $instructs[$this->ptr]["tipo"] . ":[".$instructs[$this->ptr]["valor"] ."]:[" . $instructs[$this->ptr]["newline"] . "]\n";
 				//echo "--------------------------------------------------\n";
 				switch($instructs[$this->ptr]["tipo"]) {
@@ -144,7 +149,7 @@
 						
 						
 						$arr[$nome]=$vl;
-
+						
 						break;
 
 					case 'END':
@@ -170,6 +175,7 @@
 
 
 			}
+			
 			return($arr);
 		}
 		
@@ -192,6 +198,7 @@
 			$lasttag="";
 			for($i=0;$i<count(@$matches[0]);$i++) {
 				$tok=@$matches[0][$i][0];
+				//echo "TOK: $tok\n";
 				//$tok=chop($tok);
 
 				$nl = false;
@@ -238,6 +245,10 @@
 					}
 				}
 			}
+			
+			//echo "ARR:\n";
+			//print_r($instructs);
+			
 
 			$arr = $this->machine($instructs);
 			return($majortag?@$arr[$majortag]:$arr);

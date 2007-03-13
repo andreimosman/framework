@@ -22,7 +22,8 @@ abstract class MWebApp {
       $this->_arqConfig = $arqConfig;
 
       $this->cfg = new MConfig($arqConfig);
-      $this->tpl = new MTemplate($pathTemplate);
+      //$this->tpl = new MTemplate($pathTemplate);
+      $this->tpl = MTemplate::getInstance($pathTemplate);
       $this->tpl->atribui("pathTemplate", $pathTemplate);
    }
    

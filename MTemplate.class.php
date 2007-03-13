@@ -5,11 +5,12 @@ require_once("MUtils.class.php");
 
 
 class MTemplate {
-
+   protected static $instancia = array();
+   protected static $template_dir_padrao;
    protected $__tpl;
    
-   
-   public function MTemplate($template_dir="./") {
+   // Ou usa instancias individuais ou singleton, por isso o __construct eh public.
+   public function __construct($template_dir="./") {
    
       // Configurações do Smarty
       $this->__tpl = new MSmarty();
@@ -30,6 +31,31 @@ class MTemplate {
          mkdir($this->__tpl->compile_dir,0770,true);
       }
 
+   }
+   
+   /**
+    * Singleton
+    */
+   public static function &getInstance($template_dir=null) {
+       if( $template_dir == null ) {
+         if( isset(self::$template_dir_padrao) ) {
+           $template_dir = self::$template_dir_padrao;
+         }
+       } else {
+         if( !isset($template_dir_padrao) ) {
+           self::$template_dir_padrao = $template_dir;
+         }
+       }
+       
+       if( $template_dir == null ) {
+         // Retorna erro
+       }
+       
+       if( !isset(self::$instancia[$template_dir]) ) {
+         self::$instancia[$template_dir] = new MTemplate($template_dir);
+       }
+       
+       return self::$instancia[$template_dir];
    }
    
    /**

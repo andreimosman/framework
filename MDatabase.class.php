@@ -50,7 +50,7 @@
 		 * Zera a informação de erros.
 		 * Instancia o banco de dados caso tenha recebido o DSN.
 		 */
-		protected function __construct($dsn=null,$debug=0) {
+		public function __construct($dsn=null,$debug=0) {
 			$this->fetch=array();
 		
 			$this->debug = $debug;
@@ -917,7 +917,7 @@
 				if( $cnt > 1 ) {
 					$sql .= " AND";
 				}
-				$sql .= " $campo " . (is_null($valor)?"is NULL" : "= '" . $this->bd->escape($valor) . "'");
+				$sql .= " $campo " . (is_null($valor)? "is NULL" : "= '" . $this->bd->escape($valor) . "'");
 			}
 			
 			if( trim($sql) ) {
@@ -935,7 +935,7 @@
 			
 			$cnt=0;
 			while(list($campo,$valor) = each($dados) ) {
-				$sql .= " $campo = " . (is_null($valor)?"NULL" : "'" . $this->bd->escape($valor) . "'");
+				$sql .= " $campo = " . (is_null($valor)? "NULL" : "'" . $this->bd->escape($valor) . "'");
 				$cnt++;
 				if($cnt < count($dados)) {
 					$sql .=", ";
@@ -1094,6 +1094,10 @@
 				
 				$comments = array();
 				foreach($camposOriginal as $campo) {
+					//echo "CN: " . $novo["tables"][$tabela]["fields"][$campo] . "\n";
+					if( !@$novo["tables"][$tabela]["fields"][$campo] ) {
+						continue;
+					}
 					$diff = array_diff($novo["tables"][$tabela]["fields"][$campo],$original["tables"][$tabela]["fields"][$campo]);
 
 					if( count($diff) ) {

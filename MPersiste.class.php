@@ -48,7 +48,7 @@
       
     }
     
-    protected function _where($condArray) {
+    protected function _where($condArray,$recursive=false,$forceop="AND") {
       $cond = array();
       
       $operadores = array( "=" => "=", "%" => "ilike", "!" => "!=", "in" => "*especial*", "!in" => "*especial*", "array in" => "*especial*" );
@@ -72,44 +72,54 @@
         while(list($campo,$vl) = each($condArray[$i])) {
           //$valor 		= substr($vl,1);
           //$operador 	= $vl[0];
-          if(!strstr($vl,":") ) {
-          	$vl = "=:" . $vl;
+          
+          $byPass = false;
+          
+          if( substr($campo,0,4) == "*OR*" ) {
+            $cnd = "(" . $this->_where($vl,true,"OR") . ")";
+            $byPass = true;
           }
           
-          list($operador,$valor) = explode(":",$vl,2);
-          
-          $cnd = $campo . " ";
-          
-          //echo "OP: " . $operadores[$operador] . " <br>\n";
-          
-          if( $operadores[$operador] == '*especial*' ) {
-          	// echo "OPERADOR ESPECIAL: $operador<br>\n";
-            switch($operador) {
-              case "array in":
-              	//echo "array in<br>\n";
-                 // Operador array in inclui ":tipo";
-                 list($tipo,$valor) = explode(":",$valor,2);
-                 
-                 //$cnd .= " >= ARRAY['$valor'::$tipo]";
-                 $cnd = "array_to_string($campo,' ') ilike '%$valor%'";
-                 
-                 //echo "CND: $cnd<br>\n";
-                 break;
-                 
-              case "in":
-              case "!in":
-                $elementos = explode("::",$valor);
-                
-                for($x=0;$x<count($elementos);$x++) {
-                  $elementos[$x] = $this->bd->escape($elementos[$x]);
-                }
-                
-                $cnd .= ($operador == "in" ? "IN" : "NOT IN") . " ('" . implode("','",$elementos) . "') ";
-                
-                break;            
+          if( !$byPass ) {
+            if(!strstr($vl,":") ) {
+            	$vl = "=:" . $vl;
             }
-          } else {
-            $cnd = $campo . " " . $operadores[$operador] . " '" . $this->bd->escape($valor) . "'";
+          
+            list($operador,$valor) = explode(":",$vl,2);
+          
+            $cnd = $campo . " ";
+          
+            //echo "OP: " . $operadores[$operador] . " <br>\n";
+          
+            if( $operadores[$operador] == '*especial*' ) {
+            	// echo "OPERADOR ESPECIAL: $operador<br>\n";
+              switch($operador) {
+                case "array in":
+                	//echo "array in<br>\n";
+                   // Operador array in inclui ":tipo";
+                   list($tipo,$valor) = explode(":",$valor,2);
+                   
+                   //$cnd .= " >= ARRAY['$valor'::$tipo]";
+                   $cnd = "array_to_string($campo,' ') ilike '%$valor%'";
+                 
+                   //echo "CND: $cnd<br>\n";
+                   break;
+                 
+                case "in":
+                case "!in":
+                  $elementos = explode("::",$valor);
+                
+                  for($x=0;$x<count($elementos);$x++) {
+                    $elementos[$x] = $this->bd->escape($elementos[$x]);
+                  }
+                
+                  $cnd .= ($operador == "in" ? "IN" : "NOT IN") . " ('" . implode("','",$elementos) . "') ";
+                
+                  break;
+              }
+            } else {
+              $cnd = $campo . " " . $operadores[$operador] . " '" . $this->bd->escape($valor) . "'";
+            }
           }
         
           //$cond[] = $campo . " " . $operadores[$operador] . "'" . $this->bd->escape($valor) . "'";
@@ -120,7 +130,10 @@
       $retorno = "";
       
       if( count($cond) ) {
-        $retorno = "WHERE " . implode(" AND ",$cond);
+        if( !$recursive ) {
+          $retorno = "WHERE ";
+        }
+        $retorno .= implode(" " . $forceop . " ",$cond);
       }
       
       //echo "RETORNO: " . $retorno . "<br>\n";
@@ -223,7 +236,10 @@
      * Select Generico
      */
     function obtem($condicao=array(),$ordem="",$limite="",$unico = false,$conta = false) {
-      $sql = "SELECT " . ($conta? "count(".$this->_chave.") as num_regs":implode(",",$this->_campos)) . " FROM " . $this->_tabela . " " . $this->_where($condicao);
+      //echo "ARR? " . is_array($condicao) . "\n";
+      //break;
+    
+      $sql = "SELECT " . ($conta? "count(".$this->_chave.") as num_regs":implode(",",$this->_campos)) . " FROM " . $this->_tabela . " " . (is_array($condicao)?$this->_where($condicao):$condicao);
       
       if(!$ordem) $ordem = $this->_ordem;
       
@@ -369,7 +385,21 @@
       $sql = "DELETE FROM " . $this->_tabela . " " . $this->_where($condicao);
       return($this->bd->consulta($sql,false));
     }
-
+    
+    public function obtemOrdem() {
+      return($this->_ordem);    
+    
+    }
+    
+    // Para usar em Join
+    public function obtemCamposComTabela() {
+      $campos = array();
+      for($i=0;$i<count($this->_campos);$i++) {
+        $campos[] = $this->_tabela . "." . $this->_campos[$i];
+      }
+      
+      return($campos);
+    }
   }
 
 
