@@ -31,7 +31,7 @@ function __autoload($class_name) {
 		}
 	}
 	if( !$encontrado ) {
-		//die("Classe nao encontrada: $class_name \n");
+		die("Classe nao encontrada: $class_name \n");
 	}
 }
 

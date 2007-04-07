@@ -11,6 +11,8 @@
     protected $_chave;
     protected $_ordem;
     protected $_sequence;
+    protected $_filtros;
+    protected $_language;
 
     protected $bd;
     
@@ -23,6 +25,8 @@
       $this->_tabela 	= "";
       $this->_sequence 	= "";
       $this->_ordem	= "";
+      $this->_filtro	= array();
+      $this->_language	= "pt_BR";
     }
     
     public static function configuraPrefixo($prefixo) {
@@ -51,7 +55,7 @@
     protected function _where($condArray,$recursive=false,$forceop="AND") {
       $cond = array();
       
-      $operadores = array( "=" => "=", "%" => "ilike", "!" => "!=", "in" => "*especial*", "!in" => "*especial*", "array in" => "*especial*" );
+      $operadores = array( "=" => "=", "%" => "ilike", "!=" => "!=", "!" => "!=", "in" => "*especial*", "!in" => "*especial*", "array in" => "*especial*" );
       
       $keys = array_keys($condArray);
       
@@ -265,7 +269,7 @@
       }
       
       
-      //echo "SQL: $sql<br><br>\n";
+      echo "SQL: $sql<br><br>\n";
       
       return( $unico?$this->bd->obtemUnicoRegistro($sql):$this->bd->obtemRegistros($sql));
     }
@@ -277,7 +281,7 @@
       return($this->obtem($condicao,$ordem,$limite,true));
     }
     
-    protected function separaDados($dados) {
+    protected function separaDados($dados,$quote=true) {
       $campos = array();
       $valores = array();
       $id = array();
@@ -289,10 +293,21 @@
 
 
       while( list($campo,$valor) = each($dados) ) {
-        $valor = $this->bd->escape($valor);
+        //$valor = $this->bd->escape($valor);
         if( (!$this->_sequence || !in_array($campo,$chaves)) && in_array($campo,$this->_campos) ) {
           $campos[] = $campo;
-          $valores[] = $valor;
+          
+          $vl = $this->filtra($campo,@$this->_filtros[$campo],$valor);
+          
+          if( is_null($vl) ) {
+            $vl = 'null';
+          } else {
+            $vl = $this->bd->escape($valor);
+            if($quote) $vl = "'".$vl."'";
+          }
+          
+          
+          $valores[] = $vl;
 
           // Campo compoe a chave
           if( in_array($campo,$chaves) ) {
@@ -330,10 +345,13 @@
         $id = $this->bd->proximoID($this->_sequence);
         $campos[]  = $this->_chave;
         $valores[] = $id;
+
+        // echo "SEQUENCE: " . $this->_chave . " - $id<br>\n";
+
       }
       
       // Monta a query 
-      $sql = "INSERT INTO " . $this->_tabela . " ( " . implode(',',$campos) . " ) VALUES ( '" . implode("','",$valores) . "' )";
+      $sql = "INSERT INTO " . $this->_tabela . " ( " . implode(',',$campos) . " ) VALUES ( " . implode(",",$valores) . " )";
       
       //echo "$sql<br>\n";
       
@@ -359,20 +377,23 @@
         return 0;
       }
       
-      $sql = "UPDATE " . $this->_tabela . " SET ";
+      $sql = "UPDATE \n\t" . $this->_tabela . " \nSET \n";
       
       
       for($i=0;$i<count($campos);$i++) {
-        $sql .= " " . $campos[$i] . " = '" . $valores[$i] . "'";
+        $sql .= " \t" . $campos[$i] . " = " . $valores[$i];
         
         if( $i < count($campos) - 1 ) {
           $sql .= ",";
         }
+        $sql .= "\n";
       }
       
       $sql .= " " . $this->_where($condicao);
       
-      //echo $sql ."<br>\n";
+      $sql .= "\n";
+      
+      // echo "<pre>$sql</pre>\n";
       
       return($this->bd->consulta($sql,false));
       
@@ -400,6 +421,62 @@
       
       return($campos);
     }
+    
+    // Define a filtragem padrao utilizada em cada campo
+    public function filtra($campo,$tipo,$valor) {
+      switch($tipo) {
+        case 'number':
+        case 'numeric':
+        case 'int':
+          if( !$valor ) {
+            $retorno = 0;
+          } else {
+            if( $this->_language == "pt_BR" ) {
+              $retorno = str_replace(",",".",$valor);
+            }
+          }
+
+          $retorno = (double)$retorno;
+
+          break;
+        case 'bool':
+        case 'boolean':
+          $valor = strtolower($valor);
+          if( !$valor ) {
+            $retorno = false;
+          } else {
+            switch($valor) {
+              case false:
+              case 'false':
+                case 'f':
+              case '':
+              case '0':
+              case 'n':
+                $retorno = '0';
+                break;
+              default:
+                $retorno = '1';
+                break;
+            }
+          }
+          break;
+        case 'custom':
+          // Chama funcao filtroCampo($campo,$valor);
+          $retorno = $this->filtroCampo($campo,$valor);
+          break;
+
+        default:
+          $retorno = $valor;
+          
+      }      
+      return($retorno);
+      
+    }
+    
+    public function filtroCampo($campo,$valor) {
+      return($valor);
+    }
+    
   }
 
 

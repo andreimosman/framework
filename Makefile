@@ -32,3 +32,5 @@ install:
 	install MBackup.class.php ${TARGET}
 	install MPersiste.class.php ${TARGET}
 	install MException.class.php ${TARGET}
+	install MRegex.class.php ${TARGET}
+	cp -r ${TARGET} /mosman/virtex
