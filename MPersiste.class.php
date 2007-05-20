@@ -273,6 +273,17 @@
       
       return( $unico?$this->bd->obtemUnicoRegistro($sql):$this->bd->obtemRegistros($sql));
     }
+    
+    function obtemUltimos($limite=10) {
+    	$ordem = "";
+    
+    	if( $this->_chave ) {
+    		$ordem = $this->_chave . " DESC";
+    	}
+    	
+    	return($this->obtem(array(),$ordem,$limite));
+    	
+    }
 
     /**
      * Select Generico (um registro somente)
