@@ -114,6 +114,9 @@
                   $elementos = explode("::",$valor);
                 
                   for($x=0;$x<count($elementos);$x++) {
+                  	//echo "el: ".$elementos[$x]."<br>\n";
+                  	//echo "es: ".$this->bd->escape($elementos[$x])."<br>\n";
+                  	//echo "<hr>\n";
                     $elementos[$x] = $this->bd->escape($elementos[$x]);
                   }
                 

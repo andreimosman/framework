@@ -354,7 +354,7 @@
 					$retorno = array();
 					while($linha=$res->fetchRow()) {
 						while(list($campo,$valor) = each($linha)) {
-							if( $valor[0] == '{' && $valor[ strlen($valor) - 1 ] == '}' ) {
+							if( @$valor[0] == '{' && @$valor[ strlen($valor) - 1 ] == '}' ) {
 								// É array();
 								$linha[$campo] = self::parseArray($valor);								
 							}
