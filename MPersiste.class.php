@@ -1,5 +1,8 @@
 <?
 
+  require_once("MDatabase.class.php");	// Conexão com o banco de dados.
+  require_once("MInet.class.php");		// Utilizado na validação de campos inet.
+
   /**
    * Classe de abstracao para modelo de dados
    */
@@ -14,7 +17,7 @@
     protected $_filtros;
     protected $_language;
 
-    protected $bd;
+    protected static $bd;
     
     
     protected function __construct($bd=null) {
@@ -33,6 +36,23 @@
       self::$_prefix = $prefixo;
     }
     
+    public function begin() {
+      if( $this->bd ) {
+        $this->bd->begin();
+      }
+    }
+    
+    public function commit() {
+      if( $this->bd ) {
+        $this->bd->commit();
+      }
+    }
+    
+    public function rollback() {
+      if( $this->bd ) {
+        $this->bd->rollback();
+      }
+    }
     abstract static function init();
     
     public static function &factory($tabela,$bd=null) {
@@ -55,7 +75,7 @@
     protected function _where($condArray,$recursive=false,$forceop="AND") {
       $cond = array();
       
-      $operadores = array( "=" => "=", "%" => "ilike", "!=" => "!=", "!" => "!=", "in" => "*especial*", "!in" => "*especial*", "array in" => "*especial*" );
+      $operadores = array( "=" => "=", "%" => "ilike", "!=" => "!=", "!" => "!=", "in" => "*especial*", "!in" => "*especial*", "array in" => "*especial*", "null" => "*especial*" );
       
       $keys = array_keys($condArray);
       
@@ -123,9 +143,16 @@
                   $cnd .= ($operador == "in" ? "IN" : "NOT IN") . " ('" . implode("','",$elementos) . "') ";
                 
                   break;
+                case "null":
+                  $cnd .= "is null";
+                  break;
               }
             } else {
-              $cnd = $campo . " " . $operadores[$operador] . " '" . $this->bd->escape($valor) . "'";
+              if( is_null($valor) ) {
+                $cnd = $campo . " is null";
+              } else {
+                $cnd = $campo . " " . $operadores[$operador] . " '" . $this->bd->escape($valor) . "'";
+              }
             }
           }
         
@@ -272,7 +299,7 @@
       }
       
       
-      echo "SQL: $sql<br><br>\n";
+      //echo "SQL: $sql<br><br>\n";
       
       return( $unico?$this->bd->obtemUnicoRegistro($sql):$this->bd->obtemRegistros($sql));
     }
@@ -316,12 +343,13 @@
           if( is_null($vl) ) {
             $vl = 'null';
           } else {
-            $vl = $this->bd->escape($valor);
+            $vl = $this->bd->escape($vl);
             if($quote) $vl = "'".$vl."'";
           }
           
-          
           $valores[] = $vl;
+          
+          //echo "SD: [$campo][$valor][$vl]<br>\n";
 
           // Campo compoe a chave
           if( in_array($campo,$chaves) ) {
@@ -367,7 +395,7 @@
       // Monta a query 
       $sql = "INSERT INTO " . $this->_tabela . " ( " . implode(',',$campos) . " ) VALUES ( " . implode(",",$valores) . " )";
       
-      //echo "$sql<br>\n";
+      // echo "<!-- $sql -->\n";
       
       $this->bd->consulta($sql,false);
       
@@ -408,6 +436,7 @@
       $sql .= "\n";
       
       // echo "<pre>$sql</pre>\n";
+      // echo "<!-- $sql -->\n";
       
       return($this->bd->consulta($sql,false));
       
@@ -438,6 +467,8 @@
     
     // Define a filtragem padrao utilizada em cada campo
     public function filtra($campo,$tipo,$valor) {
+    	//echo "FILTRA: [$campo] - [$tipo] - [$valor]<br>\n";
+    
       switch($tipo) {
         case 'number':
         case 'numeric':
@@ -474,6 +505,36 @@
             }
           }
           break;
+        case 'cidr':	// Endereços de rede
+        case 'inet':	// Endereços IP
+          // Utilizado pra processar endereços ip e de rede.
+          try {
+          	@list($ip,$bits) = explode("/",$valor);
+          	if(!$bits) {
+          		$bits = 32;
+          	}
+          	$mip = new MInet($ip."/".$bits);
+          	
+          	if( $tipo == 'inet' ) {
+          		// Somente IP
+          		$retorno = $ip;
+          	} else {
+          		$retorno = $mip->obtemRede() . "/" . $mip->obtemBitmask();
+          	}
+          	
+          } catch(MException $e) {
+          	// Invalido, registrar NULL (p/ evitar erros no banco);
+          	// O erro só vai acontecer caso o formulário de validação falhe.
+          	// TODO: Disparar exception.
+          	//echo "IP: $ip<br>\n";
+          	//echo "BITS: $bits<br>\n";
+          	//echo "EXCEPTION: " . $e->getMessage() . "<br>\n";
+          	//echo "----------------------------<br>\n";
+          	$retorno = null;
+          }
+          
+          
+          break;
         case 'custom':
           // Chama funcao filtroCampo($campo,$valor);
           $retorno = $this->filtroCampo($campo,$valor);
@@ -482,7 +543,9 @@
         default:
           $retorno = $valor;
           
-      }      
+      }
+		//echo "RETORNO: [$campo] - [$tipo] - [$retorno]<br>\n";
+
       return($retorno);
       
     }

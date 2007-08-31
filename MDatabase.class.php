@@ -56,6 +56,7 @@
 			$this->debug = $debug;
 			$this->arquivoDebug = "/tmp/debug.framework.log";
 			$this->zeraErro();
+
 			if( $dsn ) {
 				$this->conecta($dsn);
 			}

@@ -16,27 +16,28 @@ if(!defined('_M_UTILS')) {
 
 	class MUtils {
 		static function getPwd() {
-			$tmp = @$_SERVER["REQUEST_URI"];
+			$tmp = @$_SERVER["SCRIPT_FILENAME"];
+
 			if(!$tmp) {
 				$tmp = @$_SERVER["PHP_SELF"];
+			}
 
-				if( $tmp[0] != '/' ) { 
-					$tmp =  @$_SERVER["PWD"] ."/".$tmp;
-					// Tratando ".."
-					$t = explode("/",$tmp);
+			if( $tmp[0] != '/' ) { 
+				$tmp =  @$_SERVER["PWD"] ."/".$tmp;
+				// Tratando ".."
+				$t = explode("/",$tmp);
 
-					$pt = array();
-					for($i=0;$i<count($t);$i++) {
-						if( $t[$i] == ".." ) {
-							array_pop($pt);
-						} else {
-							array_push($pt,$t[$i]);
-						}
+				$pt = array();
+				for($i=0;$i<count($t);$i++) {
+					if( $t[$i] == ".." ) {
+						array_pop($pt);
+					} else {
+						array_push($pt,$t[$i]);
 					}
-					
-					$tmp = implode("/",$pt);
-					
 				}
+
+				$tmp = implode("/",$pt);
+
 			}
 			
 			

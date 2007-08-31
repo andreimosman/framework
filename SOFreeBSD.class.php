@@ -7,6 +7,7 @@
 		public static $IPFW 	= "/sbin/ipfw -q";
 		public static $PFCTL	= "/sbin/pfctl";
 		public static $NTPDATE  = "/usr/sbin/ntpdate";
+		public static $ARP      = "/usr/sbin/arp";
 
 
 		
@@ -16,22 +17,22 @@
 		 *                                                  *
 		 ****************************************************/
 		
-		// Configura IP na interface
+		/**
+		 * Configura IP na interface
+		 */
 		public static function ifConfig($iface,$ip="",$mascara="") {
 			$comando = SistemaOperacional::$IFCONFIG . " " . $iface . " " . ($ip && $mascara ? "inet alias " . $ip . " netmask " . $mascara : "up");
 			return(SistemaOperacional::executa($comando));
 		}
 		
-		// Tira o IP da interface
+		/**
+		 * Tira o IP da interface
+		 */
 		public static function ifUnConfig($iface,$ip) {
-
-
 			if (trim($ip)){
 				$comando = SistemaOperacional::$IFCONFIG . " " . $iface . " delete " . $ip;
 				return(SistemaOperacional::executa($comando));
 			}
-			
-			
 		}
 
 
@@ -41,8 +42,13 @@
 		 *                                                  *
 		 ****************************************************/
 
+		/**
+		 * Adiciona regra com gerenciamento de banda.
+		 * Usado pra liberar acesso de clientes banda larga.
+		 */
 		public static function adicionaRegraBW($id,$baserule,$basepipe_in,$basepipe_out,$int_iface,$ext_iface,$ip,$mac,$upload_kbps,$download_kbps,$username) {
-			$ipfw = SoFreeBSD::$IPFW;
+			$ipfw = SOFreeBSD::$IPFW;
+			$arp = SOFreeBSD::$ARP;
 
 			$rule     = (int)($baserule + $id);
 			$pipe_in  = (int)($basepipe_in + $id);
@@ -56,8 +62,12 @@
 			// VERIFICACAO DE MAC                    //
 			///////////////////////////////////////////
 
+			$comando = $arp . " -dn " . $ip . " > /dev/null 2>&1";
+			SistemaOperacional::executa($comando);
+
 			if( $mac ) {
-				$comando = $ipfw . " add " . $rule . " deny layer2 src-ip " . $ip . " not MAC any " . $mac . " via " . $int_iface;
+				// $comando = $ipfw . " add " . $rule . " deny layer2 src-ip " . $ip . " not MAC any " . $mac . " via " . $int_iface;
+				$comando = $arp . " -s " . $ip . " " . $mac . " only";
 				SistemaOperacional::executa($comando);
 			}
 
@@ -99,7 +109,7 @@
 		}
 
 		public static function deletaRegraBW($id,$baserule, $basepipe_in,$basepipe_out) {
-			$ipfw = SoFreeBSD::$IPFW;
+			$ipfw = SOFreeBSD::$IPFW;
 
 			$rule     = (int)($baserule + $id);
 			$pipe_in  = (int)($basepipe_in + $id);
@@ -119,7 +129,7 @@
 		}
 
 		public static function adicionaRegraSP($id,$baserule,$rede,$ext_iface) {
-			$ipfw = SoFreeBSD::$IPFW;
+			$ipfw = SOFreeBSD::$IPFW;
 
 			$rule     = (int)($baserule + $id);
 			
@@ -141,7 +151,7 @@
 		}
 
 		public static function deletaRegraSP($id,$baserule) {
-			$ipfw = SoFreeBSD::$IPFW;
+			$ipfw = SOFreeBSD::$IPFW;
 			$rule     = (int)($baserule + $id);
 
 			$comando = $ipfw . " delete " . $rule;
@@ -149,7 +159,7 @@
 		}
 
 		public static function obtemEstatisticas() {
-			$ipfw = SoFreeBSD::$IPFW;
+			$ipfw = SOFreeBSD::$IPFW;
 			$comando = $ipfw . " -b show ";
 			
 			
@@ -200,7 +210,7 @@
 		 ****************************************************/
 
 		public static function setNAT($iface){
-			$pfctl = SoFreeBSD::$PFCTL;
+			$pfctl = SOFreeBSD::$PFCTL;
 			$comando = $pfctl . " -Nf - ";
 
 			//FILE *p = popen(comando.c_str(),"w");
@@ -214,7 +224,7 @@
 		}
 
 		public static function unsetNAT($iface){
-			$pfctl = SoFreeBSD::$PFCTL;
+			$pfctl = SOFreeBSD::$PFCTL;
 
 			// Flush
 			$comando = $pfctl . " -F nat ";

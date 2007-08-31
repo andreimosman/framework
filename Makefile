@@ -33,4 +33,7 @@ install:
 	install MPersiste.class.php ${TARGET}
 	install MException.class.php ${TARGET}
 	install MRegex.class.php ${TARGET}
+	install MInet.class.php ${TARGET}
+	install MJson.class.php ${TARGET}
+	install MData.class.php ${TARGET}
 	cp -r ${TARGET} /mosman/virtex

@@ -10,7 +10,19 @@ class MConfig {
    
    public $config;	// Variável p/ acesso externo;
    
-   public function MConfig($arquivo) {
+   /**
+    * Singleton
+    */
+  
+  protected static $instancia = array();
+  protected static $lastConfig = "";
+  
+  /**
+   * public constructor (retrocompatibilidade)
+   */
+   
+   
+   public function __construct($arquivo) {
    
       $__cfg = new Config();
       $root =& $__cfg->parseConfig($arquivo, 'inifile');
@@ -21,6 +33,22 @@ class MConfig {
       
       $tmp = $root->toArray();
       $this->config = $tmp["root"];
+
+   }
+   
+   /**
+    * Singleton
+    */
+   public static function &getInstance($arquivo="") {
+    if( !$arquivo ) 
+      $arquivo = self::$lastConfig;
+    else
+      self::$lastConfig = $arquivo;
+    
+    if( !isset(self::$instancia[$dsn]) ) {
+      self::$instancia[$dsn] = new MConfig($arquivo);
+    }
+    return self::$instancia[$dsn];
 
    }
    
