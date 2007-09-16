@@ -74,7 +74,7 @@ class MTemplate {
     */
    public function exibe($arquivo) {
       // echo "Exibindo arquivo: $arquivo <br>\n";
-      return($this->__tpl->display($arquivo));
+      echo($this->__tpl->fetch($arquivo));
    }
    
    
