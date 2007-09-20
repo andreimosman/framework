@@ -388,7 +388,7 @@
         $campos[]  = $this->_chave;
         $valores[] = $id;
 
-        // echo "SEQUENCE: " . $this->_chave . " - $id<br>\n";
+        echo "SEQUENCE: " . $this->_chave . " - $id<br>\n";
 
       }
       
@@ -533,6 +533,23 @@
           	$retorno = null;
           }
           
+          
+          break;
+        case 'date':
+          if( !$valor ) {
+            $retorno = null;
+          } else {
+
+            if( substr_count($valor, "-") > 0 )
+              $retorno = $valor;
+            else {
+              list($dia, $mes, $ano) = explode("/", $valor);
+
+              $retorno = $ano."-".$mes."-".$dia;
+            }
+          }
+
+          //echo $retorno;
           
           break;
         case 'custom':
