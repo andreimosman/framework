@@ -388,14 +388,14 @@
         $campos[]  = $this->_chave;
         $valores[] = $id;
 
-        echo "SEQUENCE: " . $this->_chave . " - $id<br>\n";
+        //echo "SEQUENCE: " . $this->_chave . " - $id<br>\n";
 
       }
       
       // Monta a query 
       $sql = "INSERT INTO " . $this->_tabela . " ( " . implode(',',$campos) . " ) VALUES ( " . implode(",",$valores) . " )";
       
-      echo "DEBUG: $sql<br>\n";
+      //echo "DEBUG: $sql<br>\n";
       
       $this->bd->consulta($sql,false);
       
@@ -488,7 +488,7 @@
         case 'boolean':
           $valor = strtolower($valor);
           if( !$valor ) {
-            $retorno = false;
+            $retorno = '0';
           } else {
             switch($valor) {
               case false:
@@ -536,6 +536,7 @@
           
           break;
         case 'date':
+        //echo "DATE!!!!";
           if( !$valor ) {
             $retorno = null;
           } else {
