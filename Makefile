@@ -36,4 +36,5 @@ install:
 	install MInet.class.php ${TARGET}
 	install MJson.class.php ${TARGET}
 	install MData.class.php ${TARGET}
+	install MCript.class.php ${TARGET}
 	cp -r ${TARGET} /mosman/virtex
