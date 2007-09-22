@@ -395,7 +395,7 @@
       // Monta a query 
       $sql = "INSERT INTO " . $this->_tabela . " ( " . implode(',',$campos) . " ) VALUES ( " . implode(",",$valores) . " )";
       
-      //echo "DEBUG: $sql<br>\n";
+      echo "DEBUG: $sql<br>\n";
       
       $this->bd->consulta($sql,false);
       
