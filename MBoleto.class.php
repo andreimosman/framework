@@ -1,15 +1,12 @@
 <?
 
-
-	require_once('MBanco.class.php');
-
+	require_once("MBanco.class.php");
 
 	/**
-	 * Classe Para Geração de Boletos Bancários
-	 *
+	 * Classe base p/ geração de boletos.
 	 */
+	abstract class MBoleto extends MBanco {
 	
-	class MBoleto extends MBanco {
 		/**
 		 * Informações Básicas
 		 */
@@ -32,14 +29,15 @@
 		protected $linha_digitavel;
 		protected $codigo_boleto;
 		
+		// Nome do Banco
+		protected $nome_banco;
 		
 		
-		/**
-		 * Construtor - Instancia o objeto com as variáveis necessárias para geração dos valores relevantes
-		 */
-		public function __construct($banco,$agencia,$conta,$carteira,$convenio,$vencimento,$valor,$id,$moeda=9,$cnpj_ag_cedente="",$codigo_cedente="",$operacao_cedente="") {
-			$this->banco       = $banco;
-
+		public function __construct() {
+			$this->init();		
+		}
+		
+		public function geraBoleto($agencia,$conta,$carteira,$convenio,$vencimento,$valor,$id,$moeda=9,$cnpj_ag_cedente="",$codigo_cedente="",$operacao_cedente="") {
 			$this->carteira    = $carteira;
 			$this->agencia     = $agencia;
 			$this->conta       = $conta;
@@ -58,97 +56,31 @@
 			$codigo_barras     = "";
 			
 			$this->processa();
-		
-		}
-		/**
-		 * Obtem o campo livre, que varia de banco pra banco
-		 */
-		public function obtemCampoLivre() {
-			/**
-			 * Varia de banco pra banco
-			 */
-			switch((int)$this->banco) {
-				case 1:	/** Banco do Brasil */
-
-					if( strlen((int)$this->convenio) == 7 ) {
-						/**
-						 * Sistema de cobrança do banco do brasil (BBCobrança) usa o campo livre
-						 * com 7 digitos p/ convenio + 10 digitos p/ id (seu numero) + 
-						 * 2 dígitos p/ carteira e (provavelmente) faz um PAD para o tamanho de 25 do campo.
-						 */
-
-						// Convenio com 7 dígitos, nosso numero com 17
-						$campoLivre = $this->padZero($this->obtemNossoNumero(),17) . $this->carteira;
-					} else {
-						// Convenio com 6 dígitos, nosso numero com 11 dígitos
-						// OBS:
-						//	- cedente = conta
-						$campoLivre = $this->padZero($this->obtemNossoNumero(),11) . $this->padZero($this->agencia,4) . $this->padZero($this->conta,8) . $this->padZero($this->carteira,2);
-
-					}
-					break;
-				
-				case 237: /** Bradesco */
-					$campoLivre = $this->padZero($this->agencia,4) . $this->padZero($this->carteira,2) . $this->padZero($this->obtemNossoNumero(),11) . $this->padZero($this->conta,7) . "0";				
-					break;
-
-				case 104: /** Caixa Economica Federal */
-					$campoLivre = $this->padZero($this->nossoNumero,10) . $this->padZero($this->cnpj_ag_cedente,4) . $this->padZero($this->operacao_cedente,3) . $this->padZero($this->codigo_cedente,8);
-					break;
-					
-
-			}
-			return($this->padZero($campoLivre,25));
+			
 		}
 		
-		/**
-		 * Nosso numero. Varia de banco pra banco
-		 */
-		public function obtemNossoNumero() {
+		public static function &factory($banco,$agencia,$conta,$carteira,$convenio,$vencimento,$valor,$id,$moeda=9,$cnpj_ag_cedente="",$codigo_cedente="",$operacao_cedente="") {
+			$retorno = null;
 			
-			if( $this->nosso_numero ) return $this->nosso_numero;
-			
-			switch((int)$this->banco) {
-				case 1:	/** Banco do Brasil */
-
-					if( strlen((int)$this->convenio) == 7 ) {
-						// Convenio com 7 dígitos, nosso numero com 17
-						$nossoNumero = $this->padZero($this->convenio,7) . $this->padZero($this->id,10);
-					} else {
-						// Convenio com 6 digitos, nosso numero com 11 
-						$nossoNumero = $this->padZero($this->id,11);
-						
-					}
-					
-					break;
-
-				case 237: /** Bradesco */
-					$nossoNumero = $this->padZero($this->id,11);
-					break;
-				
-				case 104: /** Caixa Economica Federal */
-					if( $this->carteira == "SR" || $this->carteira == "82" ) {
-						// Carteira sem registro
-						$nossoNumero = "82" . $this->padZero($this->id,8);
-					} else {
-						// Carteira Rapida
-						$nossoNumero = "9" . $this->padZero($this->id,9);
-					}
-					
-					// Calcula DV do Nosso Número.
-					//$d1 = $this->modulo11( $this->soma11( $nossoNumero ) );
-					//$nossoNumero = $nossoNumero . $d1;
-					
-
+			$bco = self::padZero($banco,3);
+			$classe = "MBoleto".$bco;
+			$include_file = $classe.".class.php";			
+			if(! @include_once($include_file) ) {
+				throw new MException("Banco não encontrado.");
 			}
 			
-			$this->nosso_numero = $nossoNumero;
-
-			return($this->nosso_numero);
-
+			$retorno = new $classe;
+			$retorno->geraBoleto($agencia,$conta,$carteira,$convenio,$vencimento,$valor,$id,$moeda,$cnpj_ag_cedente,$codigo_cedente,$operacao_cedente);
+			
+			return($retorno);
 		}
 		
+		abstract protected function init();
 		
+		abstract protected function obtemCampoLivre();
+		abstract protected function obtemNossoNumero();
+
+
 		/**
 		 * Gera a linha digitável e o código de barras
 		 */
@@ -245,21 +177,27 @@
 		
 		}
 		
-
-		/**
-		 * Metodos gerais de acesso aos valores
-		 */
-		public function obtemCodigoBoleto() {
-		   return($this->codigo_boleto);
-		}
-
 		public function obtemLinhaDigitavel() {
-		   return($this->linha_digitavel);
+			return $this->linha_digitavel;
+		}
+		
+		public function obtemCodigoBoleto() {
+			return $this->codigo_boleto;
 		}
 
 
-		
-		
+
+
+
+
+
+
+
+
+
+
+
+
 		/*******************************************
 		 *          FUNCOES DE APOIO               *
 		 *******************************************/
@@ -268,7 +206,7 @@
 		 * Entra com a variável e o tamanho do campo, 
 		 * Preenche o resto com zeros à esquerda
 		 */
-		function padZero($variavel,$tamanho) {
+		static function padZero($variavel,$tamanho) {
 			//echo "VAR: $variavel<br>\n";
 			//echo "T: $tamanho<br>\n";
 			//echo "Zrs: " . (
@@ -295,15 +233,11 @@
 
 		}	
 
-
+		
 	}
-
-
+	
 	/**
-	 * TESTE
-	 */
 
-	/**	
 	$banco   	= '001';
 	$agencia 	= '0254';		// Sem o DV
 	$conta   	= '26272';		// Sem o DV
@@ -313,12 +247,13 @@
 	$valor		= '1000,00';		// Tanto faz ponto ou virgula
 	$id			= '0011';
 	
-	$boleto = new MBoleto($banco,$agencia,$conta,$carteira,$convenio,$vencimento,$valor,$id);
+	$moeda = "9";
+
+	$boleto = MBoleto::factory($banco,$agencia,$conta,$carteira,$convenio,$vencimento,$valor,$id,$moeda,$cnpj_ag_cedente,$codigo_cedente,$operacao_cedente);
 	
-	//echo "LD: " . $boleto->obtemLinhaDigitavel() . "<BR>\n";
-	//echo "CB: " . $boleto->obtemCodigoBoleto() . "<BR>\n";
+	echo "LD: " . $boleto->obtemLinhaDigitavel() . "<BR>\n";
+	echo "CB: " . $boleto->obtemCodigoBoleto() . "<BR>\n";
 	
-	echo MBoleto::htmlBarCode($boleto->obtemCodigoBoleto(),"preto.gif","branco.gif");
-	*/	
-	
+	*/
+
 ?>

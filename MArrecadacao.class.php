@@ -1,9 +1,6 @@
 <?
 
-if(!defined('_M_ARRECADACAO')) {
-	define('_M_ARRECADACAO',1);
-
-	require_once('MBanco.class.php');
+	require_once("MBanco.class.php");
 
 	/**
 	 *
@@ -15,14 +12,12 @@ if(!defined('_M_ARRECADACAO')) {
 	
 	class MArrecadacao extends MBanco {
 	
-	
-	
 		/**
 		 * digitoVerificador
 		 * Retorna o digito verificador de uma determinada sequencia numérica
 		 */
 		public static function digitoVerificador($val) {
-			return(MArrecadacao::modulo10(MArrecadacao::soma($val)));
+			return(self::modulo10(self::soma($val)));
 		}
 		
 		/**
@@ -30,16 +25,16 @@ if(!defined('_M_ARRECADACAO')) {
 		 * Retorna a linha digitavel
 		 * $codigo_barras Codigo de barras.
 		 */
-		function linhaDigitavel($codigo_barras) {
+		public static function linhaDigitavel($codigo_barras) {
 		   $A = substr($codigo_barras,0,11);
 		   $B = substr($codigo_barras,11,11);
 		   $C = substr($codigo_barras,22,11);
 		   $D = substr($codigo_barras,33,11);
 
-		   $cA = MArrecadacao::digitoVerificador($A);
-		   $cB = MArrecadacao::digitoVerificador($B);
-		   $cC = MArrecadacao::digitoVerificador($C);
-		   $cD = MArrecadacao::digitoVerificador($D);
+		   $cA = self::digitoVerificador($A);
+		   $cB = self::digitoVerificador($B);
+		   $cC = self::digitoVerificador($C);
+		   $cD = self::digitoVerificador($D);
 
 		   return "$A-$cA $B-$cB $C-$cC $D-$cD";
 		}
@@ -129,7 +124,7 @@ if(!defined('_M_ARRECADACAO')) {
 			$codigo_barras = $id_produto . $id_segmento . $codigo_moeda . $b_valor . $b_empresa . $b_campolivre;
 
 			// Coloca o DV
-			$codigo_barras = substr($codigo_barras,0,3) . MArrecadacao::digitoVerificador($codigo_barras) . substr($codigo_barras,3);
+			$codigo_barras = substr($codigo_barras,0,3) . self::digitoVerificador($codigo_barras) . substr($codigo_barras,3);
 			
 			return($codigo_barras);
 
@@ -142,18 +137,12 @@ if(!defined('_M_ARRECADACAO')) {
 			$id_produto = 8;
 			$id_segmento = 6;
 			$codigo_moeda = 7;
-			return(MArrecadacao::obtemCodigoBarras($id_produto,$id_segmento,$codigo_moeda,$valor,$id_empresa,$nosso_numero,$vencimento));
-		}
-
+			return(self::obtemCodigoBarras($id_produto,$id_segmento,$codigo_moeda,$valor,$id_empresa,$nosso_numero,$vencimento));
+		}	
 	}
-
-}
-
-	/**
-	 * Teste
-	 */
 	
 	/**
+
 	$id_produto = 8;
 	$id_segmento = 6;
 	$codigo_moeda = 7;
@@ -164,12 +153,11 @@ if(!defined('_M_ARRECADACAO')) {
 	
 	//$codigo_barras = MArrecadacao::obtemCodigoBarras($id_produto,$id_segmento,$codigo_moeda,$valor,$id_empresa,$nosso_numero,$vencimento);
 	$codigo_barras = MArrecadacao::codigoBarrasPagContas($valor,$id_empresa,$nosso_numero,$vencimento);
-	//echo "CB: $codigo_barras<br>\n";
-	
-	MArrecadacao::barCode($codigo_barras);
-	
+	echo "CB: $codigo_barras<br>\n";
+
 	$linha_digitavel = MArrecadacao::linhaDigitavel($codigo_barras);
-	//echo "LD: $linha_digitavel<br>\n";
+	echo "LD: $linha_digitavel<br>\n";
+	
 	*/
 
 ?>

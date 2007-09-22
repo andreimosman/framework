@@ -14,11 +14,11 @@ install:
 	install MSmarty.class.php ${TARGET}
 	install MWebApp.class.php ${TARGET}
 	install MBoleto.class.php $(TARGET)
-	install MRetornoBanco.class.php ${TARGET}
-	install MRetornoPagContas.class.php ${TARGET}
-	install MRetornoCBR643.class.php ${TARGET}
+	install MRetorno.class.php ${TARGET}
+	install MRetornoPAGCONTAS.class.php ${TARGET}
+	install MRetornoBBCBR643.class.php ${TARGET}
+	install MRemessa.class.php ${TARGET}
 	install MUtils.class.php ${TARGET}
-	install MHTML2PDF.class.php ${TARGET}
 	install MArrecadacao.class.php ${TARGET}
 	install MLicenca.class.php ${TARGET}
 	install mimage_barcode_int25.class.php ${TARGET}

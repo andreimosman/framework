@@ -299,7 +299,7 @@
       }
       
       
-      // echo "SQL: $sql<br><br>\n";
+      echo "SQL: $sql<br><br>\n";
       
       return( $unico?$this->bd->obtemUnicoRegistro($sql):$this->bd->obtemRegistros($sql));
     }
@@ -435,7 +435,7 @@
       
       $sql .= "\n";
       
-      // echo "<pre>$sql</pre>\n";
+      echo "<pre>$sql</pre>\n";
       // echo "<!-- $sql -->\n";
       
       return($this->bd->consulta($sql,false));

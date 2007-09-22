@@ -1,23 +1,9 @@
 <?
 
-	// Geração do código de barras
-	require_once("mimage_barcode_int25.class.php");
+	require_once("MException.class.php");
 
-
-	/**
-	 * Módulo base para os sistemas bancários de boleto e arrecadação
-	 *
-	 */
-
-	class MBanco {
-
-		/**
-		 * CONSTRUTOR
-		 */
-		public function __construct() {
-		
-		}
-
+	abstract class MBanco {
+	
 		/**
 		 * Soma()
 		 * Realiza a soma de todos os dígitos de uma sequencia
@@ -83,12 +69,13 @@
 
 		/**
 		 * Imprime a imagem do codigo de barras
+		 * Esta função usava o MImage_Barcode
 		 */
-		public static function barCode($cod,$target='') {
-		   // Imprime o código de barras.
-		   $bc = new MImage_Barcode_int25();
-		   $bc->draw($cod, "png", $target);
-		}
+		//public static function barCode($cod,$target='') {
+		//   // Imprime o código de barras.
+		//   $bc = new MImage_Barcode_int25();
+		//   $bc->draw($cod, "png", $target);
+		//}
 		
 		/**
 		 * Gera o código de barras em HTML
@@ -171,15 +158,7 @@
 		
 		}
 
-
+	
 	}
-
-
-
-
-
-
-
-
 
 ?>
