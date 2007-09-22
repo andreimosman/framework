@@ -1,7 +1,7 @@
 <?
 
 
-
+	require_once("MRetorno.class.php");
 
 	class MRetornoPAGCONTAS extends MRetorno {
 		/**
@@ -28,7 +28,7 @@
 		protected $registros_processados;
 		protected $vl_total_processado;		
 	
-		protected function init() {
+		public function init() {
 			parent::init();
 
 			$this->codigo_remessa = "";
@@ -66,7 +66,7 @@
 			return false;		
 		}
 		
-		protected function processaLinha($linha) {
+		public function processaLinha($linha) {
 
 			// Identifica o tipo do registro
 			switch($linha[0]) {

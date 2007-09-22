@@ -1,6 +1,7 @@
 <?
 
-
+	require_once("MRetorno.class.php");
+	
 	class MRetornoBBCBR643 extends MRetorno {
 
 		/**
@@ -705,7 +706,7 @@
 				}
 
 
-
+			}
 
 		}
 	
