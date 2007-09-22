@@ -13,7 +13,10 @@ install:
 	install MTemplate.class.php ${TARGET}
 	install MSmarty.class.php ${TARGET}
 	install MWebApp.class.php ${TARGET}
-	install MBoleto.class.php $(TARGET)
+	install MBoleto.class.php ${TARGET}
+	install MBoleto001.class.php ${TARGET}
+	install MBoleto104.class.php ${TARGET}
+	install MBoleto237.class.php ${TARGET}
 	install MRetorno.class.php ${TARGET}
 	install MRetornoPAGCONTAS.class.php ${TARGET}
 	install MRetornoBBCBR643.class.php ${TARGET}
