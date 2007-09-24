@@ -16,6 +16,8 @@
     protected $_sequence;
     protected $_filtros;
     protected $_language;
+    
+    protected $_forupdate;
 
     protected static $bd;
     
@@ -30,6 +32,7 @@
       $this->_ordem	= "";
       $this->_filtro	= array();
       $this->_language	= "pt_BR";
+      $this->_forupdate = false;
     }
     
     public static function configuraPrefixo($prefixo) {
@@ -298,6 +301,10 @@
       	return($info["num_regs"]);
       }
       
+      if( $this->_forupdate ) {
+      	$sql .= " FOR UPDATE";
+      }
+      
       
       echo "SQL: $sql<br><br>\n";
       
@@ -343,8 +350,15 @@
           if( is_null($vl) ) {
             $vl = 'null';
           } else {
-            $vl = $this->bd->escape($vl);
-            if($quote) $vl = "'".$vl."'";
+          	switch($vl) {
+          		// Funçao now()
+          		case '=now':
+          			$vl = "now()";
+          			break;
+          		default:
+					$vl = $this->bd->escape($vl);
+					if($quote) $vl = "'".$vl."'";
+			}
           }
           
           $valores[] = $vl;
@@ -540,14 +554,17 @@
           if( !$valor ) {
             $retorno = null;
           } else {
+			if( $valor == '=now' ) {
+				$retorno = $valor;
+			} else {
+				if( substr_count($valor, "-") > 0 ) {
+				  $retorno = $valor;
+				} else {
+				  list($dia, $mes, $ano) = explode("/", $valor);
 
-            if( substr_count($valor, "-") > 0 )
-              $retorno = $valor;
-            else {
-              list($dia, $mes, $ano) = explode("/", $valor);
-
-              $retorno = $ano."-".$mes."-".$dia;
-            }
+				  $retorno = $ano."-".$mes."-".$dia;
+				}
+			}
           }
 
           //echo $retorno;
@@ -570,6 +587,13 @@
     
     public function filtroCampo($campo,$valor) {
       return($valor);
+    }
+    
+    // Altera a flag _forupdate e retorna o valor antigo da flag.
+    public function setForUpdate($bool) {
+    	$retorno = $this->_forupdate;
+    	$this->_forupdate = $bool;
+    	return($retorno);
     }
     
   }

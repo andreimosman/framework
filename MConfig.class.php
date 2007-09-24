@@ -45,10 +45,10 @@ class MConfig {
     else
       self::$lastConfig = $arquivo;
     
-    if( !isset(self::$instancia[$dsn]) ) {
-      self::$instancia[$dsn] = new MConfig($arquivo);
+    if( !isset(self::$instancia[$arquivo]) ) {
+      self::$instancia[$arquivo] = new MConfig($arquivo);
     }
-    return self::$instancia[$dsn];
+    return self::$instancia[$arquivo];
 
    }
    
