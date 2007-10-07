@@ -27,7 +27,7 @@ if(!defined('_M_JSON')) {
 		
 		protected static function escape($str) {
 			$str = str_replace('"','\"',str_replace('/','\/',str_replace("\n",'\n',$str)));
-			return(addcslashes($str,"\r\n\m"));
+			return(addcslashes($str,"\r\n"));
 		}
 		
 		protected static function quoteString($str) {

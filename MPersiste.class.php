@@ -8,6 +8,8 @@
    */
   Abstract class MPersiste {
     protected static $_prefix = "";
+    
+    protected static $_DEBUG = true;
 
     protected $_tabela;
     protected $_campos;
@@ -33,6 +35,11 @@
       $this->_filtro	= array();
       $this->_language	= "pt_BR";
       $this->_forupdate = false;
+      
+    }
+    
+    public static function setDebug($st) {
+    	self::$_DEBUG = $st;
     }
     
     public static function configuraPrefixo($prefixo) {
@@ -116,20 +123,15 @@
           
             $cnd = $campo . " ";
           
-            //echo "OP: " . $operadores[$operador] . " <br>\n";
-          
             if( $operadores[$operador] == '*especial*' ) {
-            	// echo "OPERADOR ESPECIAL: $operador<br>\n";
               switch($operador) {
                 case "array in":
-                	//echo "array in<br>\n";
                    // Operador array in inclui ":tipo";
                    list($tipo,$valor) = explode(":",$valor,2);
                    
                    //$cnd .= " >= ARRAY['$valor'::$tipo]";
                    $cnd = "array_to_string($campo,' ') ilike '%$valor%'";
                  
-                   //echo "CND: $cnd<br>\n";
                    break;
                  
                 case "in":
@@ -137,9 +139,6 @@
                   $elementos = explode("::",$valor);
                 
                   for($x=0;$x<count($elementos);$x++) {
-                  	//echo "el: ".$elementos[$x]."<br>\n";
-                  	//echo "es: ".$this->bd->escape($elementos[$x])."<br>\n";
-                  	//echo "<hr>\n";
                     $elementos[$x] = $this->bd->escape($elementos[$x]);
                   }
                 
@@ -172,8 +171,6 @@
         }
         $retorno .= implode(" " . $forceop . " ",$cond);
       }
-      
-      //echo "RETORNO: " . $retorno . "<br>\n";
       
       return($retorno);
       
@@ -273,8 +270,6 @@
      * Select Generico
      */
     function obtem($condicao=array(),$ordem="",$limite="",$unico = false,$conta = false) {
-      //echo "ARR? " . is_array($condicao) . "\n";
-      //break;
     
       $sql = "SELECT " . ($conta? "count(".$this->_chave.") as num_regs":implode(",",$this->_campos)) . " FROM " . $this->_tabela . " " . (is_array($condicao)?$this->_where($condicao):$condicao);
       
@@ -306,7 +301,8 @@
       }
       
       
-      echo "SQL: $sql<br><br>\n";
+      $this->debug("MPersiste","obtem",$sql);
+      
       
       return( $unico?$this->bd->obtemUnicoRegistro($sql):$this->bd->obtemRegistros($sql));
     }
@@ -350,21 +346,17 @@
           if( is_null($vl) ) {
             $vl = 'null';
           } else {
-          	switch($vl) {
-          		// Funçao now()
-          		case '=now':
-          			$vl = "now()";
-          			break;
-          		default:
-					$vl = $this->bd->escape($vl);
-					if($quote) $vl = "'".$vl."'";
-			}
+          	if( $vl === "=now" ) {
+          		$vl = 'now()';
+          	} else {
+          		$vl = $this->bd->escape($vl);
+          		if($quote) $vl = "'".$vl."'";
+          	}
+          		
           }
           
           $valores[] = $vl;
           
-          //echo "SD: [$campo][$valor][$vl]<br>\n";
-
           // Campo compoe a chave
           if( in_array($campo,$chaves) ) {
             $id[$campo] = $valor;
@@ -402,14 +394,12 @@
         $campos[]  = $this->_chave;
         $valores[] = $id;
 
-        //echo "SEQUENCE: " . $this->_chave . " - $id<br>\n";
-
       }
       
       // Monta a query 
       $sql = "INSERT INTO " . $this->_tabela . " ( " . implode(',',$campos) . " ) VALUES ( " . implode(",",$valores) . " )";
       
-      echo "DEBUG: $sql<br>\n";
+      $this->debug("MPersiste","insere",$sql);
       
       $this->bd->consulta($sql,false);
       
@@ -449,8 +439,7 @@
       
       $sql .= "\n";
       
-      echo "<pre>$sql</pre>\n";
-      // echo "<!-- $sql -->\n";
+      $this->debug("MPersiste","update",$sql);
       
       return($this->bd->consulta($sql,false));
       
@@ -550,7 +539,7 @@
           
           break;
         case 'date':
-        //echo "DATE!!!!";
+         // echo "DATE!!!!";
           if( !$valor ) {
             $retorno = null;
           } else {
@@ -594,6 +583,15 @@
     	$retorno = $this->_forupdate;
     	$this->_forupdate = $bool;
     	return($retorno);
+    }
+    
+    protected static function debug($classe,$metodo,$info) {
+    	//$arqDebug = "/tmp/va-debug.txt";
+    	//if( self::$_DEBUG ) {
+    	//	$fd = fopen($arqDebug,"a");
+    	//	fputs($fd,"$classe::$metodo()::".$info."\n\n-------------------------------------------------------\n");
+    	//	fclose($fd);
+    	//}
     }
     
   }

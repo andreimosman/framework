@@ -40,6 +40,7 @@
 			$retorno = "";
 			
 			//echo $comando . "\n";
+			echo "EXECUTA: $comando\n";
 			
 			$fd = popen($comando, ($post ? 'w' : 'r'));
 			if($post) {
@@ -84,7 +85,7 @@
 		
 		}
 		
-		public static function deletaRegraBW($id,$baserule, $basepipe_int,$basepipe_out) {
+		public static function deletaRegraBW($id,$baserule, $basepipe_in,$basepipe_out) {
 		
 		}
 	

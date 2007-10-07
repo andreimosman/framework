@@ -92,6 +92,8 @@ class MLicenca extends MConfig{
 		$fd = @fopen($arquivo,"r");
 		if( !$fd ) return "";
 		
+		if( filesize($arquivo) == 0 ) return "";
+		
 		$conteudo = fread($fd,filesize($arquivo));
 		$dec_cont = $this->decode($conteudo);
 		
