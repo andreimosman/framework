@@ -39,8 +39,8 @@
 		public static function executa($comando,$post=NULL) {
 			$retorno = "";
 			
-			//echo $comando . "\n";
-			echo "EXECUTA: $comando\n";
+			// echo $comando . "\n";
+			// echo "EXECUTA: $comando\n";
 			
 			$fd = popen($comando, ($post ? 'w' : 'r'));
 			if($post) {
