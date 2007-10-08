@@ -586,7 +586,7 @@
     }
     
     protected static function debug($classe,$metodo,$info) {
-    	//$arqDebug = "/tmp/va-debug.txt";
+    	$arqDebug = "/tmp/va-debug.txt";
     	//if( self::$_DEBUG ) {
     	//	$fd = fopen($arqDebug,"a");
     	//	fputs($fd,"$classe::$metodo()::".$info."\n\n-------------------------------------------------------\n");
