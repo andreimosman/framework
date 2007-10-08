@@ -40,4 +40,5 @@ install:
 	install MJson.class.php ${TARGET}
 	install MData.class.php ${TARGET}
 	install MCript.class.php ${TARGET}
+	install MCarne.class.php ${TARGET}
 	cp -r ${TARGET} /mosman/virtex
