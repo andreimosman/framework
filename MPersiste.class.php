@@ -85,7 +85,7 @@
     protected function _where($condArray,$recursive=false,$forceop="AND") {
       $cond = array();
       
-      $operadores = array( "=" => "=", "%" => "ilike", "!=" => "!=", "!" => "!=", "in" => "*especial*", "!in" => "*especial*", "array in" => "*especial*", "null" => "*especial*" );
+      $operadores = array( "=" => "=", "%" => "ilike", "!=" => "!=", "!" => "!=", "in" => "*especial*", "!in" => "*especial*", "array in" => "*especial*", "null" => "*especial*", "~" => '~', "~*" => '~*' );
       
       $keys = array_keys($condArray);
       
@@ -587,11 +587,11 @@
     
     protected static function debug($classe,$metodo,$info) {
     	$arqDebug = "/tmp/va-debug.txt";
-    	//if( self::$_DEBUG ) {
-    	//	$fd = fopen($arqDebug,"a");
-    	//	fputs($fd,"$classe::$metodo()::".$info."\n\n-------------------------------------------------------\n");
-    	//	fclose($fd);
-    	//}
+    	if( self::$_DEBUG ) {
+    		$fd = fopen($arqDebug,"a");
+    		fputs($fd,"$classe::$metodo()::".$info."\n\n-------------------------------------------------------\n");
+    		fclose($fd);
+    	}
     }
     
   }
