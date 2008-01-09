@@ -80,13 +80,33 @@ class MData {
 			$anos = floor($meses/12);
 			$ano += $anos;
 			$meses -= 12 * $anos;
-		}
+		} 
 
 		$mes += $meses;
 			
 		if( $mes > 12 ) {
 			$mes -= 12;
 			$ano++;
+		} elseif ( $mes < 1 ) {
+			// Subtracao
+			
+			$anos = -1 * floor($mes/12);
+			$ano -= $anos;
+			
+			$mes = $mes + ($anos*12);
+			
+			if( $mes == 0 ) {
+				--$ano;
+				$mes=12;
+			}
+			
+			//echo "MES: $mes\n" ;
+			
+			//echo "ANOS: $anos\n" ;
+			
+			
+			
+			
 		}
 			
 		$dias = self::obtemDiasMes($ano);
@@ -163,7 +183,7 @@ class MData {
 
 
 // TESTE
-// echo(MData::adicionaMes("31/05/2005", 23));
+// echo(MData::adicionaMes("01/12/2007", -13));
 // echo MData::proximoDia("31","30/06/2007") . "\n";
 
 //$dataContrato = "20/08/2007";

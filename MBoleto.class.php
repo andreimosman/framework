@@ -186,53 +186,6 @@
 		}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-		/*******************************************
-		 *          FUNCOES DE APOIO               *
-		 *******************************************/
-
-		/**
-		 * Entra com a variável e o tamanho do campo, 
-		 * Preenche o resto com zeros à esquerda
-		 */
-		static function padZero($variavel,$tamanho) {
-			//echo "VAR: $variavel<br>\n";
-			//echo "T: $tamanho<br>\n";
-			//echo "Zrs: " . (
-			return( str_pad($variavel, $tamanho, "0", STR_PAD_LEFT) );
-		}
-
-		/**
-		 * Insere um ponto na posição especificada
-		 */
-		protected function inserePonto($str,$p) {
-		   return( substr($str,0,$p) . "." . substr($str,$p) );
-		}
-
-		/**
-		 * Obtem o fator da data com base em 07/10/1997 conforme regulamentação Febraban
-		 */
-		function fatorData($data) {
-		   list($d,$m,$a) = explode("/",$data);
-
-		   // Constante: 07/10/1997
-		   $dt_const = mktime(0,0,0,10,7,1997);
-		   // Retorna o valor em dias (e não em segundos)
-		   return( (int)((mktime(0,0,0,$m,$d,$a) - $dt_const)/(24*60*60)) );
-
-		}	
-
 		
 	}
 	
@@ -248,12 +201,29 @@
 	$id			= '0011';
 	
 	$moeda = "9";
-
-	$boleto = MBoleto::factory($banco,$agencia,$conta,$carteira,$convenio,$vencimento,$valor,$id,$moeda,$cnpj_ag_cedente,$codigo_cedente,$operacao_cedente);
 	
+
+	$banco   	= '365';
+	$agencia 	= '0501';		// Sem o DV
+	$conta   	= '6703255';	// Sem o DV
+	$carteira	= '20';
+	$convenio   = '';
+	$vencimento = '02/10/2001';	// Formato brasileiro
+	$valor		= '35,00';		// Tanto faz ponto ou virgula
+	$id			= '3020';
+	
+	$moeda = "9";
+	
+	echo "A\n";
+
+
+	$boleto = MBoleto::factory($banco,$agencia,$conta,$carteira,$convenio,$vencimento,$valor,$id,$moeda,$cnpj_ag_cedente,$codigo_cedente,$operacao_cedente);	
+
 	echo "LD: " . $boleto->obtemLinhaDigitavel() . "<BR>\n";
 	echo "CB: " . $boleto->obtemCodigoBoleto() . "<BR>\n";
-	
-	*/
 
+	echo "B\n";
+
+	*/
+	
 ?>

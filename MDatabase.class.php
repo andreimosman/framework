@@ -603,7 +603,32 @@
 		}
 		
 		public function obtemDefinicaoIndice($tabela,$indice) {
-			$this->bd->reverse->getTableIndexDefinition($tabela, $indice);
+			return($this->bd->reverse->getTableIndexDefinition($tabela, $indice));
+		}
+		
+		public function obtemDefinicaoTabela($tabela) {
+			return($this->bd->reverse->tableInfo($tabela));
+		}
+		
+		/**
+		 * Retorna a tabela pai
+		 */
+		public function obtemHeranca($tabela) {
+			$sql = "SELECT  ";
+			$sql .= "   cl.oid as id_filha, cl.relname as tabela_filha, inh.inhparent as id_pai, pai.relname as tabela_pai ";
+			$sql .= "FROM ";
+			$sql .= "   pg_class cl INNER JOIN pg_inherits inh ON(cl.oid = inh.inhrelid)  ";
+			$sql .= "   INNER JOIN pg_class pai ON (inh.inhparent = pai.oid) ";
+			$sql .= "WHERE ";
+			$sql .= "   cl.relname = '$tabela' ";
+			
+			//echo $sql."\n\n" ;
+			
+			$tabs = $this->obtemUnicoRegistro($sql);
+			
+			return(@$tabs["tabela_pai"]);
+			
+ 
 		}
 		
 		/**
@@ -623,7 +648,29 @@
 				$lista_consts = $this->obtemListaConstraints($lista_tabelas[$i]);
 				$lista_index  = $this->obtemListaIndices($lista_tabelas[$i]);
 				
+				$heranca      = $this->obtemHeranca($lista_tabelas[$i]);
+				
+				
+				
 				//echo "TABELA: ".$lista_tabelas[$i]."\n";
+				$tabela["inherits"] = $heranca;
+				
+				if( $heranca ) {
+					// Excluir os campos herdados.
+
+					$campos_parent = $this->obtemListaCampos($heranca);
+					$tmp_campos = array();
+					
+					for($x=0;$x<count($lista_campos);$x++) {
+						if( !in_array($lista_campos[$x],$campos_parent) ) {
+							$tmp_campos[] = $lista_campos[$x];
+						}
+					}
+					
+					$lista_campos = $tmp_campos;
+					
+				}
+				
 				
 				$campos = array();
 				for($x=0;$x<count($lista_campos);$x++) {

@@ -11,6 +11,8 @@
 		protected static function soma($p) {
 		   $soma = 0;
 		   $c=0;
+		   
+		   //echo "P: $p<br>\n";
 		   for($i=strlen($p)-1;$i>=0;--$i) {
 			  $c++;
 			  //$mul = ($i+1)%2 ? 2 : 1;
@@ -20,6 +22,7 @@
 			  //echo $p[$i] . " x " . $mul . " = " . $v . "<br>\n";
 			  $soma += $v;
 		   }
+		   //echo "<hr>" ;
 
 		   return($soma);
 
@@ -157,6 +160,41 @@
 			return($retorno);
 		
 		}
+
+		/*******************************************
+		 *          FUNCOES DE APOIO               *
+		 *******************************************/
+
+		/**
+		 * Entra com a variável e o tamanho do campo, 
+		 * Preenche o resto com zeros à esquerda
+		 */
+		static function padZero($variavel,$tamanho) {
+			//echo "VAR: $variavel<br>\n";
+			//echo "T: $tamanho<br>\n";
+			//echo "Zrs: " . (
+			return( str_pad($variavel, $tamanho, "0", STR_PAD_LEFT) );
+		}
+
+		/**
+		 * Insere um ponto na posição especificada
+		 */
+		protected function inserePonto($str,$p) {
+		   return( substr($str,0,$p) . "." . substr($str,$p) );
+		}
+
+		/**
+		 * Obtem o fator da data com base em 07/10/1997 conforme regulamentação Febraban
+		 */
+		function fatorData($data) {
+		   list($d,$m,$a) = explode("/",$data);
+
+		   // Constante: 07/10/1997
+		   $dt_const = mktime(0,0,0,10,7,1997);
+		   // Retorna o valor em dias (e não em segundos)
+		   return( (int)((mktime(0,0,0,$m,$d,$a) - $dt_const)/(24*60*60)) );
+
+		}	
 
 	
 	}
