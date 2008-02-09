@@ -781,17 +781,44 @@
 		protected function sqlFieldDefinition($fieldinfo) {
 			$sql="";
 			switch(trim(strtolower($fieldinfo["nativetype"]))) {
+				case 'smallint':
 				case 'int2':
-				case 'int4':
 				case 'integer':
+				case 'int':
+				case 'int4':
+				case 'bigint':
+				case 'int8':
 				case 'inet':
 				case 'cidr':
 				case 'macaddr':
 				case 'date':
 				case 'timestamp':
+				case 'timestamp with time zone':
+				case 'timestamptz':
 				case 'bpchar':
 				case 'text':
 				case 'bool':
+				case 'boolean':
+				case 'real':
+				case 'float4':
+				case 'double precision':
+				case 'float8':
+				case 'serial':
+				case 'serial4':
+				case 'bigserial':
+				case 'serial8':	
+				case 'money':
+				case 'box':
+				case 'bytea':
+				case 'line':
+				case 'lseg':
+				case 'path':
+				case 'point':
+				case 'polygon':
+				case 'time with time zone':
+				case 'timetz':
+				
+				
 					/**
 					 * Campos que não recebem o tamanho
 					 */
@@ -801,7 +828,12 @@
 				case 'char':
 				case 'character':
 				case 'varchar':
+				case 'character varying':
 				case 'numeric':
+				case 'decimal':
+				case 'bit':
+				case 'bit varying':
+				case 'varbit':
 					/**
 					 * Campos que recebem um único parametro (tamanho)
 					 */
