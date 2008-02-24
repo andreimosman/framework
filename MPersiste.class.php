@@ -400,7 +400,7 @@
       
       // Monta a query 
       $sql = "INSERT INTO " . $this->_tabela . " ( " . implode(',',$campos) . " ) VALUES ( " . implode(",",$valores) . " )";
-      //echo "<pre>$sql</pre><br><br>\n";
+      echo "<pre>$sql</pre><br><br>\n";
       
       $this->debug("MPersiste","insere",$sql);
       
