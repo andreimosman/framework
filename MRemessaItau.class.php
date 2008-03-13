@@ -285,12 +285,12 @@
 				// Chamar $this->registroDetalhe()
 				
 				$instrucao_alegacao = 0;
-				$identificacao_titulo = "",
+				$identificacao_titulo = "";
 				$id = $faturas[$i]["id_cobranca"];
 				$vencimento = $faturas[$i]["data"];
 				$valor = $faturas[$i]["valor"];
-				$tipo_pessoa = $cliente["tipo_pessoa"],
-				$cpf_cnpj_sacado = $cliente["cpf_cnpj"],
+				$tipo_pessoa = $cliente["tipo_pessoa"];
+				$cpf_cnpj_sacado = $cliente["cpf_cnpj"];
 				$nome_razao_sacado = $cliente["nome_razao"];
 				
 				$logradouro_sacado = $endereco_cobranca["endereco"];
@@ -333,17 +333,8 @@
 	
 	$remessa = new MRemessaItau();
 	$remessa->init(210,71130,5,112,"","KZ Com. e Serv. Ltda","01.928.751/0001-35",2);
-	echo "<pre>";
-	//echo $remessa->obtemCabecalho() . "\n";
-	//echo $remessa->registroDetalhe(0,"",321,"01/05/1980",30.99,"F","293.770.898-67", "Andrei de Oliveira Mosman", "Alameda dos Rosedas, 116", "Jd Botânico", "13.520-000", "SAO PEDRO", "SP", "Discadão Arregaçador") . "\n";
-	//echo $remessa->obtemRodape() . "\n";
-	// echo $remessa->registroDetalhe(1234,"",321,"1980-05-01",10.00,"F","293.770.898-67", "Andrei de Oliveira Mosman") . "\n";
-	
-	$remessa->geraArquivoRemessa();
-	
-	
-	echo "</pre>";
-	
+	$remessa->geraArquivoRemessa($arquivo,$faturas);
+
 	*/
 
 

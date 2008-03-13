@@ -49,6 +49,9 @@
 				case 'BBCBR643':
 					return new MRetornoBBCBR643($arquivo);
 					
+				case 'ITAU':
+					return new MRetornoItau($arquivo);
+					
 				default:
 					throw new MException("Formato de Retorno Desconhecido");
 					
@@ -82,7 +85,7 @@
 				$this->processaLinha($linha);
 			}
 			
-			fclose(fd);
+			fclose($fd);
 			
 			return;
 
@@ -119,6 +122,68 @@
 			$num = "$inteiro.$decimal";
 			
 			return($tipo == "bd" ? (float)$num : number_format($num,$decimais,",","."));
+		}
+		
+		public function formataData($data,$formatoRetorno="pt_BR") {
+			if( strstr($data,"/") ) {
+				// Formato DD/MM/AAAA
+				list($dia,$mes,$ano) = explode("/",$data);
+				
+			} else if( strstr($data,"-") ) {
+				// Formato AAAA-MM-DD
+				list($ano,$mes,$dia) = explode("-",$data);
+				
+			} else {
+			
+				if( !(int)$data ) {
+					//echo "NOT DATA $data\n";
+					return($data);
+				}
+			
+				$dia = substr($data,0,2);
+				$mes = substr($data,2,2);
+				$ano = substr($data,4);
+			}
+			
+			$ano4d = $ano;
+			
+			//echo "STRLEN: " . strlen($ano) . "\n";
+			
+			if( strlen($ano) == 2 ) {
+				if( $ano >= 80 ) {
+					$ano4d = '19'.$ano;
+				} else {
+					$ano4d = '20'.$ano;
+				}
+				
+			}
+			
+			$retorno = "";
+			
+			switch($formatoRetorno) {
+				case 'pt_BR':
+					$retorno = "$dia/$mes/$ano4d";
+					break;
+				case 'bd':
+					$retorno = "$ano4d-$mes-$dia";
+					break;
+				case '6d':
+					$retorno = $dia.$mes.$ano;
+					break;
+				
+			}
+			
+			return $retorno;
+			
+			
+		}
+		
+		public static function obtemFormatosRetorno() {
+			return( array (
+							"BBCBR643" => "Banco do Brasil CBR 643",
+							"PAGCONTAS" => "Sistema Pag Contas",
+							"ITAU" => "Itau CNAB 400"
+						) );
 		}
 		
 		/**
