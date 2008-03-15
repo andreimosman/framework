@@ -228,6 +228,11 @@
 	
 	}
 	
+	
+	/**
+	 * TESTE
+	 */
+	 
 	//echo "<pre>";
 	//$retorno = MRetorno::factory('ITAU',"teste-retorno-itau-03.txt");
 	//print_r($retorno->obtemRegistros());
