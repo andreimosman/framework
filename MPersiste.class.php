@@ -46,6 +46,10 @@
       self::$_prefix = $prefixo;
     }
     
+    public function obtemMensagemErro() {
+    	return($this->bd->obtemMensagemErro());
+    }
+    
     public function begin() {
       if( $this->bd ) {
         $this->bd->begin();
@@ -443,7 +447,7 @@
       $sql .= "\n";
       
       $this->debug("MPersiste","update",$sql);
-      // echo "\n<hr>MPersiste::altera:: " . $sql . "<hr>\n";
+      echo "\n<hr>MPersiste::altera:: " . $sql . "<hr>\n";
       
       return($this->bd->consulta($sql,false));
       
