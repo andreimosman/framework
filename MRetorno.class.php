@@ -20,6 +20,10 @@
 		 */
 		protected $valido;
 		
+		/**
+		 * Indica a data de geração do arquivo.
+		 */
+		protected $data_geracao;
 		
 		/**
 		 * Construtor da classe.
@@ -70,6 +74,7 @@
 			$this->arquivo = "";
 			$this->registros = array();
 			$this->valido = true;
+			$this->data_geracao = "";
 		}
 		
 		/**
@@ -192,6 +197,14 @@
 		public function obtemRegistros() {
 			return($this->registros);
 		}
+
+		/**
+		 * Retorna a data de geração do arquivo.
+		 */
+		public function obtemDataGeracao() {
+			return($this->data_geracao);
+		}
+
 	
 	}
 

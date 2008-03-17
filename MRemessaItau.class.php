@@ -275,7 +275,7 @@
 			
 			$temparq = tempnam("/tmp","varb");
 			$fd = fopen($temparq,"w");
-			fputs($this->obtemCabecalho() . "\n");
+			fputs($fd,$this->obtemCabecalho() . "\n");
 			
 			for($i=0;$i<count($faturas);$i++) {
 				$cliente = $faturas[$i]["cliente"];

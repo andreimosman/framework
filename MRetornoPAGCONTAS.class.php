@@ -11,7 +11,6 @@
 		protected $codigo_convenio;
 		protected $nome_empresa;
 		protected $codigo_banco;
-		protected $data_geracao;
 		protected $nsa;
 		protected $versao_layout;
 		
@@ -35,7 +34,6 @@
 			$this->codigo_convenio = "";
 			$this->nome_empresa = "";
 			$this->codigo_banco = "";
-			$this->data_geracao = "";
 			$this->nsa = 0;
 			$this->versao_layout = "";
 
@@ -78,7 +76,7 @@
 					$this->nome_empresa    = substr($linha,22,20);
 					$this->codigo_banco    = substr($linha,42,3);
 					$this->nome_banco      = substr($linha,45,20); 
-					$this->data_geracao    = substr($linha,65,8);
+					$this->data_geracao    = $this->formataData(substr($linha,65,8),"bd");
 					$this->nsa             = substr($linha,73,6);  // Numero sequencial do arquivo
 					$this->versao_layout   = substr($linha,79,2);  // Versao do layout = 3
 					//$reservado       = substr($linha,81,69); // Reservado para o futuro
@@ -117,11 +115,11 @@
 
 					$this->registros[$idx] = array(
 												"id_ag_cc_dig"   => substr($linha,1,20),	 
-												"data_pagamento" => substr($linha,21,8),
-												"data_credito"   => substr($linha,29,8),
+												"data_pagamento" => $this->formataData(substr($linha,21,8),"bd"),
+												"data_credito"   => $this->formataData(substr($linha,29,8),"bd"),
 												"codigo_barras"  => substr($linha,37,44),
-												"valor_recebido" => substr($linha,81,12),
-												"valor_tarifa"   => substr($linha,93,7),
+												"valor_recebido" => $this->formataValor(substr($linha,81,12),"bd"),
+												"valor_tarifa"   => $this->formataValor(substr($linha,93,7),"bd"),
 												"nsr"            => substr($linha,100,8),	/** Numero sequencial do registro */
 												"cod_agencia_arrecadadora" => substr($linha,108,8),	/** Codigo da agencia arrecadadora (código do posto) */
 												"forma_arrecadacao"  => substr($linha,116,1)	/** Forma de arrecadacao (1) */

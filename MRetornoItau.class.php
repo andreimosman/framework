@@ -22,7 +22,7 @@
 					$nome_empresa	 = substr($linha,46,30);
 					$codigo_banco	 = substr($linha,76,3);
 					$nome_banco		 = substr($linha,79,15);
-					$data_geracao	 = substr($linha,94,6);
+					$this->data_geracao	 = $this->formataData(substr($linha,94,6),"bd");
 					$densidade		 = substr($linha,100,5);
 					$unidade_densid  = substr($linha,105,3);
 					$seq_arquivo	 = substr($linha,108,5);

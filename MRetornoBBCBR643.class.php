@@ -13,7 +13,6 @@
 		protected $dv_cedente;
 		protected $convenente;
 		protected $nome_empresa;
-		protected $data;
 		protected $seq_retorno;
 
 
@@ -40,7 +39,6 @@
 			$this->dv_cedente	= "";
 			$this->convenente	= ""; // convenio
 			$this->nome_empresa	= "";
-			$this->data			= "";
 			$this->seq_retorno	= "";
 		
 		}
@@ -116,7 +114,7 @@
 						$this->dv_cedente		= $dv_cedente;
 						$this->convenente		= $convenente;
 						$this->nome_empresa		= $nome_empresa;
-						$this->data				= $data;
+						$this->data_geracao		= $this->formataData($data,"bd");
 						$this->seq_retorno		= $seq_retorno;
 
 						break;
