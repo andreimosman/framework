@@ -83,7 +83,7 @@
 							return;
 						}
 
-						$data 			= substr($linha,94,6); // DDMMAA
+						$data 			= $this->formataData(substr($linha,94,6),"bd"); // DDMMAA
 						//$data 			= $this->formataData($data);
 
 						$seq_retorno	= substr($linha,100,7); // Número sequencial de retorno
@@ -369,7 +369,7 @@
 							// INFORMACOES COMUNS FORA DO LOOP
 
 							$numero_cedente = substr($linha,116,10);// Numero do título fornecido pelo cedente
-							$data_vencimento= substr($linha,146,6);	// Data do vencimento DDMMAA
+							$data_vencimento= $this->formataData(substr($linha,146,6),"bd");	// Data do vencimento DDMMAA
 
 							//$data_vencimento= $this->formataData($data_vencimento);
 
@@ -544,7 +544,7 @@
 																// 97-Despesas de Sustacao de Protesto
 																// 98-Debito de Custas Antecipadas
 
-						$data_entrada	= substr($linha,110,6);	// Data da entrada/liquidacao /DDMMAA/
+						$data_entrada	= $this->formataData(substr($linha,110,6),"bd");	// Data da entrada/liquidacao /DDMMAA/
 						//$data_entrada 	= $this->formataData($data_entrada);
 
 						$brancos		= substr($linha,126,20);// Pra variar
@@ -558,7 +558,7 @@
 						$agencia_receb	= substr($linha,168,4);	// Código da agência recebedora (vide observaões)
 						$dv_agencia_rec = substr($linha,172,1);	// dv da agência ou do prefixo de compensacao COMPE-SP
 
-						$data_credito	= substr($linha,175,6);	// Data do crédito
+						$data_credito	= $this->formataData(substr($linha,175,6),"bd");	// Data do crédito
 
 						$valor_tarifa	= substr($linha,181,7);	// Valor da tarifa 99999v99
 						$valor_tarifa	= $this->formataValor($valor_tarifa,"bd");

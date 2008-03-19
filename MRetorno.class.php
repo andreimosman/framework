@@ -178,6 +178,8 @@
 				
 			}
 			
+			echo "RET: $retorno<br>\n";
+			
 			return $retorno;
 			
 			

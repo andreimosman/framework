@@ -148,7 +148,7 @@
 			$mes = substr($data,4,2);
 			$dia = substr($data,6,2);
 			
-			return( $tipo == "bd" ? "$ano-$mes-dia" : "$dia/$mes/$ano" );
+			return( $tipo == "bd" ? "$ano-$mes-$dia" : "$dia/$mes/$ano" );
 			
 		}
 
