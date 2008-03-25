@@ -261,10 +261,10 @@
 		 *                                                  *
 		 ****************************************************/
 
-		public static function installDir($target) {
+		public static function installDir($target,$mode=755) {
 			$install = SistemaOperacional::$INSTALL;
 
-			$comando = $install . " -d " . $target;
+			$comando = $install . " -m $mode" . " -d " . $target;
 			SistemaOperacional::executa($comando);
 		}
 		

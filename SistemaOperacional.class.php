@@ -19,24 +19,116 @@
 		public static $ROUTE	= "/sbin/route";
 		
 		public static $INSTALL	= "/usr/bin/install";
-		
 		public static $DEFAULT_NTP_SERVER = "146.164.48.5";
-
 		
 		/**
 		 * Construtor
 		 */
 		public function __construct() {
 		
-		
 		}
+		
+		/**
+		 * pgDump 
+		 */
+		public static function pgDump($host,$usuario,$senha,$banco,$arquivoOutput,$opcoes="") {
+			$possibilidades = array();
+			$possibilidades[] = "/usr/local/bin/pg_dump";
+			$possibilidades[] = "/usr/bin/pg_dump";
+			
+			$pg_dump = "";
+			
+			for($i=0;$i<count($possibilidades);$i++) {
+				if( file_exists($possibilidades[$i]) && is_executable($possibilidades[$i])) {
+					$pg_dump = $possibilidades[$i];
+					break;
+				}
+			}
+			
+			$param = "";
+			
+			if( $host ) $param .= " -h $host";
+			if( $usuario ) $param .= " -U $usuario";
+			
+			$param .= " " . $opcoes;			
+			$param .= " " . $banco;
+			
+			$comando = $pg_dump . " " . trim($param) . " 2>&1";
+			self::executa($comando,NULL,$arquivoOutput);
+						
+		}
+		
+		public static function obtemPHP() {
+			$possibilidades = array();
+			$possibilidades[] = "/usr/bin/php";
+			$possibilidades[] = "/usr/local/bin/php";
+			$possibilidades[] = "/bin/php";
+			
+			for($i=0;$i<count($possibilidades);$i++) {
+				if( file_exists($possibilidades[$i]) && is_executable($possibilidades[$i])) {
+					return($possibilidades[$i]);
+				}
+			}
+			
+			return "";
+			
+			
+		}
+		
+		public static function tar($arquivoTar,$fileList) {
+			$possibilidades = array();
+			$possibilidades[] = "/bin/tar";
+			$possibilidades[] = "/usr/bin/tar";
+			$possibilidades[] = "/usr/local/bin/tar";
+			
+			$tar = "";
+			
+			for($i=0;$i<count($possibilidades);$i++) {
+				if( file_exists($possibilidades[$i]) && is_executable($possibilidades[$i])) {
+					$tar = $possibilidades[$i];
+					break;
+				}
+			}
+			
+			if( is_array($fileList) ) {
+				$fileList = implode(" ", $fileList);
+			}
+			
+			$comando = $tar . " cf " . $arquivoTar . " " . $fileList;
+			
+			return(self::executa($comando));
+
+		}
+		
+		public static function gzip($arquivo) {
+			$possibilidades = array();
+			$possibilidades[] = "/bin/gzip";
+			$possibilidades[] = "/usr/bin/gzip";
+			$possibilidades[] = "/usr/local/bin/gzip";
+			
+			$gzip = "";
+			
+			for($i=0;$i<count($possibilidades);$i++) {
+				if( file_exists($possibilidades[$i]) && is_executable($possibilidades[$i])) {
+					$gzip = $possibilidades[$i];
+					break;
+				}
+			}
+			
+			$comando = $gzip . " " . $arquivo;
+			
+			return(self::executa($comando));
+		}
+		
+		
+		
 		
 		/**
 		 * Executa um comando no sistema operacional
 		 *
 		 * retorna o resultado da execução deste comando.
 		 */
-		public static function executa($comando,$post=NULL) {
+		public static function executa($comando,$post=NULL,$outputFile="") {
 			$retorno = "";
 			
 			// echo $comando . "\n";
@@ -47,8 +139,22 @@
 				fputs($fd,$post);
 			}
 			$now = time();
-			while(!feof($fd) && ($retorno .= fgets($fd)) ) {
-
+			
+			if( $outputFile ) {
+				$outFD = fopen($outputFile,"w");
+			}
+			
+			
+			while(!feof($fd) && ($linha = fgets($fd)) ) {
+				if( $outputFile ) {
+					fwrite($outFD,$linha,strlen($linha));
+				} else {
+					$retorno .= $linha;
+				}
+			}
+			
+			if( $outputFile ) {
+				fclose($outFD);
 			}
 			
 			
@@ -143,7 +249,7 @@
 		 *
 		 * Cria um diretório
 		 */
-		public static function installDir($target) {
+		public static function installDir($target,$mode=755) {
 		
 		}
 
