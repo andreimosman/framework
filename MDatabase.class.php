@@ -45,8 +45,7 @@
 			protected $options;
 
 			protected static $instructPointer;	// Ponteiro pra processamento de instruções;
-
-
+			
 			/**
 			 * Construtor.
 			 *
@@ -66,7 +65,10 @@
 
 				$this->zeraListaSQL();
 			}
-
+			
+			public static function parseDSN($dsn) {
+				return(MDB2::parseDSN($dsn));
+			}
 
 			protected static function processArrayInstructs($instructs,$pointer=0) {
 					$arrayRetorno = array();
@@ -1341,11 +1343,55 @@
 			 * Finaliza de descarta a transação.
 			 */
 			public function rollback() {
-				//return($this->consulta("ROLLBACK"));
+				//return($this->consulta("ROLLBACK");
 				return($this->bd->rollback());
 			}
 
+
+
+
+
+			/**************************************************************
+			 *                                                            *
+			 * ROTINAS DE DUMP (para criação de backups do banco de dados *
+			 *                                                            *
+			 **************************************************************/
+			
+			public function dumpDados($tabela) {
+				$q = "SELECT * FROM $tabela";
+				$registros = $this->obtemRegistros($q);
+				
+				$retorno = "";
+				
+				for($i=0;$i<count($registros);$i++) {
+					$reg = $registros[$i];
+					
+					$campos = array();
+					$dados = array();
+					
+					while(list($campo,$valor) = each($reg)) {
+						// echo "$campo = $valor\n";
+						
+						$campos[] = $campo;
+						$dados[] = (is_null($valor) ? 'NULL' : "'" . $this->escape($valor) . "'" );
+						
+					}
+					// echo "----\n";
+					
+					$retorno .= 'INSERT INTO "' . $tabela . '" ( ' . implode(",",$campos) . ") VALUES (" . implode(",",$dados) . ");\n";
+					
+				}
+				
+				return($retorno);
+
+			}
+			
+			public function dumpSequence($sequence) {
+			
+			}
+			
 		}
+		
 	}
 
 ?>
