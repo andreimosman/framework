@@ -1208,8 +1208,13 @@
 
 
 					// CONSTS
-					$constsOriginal	= array_keys($original["tables"][$tabela]["constraints"]);
-					$constsNovo		= array_keys($novo["tables"][$tabela]["constraints"]);
+					
+					//echo "CONSTRAINT: \n";
+					//echo " - ORIG: [" . $original["tables"][$tabela]["constraints"] . "]\n";
+					//echo " - NOVO: [" . $novo["tables"][$tabela]["constraints"] . "]\n";
+					
+					$constsOriginal	= (!$original["tables"][$tabela]["constraints"]?array():array_keys($original["tables"][$tabela]["constraints"]));
+					$constsNovo		= (!$novo["tables"][$tabela]["constraints"]?array():array_keys($novo["tables"][$tabela]["constraints"]));
 
 					$constsFaltando = array_diff($constsNovo,$constsOriginal);
 					$constsSobrando = array_diff($constsOriginal,$constsNovo);
