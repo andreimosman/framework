@@ -245,6 +245,21 @@
 		}
 
 		/**
+		 * removeARP / atribuiARP
+		 * Cria e remove entradas na tabela arp.
+		 */
+
+		public static function removeARP($ip) {
+
+		}
+		
+		public static function atribuiARP($ip,$mac) {
+		
+		}
+
+
+
+		/**
 		 * installDir
 		 *
 		 * Cria um diretório

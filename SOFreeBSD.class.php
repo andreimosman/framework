@@ -8,8 +8,6 @@
 		public static $PFCTL	= "/sbin/pfctl";
 		public static $NTPDATE  = "/usr/sbin/ntpdate";
 		public static $ARP      = "/usr/sbin/arp";
-
-
 		
 		/****************************************************
 		 *                                                  *
@@ -62,13 +60,14 @@
 			// VERIFICACAO DE MAC                    //
 			///////////////////////////////////////////
 
-			$comando = $arp . " -dn " . $ip . " > /dev/null 2>&1";
-			SistemaOperacional::executa($comando);
+			// Remove o MAC
+			self::removeARP($ip);
+			
+			$mac = trim($mac);
 
 			if( $mac ) {
 				// $comando = $ipfw . " add " . $rule . " deny layer2 src-ip " . $ip . " not MAC any " . $mac . " via " . $int_iface;
-				$comando = $arp . " -s " . $ip . " " . $mac . " only";
-				SistemaOperacional::executa($comando);
+				self::atribuiARP($ip,$mac);				
 			}
 
 			///////////////////////////////////////////
@@ -132,7 +131,6 @@
 			$ipfw = SOFreeBSD::$IPFW;
 
 			$rule     = (int)($baserule + $id);
-			
 			
 			// Bloquear conexões pela interface externa
 			$comando = $ipfw . " add " . $rule . " deny ip from " . $rede . " to any via " . $ext_iface;
@@ -268,6 +266,15 @@
 			SistemaOperacional::executa($comando);
 		}
 		
+		public static function removeARP($ip) {
+			$comando = SOFreeBSD::$ARP . " -dn " . $ip . " > /dev/null 2>&1";
+			return(SistemaOperacional::executa($comando));		
+		}
+		
+		public static function atribuiARP($ip,$mac) {
+			$comando = SOFreeBSD::$ARP . " -Sn " . $ip . " "  . $mac . " only";
+			return(SistemaOperacional::executa($comando));
+		}
 
 		public static function obtemARP($ip="") {
 			$arp = array();
@@ -289,12 +296,16 @@
 			for($i=0;$i<count($linhas);$i++) {
 				if( trim($linhas[$i]) ) {
 					//@list($shit,$addr,$at,$mac,$on,$on,$iface) = preg_split('/[\s]+/',$linhas[$i]);
-					@list($shit,$addr,$at,$mac,$on,$iface,$on) = preg_split('/[ ]+/',$linhas[$i]);
+					@list($shit,$addr,$at,$mac,$on,$iface,$resto) = preg_split('/[ ]+/',$linhas[$i]);
 					if( strstr($mac,"incomplete")) {
 						$mac = "ARP Não Enviado";
 						$iface = "N/A";
 					}
-					$arp[] = array("addr" => $addr, "mac" => $mac , "iface" => $iface);
+					
+					$extra = "";
+					if(strstr($resto,"perm")) $extra = "permanente";
+					
+					$arp[] = array("addr" => $addr, "mac" => $mac , "iface" => $iface,"extra" => $extra);
 				}
 
 			}
