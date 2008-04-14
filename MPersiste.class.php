@@ -447,7 +447,7 @@
       $sql .= "\n";
       
       $this->debug("MPersiste","update",$sql);
-      //echo "\n<hr>MPersiste::altera:: " . $sql . "<hr>\n";
+      // echo "\n<hr>MPersiste::altera:: " . $sql . "<hr>\n";
       
       return($this->bd->consulta($sql,false));
       
