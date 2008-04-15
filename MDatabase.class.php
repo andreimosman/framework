@@ -872,7 +872,7 @@
 			/**
 			 * sqlCreateTable() 
 			 */
-			public function sqlCreateTable($table,$fields) {
+			public function sqlCreateTable($table,$fields,$heranca="") {
 				$sql = "CREATE TABLE $table (\n";
 
 				$cnt=1;
@@ -890,7 +890,12 @@
 				}
 
 				$sql .= ")";
-
+				
+				if( $heranca ) {
+					// echo "\n\nTabela $table herda de $heranca\n\n";
+					$sql .= " INHERITS (" . $heranca . ")";
+				}
+				
 				return($sql);
 			}
 
@@ -1033,6 +1038,16 @@
 				return($sql);
 
 			}
+			
+			public function sqlAlterTableColumnType($tabela,$campo,$tipoNovo) {
+				$sql = "ALTER TABLE $tabela ALTER COLUMN $campo TYPE $tipoNovo";
+				return($sql);
+			}
+			
+			public function sqlAlterTAbleColumnDefault($tabela,$campo,$defaultNovo) {
+				$sql = "ALTER TABLE $tabela ALTER COLUMN $campo SET DEFAULT $defaultNovo";
+				return($sql);
+			}
 
 			/**
 			 * Cria um SQL para select
@@ -1042,9 +1057,7 @@
 				$sql .= $this->sqlWhere($condicao);
 				return($sql);
 			}
-
-
-
+			
 			/**
 			 * Cria um script de criação do banco
 			 *
@@ -1056,10 +1069,9 @@
 			public function scriptCriacao($estrutura) {
 
 				$script = array("begin" => array(), "struct" => array(), "dados" => array(), "end" => array(), "comments" => array() );
+				$delayed_tables = array(); // Tabelas para criar por último (geralmente depois da criação das tabelas).
 				$delayed_constraints = array();		// Constraints para executar posterormente (ao termino do script).
-
-				//print_r($estrutura);
-
+				
 				/**
 				 * SEQUENCES
 				 */
@@ -1074,11 +1086,16 @@
 				 */
 				while(list($table,$tableinfo)=each($estrutura["tables"])) {
 					// CREATE TABLE
-					$sql = $this->sqlCreateTable($table,$tableinfo["fields"]);
-					$script["struct"][] = $sql;
-
-
-
+					
+					$sql = $this->sqlCreateTable($table,$tableinfo["fields"],$tableinfo["inherits"]);
+					
+					if( $tableinfo["inherits"] ) {
+						$delayed_tables[] = $sql;
+					} else {
+						$script["struct"][] = $sql;
+					}
+					
+					if( !@$tableinfo["constraints"] ) $tableinfo["constraints"] = array();
 
 					/**
 					 * Constraints
@@ -1109,6 +1126,8 @@
 					}
 
 				}
+				
+				$script["struct"] = array_merge($script["struct"],$delayed_tables);
 
 
 				//$script = array_merge($script,$delayed_constraints);
@@ -1122,14 +1141,21 @@
 			 * Considera o primeiro parametro como estrutura atual e o segundo como nova estrutura
 			 */
 			public function scriptModificacao($original,$novo) {
+			
+				if( !@$original["tables"] ) $original["tables"] = array();
+				if( !@$novo["tables"] ) $novo["tables"] = array();
+				
+				if( !@$original["sequences"] ) $original["sequences"] = array();
+				if( !@$novo["sequences"] ) $novo["sequences"] = array();
+				
 
 				// lista de tabelas
-				$tabelasOriginal 	= array_keys($original["tables"]);
-				$tabelasNovo		= array_keys($novo["tables"]);	
+				$tabelasOriginal 	= array_keys(@$original["tables"]);
+				$tabelasNovo		= array_keys(@$novo["tables"]);	
 
 				// Lista de sequences
-				$seqOriginal		= array_keys($original["sequences"]);
-				$seqNovo			= array_keys($novo["sequences"]);
+				$seqOriginal		= array_keys(@$original["sequences"]);
+				$seqNovo			= array_keys(@$novo["sequences"]);
 
 				// Tabelas faltando/sobrando
 				$tabelasFaltando = array_diff($tabelasNovo,$tabelasOriginal);
@@ -1163,8 +1189,17 @@
 				// Pegando baseado na tabela original pois as tabelas faltando e sequences já foram resolvidas.
 				foreach($tabelasOriginal as $tabela) {
 					// CAMPOS
-					$camposOriginal	= array_keys($original["tables"][$tabela]["fields"]);
-					$camposNovo		= array_keys($novo["tables"][$tabela]["fields"]);
+					if( @count($original["tables"][$tabela]["fields"] ) ) {
+						$camposOriginal	= array_keys($original["tables"][$tabela]["fields"]);
+					} else {
+						$camposOriginal = array();
+					}
+					
+					if( @count($novo["tables"][$tabela]["fields"] ) ) {					
+						$camposNovo		= array_keys($novo["tables"][$tabela]["fields"]);
+					} else {
+						$campoNovo = array();
+					}
 
 					$camposFaltando = array_diff($camposNovo,$camposOriginal);
 					$camposSobrando = array_diff($camposOriginal,$camposNovo);
@@ -1172,12 +1207,19 @@
 					//echo "VERIFICANDO: $tabela\n";
 
 					foreach($camposFaltando as $campo) {
-						$script["struct"][] = $this->sqlAlterTableAddColumn($tabela,$campo,$novo["tables"][$tabela]["fields"][$campo]);
+						if( @count($novo["tables"][$tabela]["fields"][$campo]) ) {
+							$script["struct"][] = $this->sqlAlterTableAddColumn($tabela,$campo,$novo["tables"][$tabela]["fields"][$campo]);
+						}
 					}
 
 					// INFO -- CAMPOS DIFERENTES
 
 					$comments = array();
+					$altertable = array();
+					
+					$_CHAR = array("varchar", "character varying", "char", "character");
+					$_NUM  = array("numeric", "decimal", "money");
+					
 					foreach($camposOriginal as $campo) {
 						//echo "CN: " . $novo["tables"][$tabela]["fields"][$campo] . "\n";
 						if( !@$novo["tables"][$tabela]["fields"][$campo] ) {
@@ -1186,23 +1228,76 @@
 						$diff = array_diff($novo["tables"][$tabela]["fields"][$campo],$original["tables"][$tabela]["fields"][$campo]);
 
 						if( count($diff) ) {
-							$comments[]  = "=";
-							$comments[] .= "DIFERENCAS DETECTADAS";
-							$comments[] .= "TABELA: $tabela";
-							$comments[] .= "CAMPO: $campo";
-							$comments[] .= "-";
+						
+							$_novo  = $novo["tables"][$tabela]["fields"][$campo];
+							$_atual = $original["tables"][$tabela]["fields"][$campo];
+							
+							if( $_novo["length"] > $_atual["length"] ) {
+								$tipoNovo = "";
+								if( $_novo["nativetype"] == $_atual["nativetype"] ) {
+									// Permite troca somente para tipos caracter
+									if( in_array($_novo["nativetype"], $_CHAR) ) {
+										$tipoNovo = $_novo["nativetype"] . "(" . $_novo["length"] . ")";
+									} elseif( in_array($_novo["nativetype"],$_NUM) ) {
+										$tipoNovo = $_novo["nativetype"] . "(" . $_novo["length"] . ")";
+									}
+									
+									if( $tipoNovo ) {
+										$altertable[] = $this->sqlAlterTableColumnType($tabela,$campo,$tipoNovo);
+									}
+								} else {
+									if( substr($_novo["nativetype"],0,3) == "int" ) {
+										$altertable[] = $this->sqlAlterTableColumnType($tabela,$campo,$_novo["nativetype"]);
+									}
+								}
+							} elseif( $_atual["default"] != $_novo["default"] ) {
+								/**
+							
+								//print_r($_atual);
+								//print_r($_novo);
+							
+								$novoDefault = $_novo["default"];
+								$novoDefault = preg_replace("/::[^)]+/",'$1',$novoDefault);
+								$novoDefault = str_replace("((","(",$novoDefault);
+								$novoDefault = str_replace("))",")",$novoDefault);
 
-							while(list($vr,$vl)=each($diff)) {
-								$co = $original["tables"][$tabela]["fields"][$campo];
-								$cn = $novo["tables"][$tabela]["fields"][$campo];
-								//$comments[] .= "-- $vr    -- \n";
-								$comments[] .= $vr . "...:   ATUAL: " . $co[$vr] . " | NOVO: " . $cn[$vr];
+								$atualDefault = $_atual["default"];
+								$atualDefault = preg_replace("/::[^)]+/",'$1',$atualDefault);
+								$atualDefault = str_replace("((","(",$atualDefault);
+								$atualDefault = str_replace("))",")",$atualDefault);
+								
+								echo "-- " ."DEF: \n";
+								echo "-- " .$atualDefault . "\n";
+								echo "-- " .$novoDefault . "\n";
+								
+								echo "-- " .$_atual["default"] . "\n";
+								echo "-- " .$_novo["default"] . "\n";
+								
+								$altertable[] = $this->sqlAlterTAbleColumnDefault($tabela,$campo,$novoDefault);
+								*/
+							} else {
+								$comments[]  = "=";
+								$comments[] .= "DIFERENCAS DETECTADAS";
+								$comments[] .= "TABELA: $tabela";
+								$comments[] .= "CAMPO: $campo";
+								$comments[] .= "-";
+
+								while(list($vr,$vl)=each($diff)) {
+									$co = $original["tables"][$tabela]["fields"][$campo];
+									$cn = $novo["tables"][$tabela]["fields"][$campo];
+									//$comments[] .= "-- $vr    -- \n";
+									$comments[] .= $vr . "...:   ATUAL: " . $co[$vr] . " | NOVO: " . $cn[$vr];
+
+
+								}
+
+								$comments[]  = "=";
 							}
-
-							$comments[]  = "=";
-
 						}
 					}
+					
+					// print_r($altertable);
+					if( count($altertable) ) $script["struct"] = array_merge($script["struct"],$altertable);
 
 					$script["comments"] = array_merge($script["comments"],$comments);
 
