@@ -55,7 +55,7 @@
 			if( !$ip ) return;
 			
 			if( @self::$cacheTabela[$ip] && time() > self::$cacheTabela[$ip] + $oldtime ) {
-				removeCacheTabela($ip);
+				self::removeCacheTabela($ip);
 			}
 			
 			return(@self::$cacheTabela[$ip]);
@@ -84,15 +84,25 @@
 		}
 		
 		public static function listaEnderecosTabela($tabela) {
-			$comando = "$pfctl -t auth -T show 2>&1 |grep -vi altq|sed -E 's/ //g'";
-			return(explode("\n",SistemaOperacional::executa($comando)));
+			$pfctl = SOFreeBSD::$PFCTL;
+			$comando = "$pfctl -t $tabela -T show 2>&1 |grep -vi altq|grep -vi pfctl|sed -E 's/ //g'";
+			$dados = SistemaOperacional::executa($comando);
+			$dados = trim(chop($dados));
+			if( $dados )
+				$retorno = explode("\n",$dados);
+			else
+				$retorno = array();
+			
+			return($retorno);
 		}
 		
-		public static function verificaEnderecoTabela($tabela,$ip) {
-			if( self::$cacheTabela[$ip] ) return true;
+		public static function verificaEnderecoTabela($tabela,$ip,$oldtime=120) {
+			$cache = self::cacheTabela($ip,$oldtime);
+			
+			if( $cache ) return true;
 
 			$retorno = 0;
-			system("/sbin/pfctl -qt auth -T test $ipaddr",$retorno);
+			system("/sbin/pfctl -qt auth -T test $ip",$retorno);
 			
 			if( $retorno != 0 ) return false;
 			self::adicionaCacheTabela($ip);
