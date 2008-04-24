@@ -9,6 +9,10 @@
 		public static $NTPDATE  = "/usr/sbin/ntpdate";
 		public static $ARP      = "/usr/sbin/arp";
 		
+		
+		protected static $cacheTabela;
+		
+		
 		/****************************************************
 		 *                                                  *
 		 * FUNCOES DA INTERFACE                             *
@@ -39,6 +43,63 @@
 		 * FUNCOES DO FIREWALL                              *
 		 *                                                  *
 		 ****************************************************/
+		
+		/**
+		 * Retorna o timestamp caso o registro exista em cache ou vazio caso não exista.
+		 */
+		public static function cacheTabela($ip="",$oldtime=120) {
+			if(!is_array(self::$cacheTabela)) {
+				self::$cacheTabela = array();
+			}
+			
+			if( !$ip ) return;
+			
+			if( @self::$cacheTabela[$ip] && time() > self::$cacheTabela[$ip] + $oldtime ) {
+				removeCacheTabela($ip);
+			}
+			
+			return(@self::$cacheTabela[$ip]);
+		}
+		
+		public static function adicionaCacheTabela($ip) {
+			self::$cacheTabela[$ip] = time();
+		}
+		
+		public static function removeCacheTabela($ip) {
+			if(@isset(self::$cacheTabela[$ip])) {
+				unset(self::$cacheTabela[$ip]);
+			}
+		}
+		
+		public static function adicionaEnderecoTabela($tabela,$ip) {
+			$pfctl = SOFreeBSD::$PFCTL;
+			$comando = $pfctl . " -qt $tabela -T add $ip";
+			return(SistemaOperacional::executa($comando));
+		}
+		
+		public static function removeEnderecoTabela($tabela,$ip) {
+			$pfctl = SOFreeBSD::$PFCTL;
+			$comando = $pfctl . " -qt $tabela -T delete $ip";
+			return(SistemaOperacional::executa($comando));		
+		}
+		
+		public static function listaEnderecosTabela($tabela) {
+			$comando = "$pfctl -t auth -T show 2>&1 |grep -vi altq|sed -E 's/ //g'";
+			return(explode("\n",SistemaOperacional::executa($comando)));
+		}
+		
+		public static function verificaEnderecoTabela($tabela,$ip) {
+			if( self::$cacheTabela[$ip] ) return true;
+
+			$retorno = 0;
+			system("/sbin/pfctl -qt auth -T test $ipaddr",$retorno);
+			
+			if( $retorno != 0 ) return false;
+			self::adicionaCacheTabela($ip);
+			
+			return(true);
+			
+		}
 
 		/**
 		 * Adiciona regra com gerenciamento de banda.
