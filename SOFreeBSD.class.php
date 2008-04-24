@@ -85,8 +85,10 @@
 		
 		public static function listaEnderecosTabela($tabela) {
 			$pfctl = SOFreeBSD::$PFCTL;
-			$comando = "$pfctl -t $tabela -T show 2>&1 |grep -vi altq|grep -vi pfctl|sed -E 's/ //g'";
+			$comando = "$pfctl -qt $tabela -T show 2>&1 |/usr/bin/grep -vi altq|/usr/bin/grep -vi pfctl|/usr/bin/sed -E 's/ //g'";
+			//echo "CMD: $comando\n\n";
 			$dados = SistemaOperacional::executa($comando);
+			//$dados = system($comando);
 			$dados = trim(chop($dados));
 			if( $dados )
 				$retorno = explode("\n",$dados);
