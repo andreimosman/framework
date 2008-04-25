@@ -262,24 +262,43 @@
 		
 		}
 		
+		protected function onlyNumericKeys($arr) {
+			$keys = array_keys($arr);
+			for($i=0;$i<count($keys);$i++) {
+				if( !is_numeric($keys[$i]) ) {
+					return(false);
+				}
+			}
+			return(true);
+		}
+		
 		protected function procX2A($arr) {
 			//echo "Processando: \n";
 			//print_r($arr);
 			//echo "---------------\n";
 		
 			$retorno = array();
-			while(list($vr,$vl)=each($arr)) {
+			// while(list($vr,$vl)=each($arr)) {
+			
+			foreach($arr as $vr => $vl) {
+				
 				if( $vr == "value" ) {
 					return($vl);
 				} else {
-					if( is_array($vl) ) {
-						if( !count($vl) ) 
-							$retorno[$vr] = "";
-						else
-							$retorno[$vr] = $this->procX2A($vl);
+					if( ($vr == "fields" || $vr == "foreign_fields") && $this->onlyNumericKeys($vl) ) {
+						$retorno[$vr] = $vl;
+					} else {
+						if( is_array($vl) ) {
+							if( !count($vl) ) 
+								$retorno[$vr] = "";
+							else
+								$retorno[$vr] = $this->procX2A($vl);
+						}
 					}
 				}
 			}
+			
+			// print_r($retorno);
 			
 			return($retorno);
 		}
@@ -324,14 +343,50 @@
 			//Go through the tags. 
 			foreach($xml_values as $data) { 
 				unset($attributes,$value);//Remove existing values, or there will be trouble 
+				
 
 				//This command will extract these variables into the foreach scope 
 				// tag(string), type(string), level(int), attributes(array). 
 				extract($data);//We could use the array by itself, but this cooler. 
+				
+
+				$inttag=0;
+
+				//if( $tag == "int" || $tag == "/int") {
+				//	echo "INT ($tag) TYPE: $type\n";
+				//}
+				
+				//echo str_repeat(" ", $level) . $tag . " - " . $type . "\n";
+
+				if( $tag == "int" && isset($attributes["i"]) ) {
+				
+					//echo "TAG: $tag\n";
+					//echo "TYP: $type\n";
+					//echo "-----------\n";
+				
+					$tag = $attributes["i"];
+					//unset($attributes);
+					// $get_attributes=0;
+					$inttag = 1;
+					
+					//echo "TAG: $tag\n";
+					
+				}
+				
+
+
+
+
 
 				$result = ''; 
-				if($get_attributes) {//The second argument of the function decides this. 
+				
+				if(!$inttag && $get_attributes) {//The second argument of the function decides this. 
 					$result = array(); 
+					
+					//if( $inttag ) {
+					//	print_r($attibutes);
+					//}
+					
 					if(isset($value)) $result['value'] = $value; 
 
 					//Set the attributes too. 
@@ -347,9 +402,10 @@
 
 				//See tag status and do the needed. 
 				if($type == "open") {//The starting of the tag '<tag>' 
-					$parent[$level-1] = &$current; 
+					$parent[$level-1] = &$current;
+					
+					if(!is_array($current) or (!in_array($tag, array_keys($current)))) { //Insert New tag
 
-					if(!is_array($current) or (!in_array($tag, array_keys($current)))) { //Insert New tag 
 						$current[$tag] = $result; 
 						$current = &$current[$tag]; 
 
@@ -365,23 +421,33 @@
 
 				} elseif($type == "complete") { //Tags that ends in 1 line '<tag />' 
 					//See if the key is already taken. 
-					if(!isset($current[$tag])) { //New Key 
-						$current[$tag] = $result; 
+					
+					if( $inttag ) {
+						array_push($current,$result);
+					} else {
 
-					} else { //If taken, put all things inside a list(array) 
-						if((is_array($current[$tag]) and $get_attributes == 0)//If it is already an array... 
-								or (isset($current[$tag][0]) and is_array($current[$tag][0]) and $get_attributes == 1)) { 
-							array_push($current[$tag],$result); // ...push the new element into that array. 
-						} else { //If it is not an array... 
-							$current[$tag] = array($current[$tag],$result); //...Make it an array using using the existing value and the new value 
+						if(!isset($current[$tag])) { //New Key 
+							$current[$tag] = $result;						
+						} else { //If taken, put all things inside a list(array) 
+							if((is_array($current[$tag]) and $get_attributes == 0 )//If it is already an array... 
+									or (isset($current[$tag][0]) and is_array($current[$tag][0]) and $get_attributes == 1)) { 
+								array_push($current[$tag],$result); // ...push the new element into that array. 
+
+							} else { //If it is not an array... 
+								$current[$tag] = array($current[$tag],$result); //...Make it an array using using the existing value and the new value 
+								if( $inttag ) echo "INTTAG/COMPLETE/NOTARR\n";
+							} 
 						} 
-					} 
+					}
 
 				} elseif($type == 'close') { //End of tag '</tag>' 
 					$current = &$parent[$level-1]; 
 				} 
 			} 
-
+			
+			
+			// print_r($xml_array);
+			
 			return($xml_array); 
 		}
 

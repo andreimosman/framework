@@ -900,7 +900,7 @@
 			}
 
 			/**
-			 * SQL para adicionar uma constraint
+			 * SQL para adicionar uma constraint.
 			 */
 			public function sqlAddConstraint($table,$constr,$constinfo) {
 				$sql  = "ALTER TABLE ONLY $table ADD CONSTRAINT $constr";
@@ -913,6 +913,7 @@
 						 * Primary key
 						 */
 						$sql .= " PRIMARY KEY(" . implode(',',$constinfo["fields"]) .")";
+						
 						break;
 					case 'u':
 						$sql .= " UNIQUE(" . implode(',',$constinfo["fields"]) . ")";
