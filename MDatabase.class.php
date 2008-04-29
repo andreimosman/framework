@@ -678,6 +678,11 @@
 
 
 					$campos = array();
+					//echo "<pre>";
+					//print_r($lista_tabelas);
+					//print_r($lista_campos);
+					//echo "</pre>";
+					
 					for($x=0;$x<count($lista_campos);$x++) {
 						$campo = $this->obtemDefinicaoCampo($lista_tabelas[$i],$lista_campos[$x]);
 						$campos[$lista_campos[$x]] = $campo[0];
@@ -934,6 +939,14 @@
 				}
 				return($sql);
 			}
+			
+			public function sqlCreateIndex($indexName,$indexTable,$indexFields) {
+				$sql = "";
+				if( $indexName && $indexTable && count($indexFields) ) {
+					$sql = 'CREATE INDEX "' . $indexName . '" ON ' . $indexTable . "(" . implode(",",$indexFields) . ")";
+				}
+				return($sql);
+			}
 
 			/**
 			 * Comentarios SQL
@@ -1136,6 +1149,30 @@
 				return($script);
 
 			}
+			
+			protected function _listaIndices($tabName,$tabDef) {
+				
+				$retorno = array();
+				
+				if( !@$tabDef["indexes"] ) $tabDef["indexes"] = array();
+				
+				$indices = array_keys($tabDef["indexes"]);
+
+				for($x=0;$x<count($indices);$x++) {
+					// Varre os índices
+					$idx = $indices[$x];						
+					$fields = array_keys( $tabDef["indexes"][ $idx ]["fields"] );						
+					if( !$fields ) continue;						
+					$retorno[$idx] = array("table" => $tabName, "fields" => $fields);						
+					unset($fields);
+					unset($idx);
+
+				}
+				unset($tab);
+				
+				return($retorno);
+			
+			}
 
 			/**
 			 * Gera script de modificação da estrutura
@@ -1149,10 +1186,39 @@
 				if( !@$original["sequences"] ) $original["sequences"] = array();
 				if( !@$novo["sequences"] ) $novo["sequences"] = array();
 				
+				//if( !@$original["indexes"] ) $original["indexes"] = array();
+				//if( !@$novo["indexes"] ) $novo["indexes"] = array();
 
 				// lista de tabelas
 				$tabelasOriginal 	= array_keys(@$original["tables"]);
 				$tabelasNovo		= array_keys(@$novo["tables"]);	
+				
+				/**
+				 * Gera a lista de indices
+				 */
+				
+				$original["indexes"] = array();
+				for($i=0;$i<count($tabelasOriginal);$i++) {
+					$indices = $this->_listaIndices($tabelasOriginal[$i],$original["tables"][$tabelasOriginal[$i]]);
+					$original["indexes"] = array_merge($original["indexes"],$indices);
+				}
+
+				$indicesOriginal 	= array_keys(@$original["indexes"]);
+				
+				$novo["indexes"] = array();
+				for($i=0;$i<count($tabelasNovo);$i++) {
+					$indices = $this->_listaIndices($tabelasNovo[$i],$novo["tables"][$tabelasNovo[$i]]);
+					$novo["indexes"] = array_merge($novo["indexes"],$indices);
+				}
+				
+				$indicesNovo		= array_keys(@$novo["indexes"]);	
+							
+				/**
+				 * Fim da lista de indices
+				 */
+				
+				
+
 
 				// Lista de sequences
 				$seqOriginal		= array_keys(@$original["sequences"]);
@@ -1323,8 +1389,32 @@
 							$script["struct"][] = $sql;
 						}
 					}
-
+					
+					
 				}
+
+				// INDICES
+				$indicesFaltando = array_diff($indicesNovo,$indicesOriginal);
+				$indicesSobrando = array_diff($indicesOriginal,$indicesNovo);
+
+				echo "<pre>"; 
+				//print_r($indicesFaltando);
+				//print_r($indicesSobrando);
+				
+				//print
+				
+				for($i=0;$i<count($indicesFaltando);$i++) {
+					$idx = $indicesFaltando[$i];
+					$tabela = $novo["indexes"][ $idx ]["table"];
+					$fields = $novo["indexes"][ $idx ]["fields"];
+					$sql = $this->sqlCreateIndex($idx,$tabela,$fields);
+					$script["end"][] = $sql;
+				}
+				echo "</pre>";
+
+
+
+
 
 				return($script);
 
@@ -1491,8 +1581,83 @@
 			
 			}
 			
+			public function executeSQLScript($arquivo) {
+				if( !file_exists($arquivo) || !is_readable($arquivo) ) {
+					return false;
+				}
+				
+				$fd = @fopen($arquivo,"r");
+				
+				if( !$fd ) return false;
+				
+				$instrucao = "";
+				
+				$retorno = true;
+				
+				// echo "<pre>";
+				while(!feof($fd)) {
+					$linha = fgets($fd,4096);
+					
+					$linha = preg_replace("/^(--).*/","",$linha);
+					$linha = preg_replace("/^SET.*/","",$linha);
+					$matches = array();
+					preg_match('/\;$/',$linha,$matches);
+					//print_r($matches);
+					
+					$instrucao .= $linha;
+					
+					$this->begin();
+					
+					if( preg_match('/\;$/',$linha ) ) {
+						$instrucao = preg_replace('/\;$/',"",$instrucao);
+						$instrucao = trim(chop($instrucao));
+						
+						//echo "[".$instrucao."]\n";
+						$this->consulta($instrucao,false); 
+						
+						//if( $this->consulta($instrucao,false) == 255 ) {
+						//	$retorno = false;
+						//	$this->rollback();
+						//	echo "ERRO\n";
+						//	break;
+						//}
+						
+						$instrucao = "";
+						
+					}
+					
+					$this->commit();
+					
+					if( $linha ) {
+						//echo "$linha";
+					}
+					
+				}
+				//echo "</pre>";
+				fclose($fd);
+				
+				return($retorno);
+			
+			}
+			
 		}
 		
 	}
 
+/**
+
+$dsn="pgsql://virtex:vtx123@192.168.0.1/virtex";
+//$dsn="pgsql://postgres:xingling@192.168.0.1/teste";
+
+$tmp = MDatabase::getInstance($dsn);
+$tmp->preparaReverso();
+$struct = $tmp->obtemEstrutura();
+
+//$tmp->scriptModificacao(array(),$struct);
+
+echo "<pre>";
+echo $tmp->script2text($tmp->scriptModificacao(array(),$struct));
+echo "</pre>"; 
+// print_r($tmp);
+*/
 ?>

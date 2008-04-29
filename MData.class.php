@@ -7,6 +7,12 @@
 class MData {
 
 	public static function ptBR_to_ISO($data_ptBR) {
+	
+		// Se a data já for ISO
+		if( !strstr("/",$data_prBR) ) {
+			return($data_ptBR);
+		}
+	
 		list($d,$m,$a)=explode("/",$data_ptBR);
 		return("$a-$m-$d");
 	}
