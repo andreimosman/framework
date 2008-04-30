@@ -825,6 +825,7 @@
 					case 'path':
 					case 'point':
 					case 'polygon':
+					case 'time':
 					case 'time with time zone':
 					case 'timetz':
 
@@ -1397,7 +1398,7 @@
 				$indicesFaltando = array_diff($indicesNovo,$indicesOriginal);
 				$indicesSobrando = array_diff($indicesOriginal,$indicesNovo);
 
-				echo "<pre>"; 
+				//echo "<pre>"; 
 				//print_r($indicesFaltando);
 				//print_r($indicesSobrando);
 				
@@ -1410,7 +1411,7 @@
 					$sql = $this->sqlCreateIndex($idx,$tabela,$fields);
 					$script["end"][] = $sql;
 				}
-				echo "</pre>";
+				//echo "</pre>";
 
 
 
