@@ -1379,7 +1379,7 @@
 								$_diferenca = "$b,$a";
 							}
 							
-							if( $_novo["length"] != $_diferenca && ((float)str_replace(",",".",$_novo["length"])) > ((float)str_replace(",",".",$_atual["length"])) ) {
+							if( $_novo["length"] != $_diferenca && $_novo["length"] != $_atual["length"] && ((float)str_replace(",",".",$_novo["length"])) > ((float)str_replace(",",".",$_atual["length"])) ) {
 								//echo "NL: " . $_novo["length"] . "\n";
 								//echo "AT: " . $_atual["length"] . "\n";
 								//echo "------------------------------\n";
