@@ -1372,10 +1372,17 @@
 							$_novo  = $novo["tables"][$tabela]["fields"][$campo];
 							$_atual = $original["tables"][$tabela]["fields"][$campo];
 							
-							if( $_novo["length"] > $_atual["length"] ) {
-								echo "NL: " . $_novo["length"] . "\n";
-								echo "AT: " . $_atual["length"] . "\n";
-								echo "------------------------------\n";
+							// Gambi pra corrigir erro no pg_field_size do php (no FreeBSD mostra invertido).
+							$_diferenca = $_novo;
+							if( strstr($_novo,",") ) {
+								lista($a,$b) = explode(",",$novo);
+								$_diferenca = "$b,$a";
+							}
+							
+							if( $_novo["length"] > $_atual["length"] && $_atual != $_diferenca ) {
+								//echo "NL: " . $_novo["length"] . "\n";
+								//echo "AT: " . $_atual["length"] . "\n";
+								//echo "------------------------------\n";
 								$tipoNovo = "";
 								if( trim(strtolower($_novo["nativetype"])) == trim(strtolower($_atual["nativetype"])) ) {
 									// Permite troca somente para tipos caracter
