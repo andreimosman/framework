@@ -1374,8 +1374,8 @@
 							
 							// Gambi pra corrigir erro no pg_field_size do php (no FreeBSD mostra invertido).
 							$_diferenca = $_novo;
-							if( strstr($_novo,",") ) {
-								lista($a,$b) = explode(",",$novo);
+							if( strstr($_novo["length"],",") ) {
+								list($a,$b) = explode(",",$_novo["length"]);
 								$_diferenca = "$b,$a";
 							}
 							
