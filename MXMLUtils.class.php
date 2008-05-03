@@ -303,7 +303,8 @@
 			return($retorno);
 		}
 		
-		public function x2a($xml,$majortag="") {		
+		public function x2a($xml,$majortag="") {
+			$xml = str_replace("&#10;","\n", $xml);
 			$x = $this->xml2array($xml);
 			$arr = $this->procX2A($x);
 			return($majortag?@$arr[$majortag]:$arr);					

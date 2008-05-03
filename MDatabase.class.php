@@ -46,6 +46,8 @@
 
 			protected static $instructPointer;	// Ponteiro pra processamento de instruções;
 			
+			protected $cacheTypes;
+			
 			/**
 			 * Construtor.
 			 *
@@ -64,6 +66,8 @@
 				}
 
 				$this->zeraListaSQL();
+				
+				$this->cacheTypes = array();
 			}
 			
 			public static function parseDSN($dsn) {
@@ -642,9 +646,11 @@
 			public function obtemEstrutura() {
 				$estrutura = array(
 								   "tables" => array(),
-								   "sequences" => array()
+								   "sequences" => array(),
+								   "languages" => array(),
+								   "procedures" => array()
 								  );
-
+								  
 				$lista_tabelas = $this->obtemListaTabelas();
 				// Varre as tabelas
 				for($i=0;$i<count($lista_tabelas);$i++) {
@@ -678,10 +684,6 @@
 
 
 					$campos = array();
-					//echo "<pre>";
-					//print_r($lista_tabelas);
-					//print_r($lista_campos);
-					//echo "</pre>";
 					
 					for($x=0;$x<count($lista_campos);$x++) {
 						$campo = $this->obtemDefinicaoCampo($lista_tabelas[$i],$lista_campos[$x]);
@@ -713,6 +715,9 @@
 					$seq = $this->obtemDefinicaoSequencia($lista_sequencias[$i]);
 					$estrutura["sequences"][$lista_sequencias[$i]] = $seq;
 				}
+				
+				$estrutura["languages"] = $this->externalLanguageList();
+				$estrutura["procedures"] = $this->userProcedureList();
 
 				return($estrutura);
 
@@ -948,6 +953,51 @@
 				}
 				return($sql);
 			}
+			
+			/**
+			 * Cria uma language.
+			 */
+			protected function sqlCreateLanguage($langname) {
+				$sql = "CREATE LANGUAGE $langname";
+				return($sql);
+			}
+			
+			/**
+			 * Cria uma function
+			 */
+			protected function sqlCreateFunction($funcname,$language,$returns,$argcount, $arglist,$argtypes,$src) {
+				$sql = "CREATE FUNCTION $funcname(";
+				$params = array();
+				
+				for($i=0;$i<count($arglist) && $i<count($argtypes) && $i<$argcount;$i++) {
+					$params[] = $arglist[$i] . " " . $argtypes[$i];
+				}
+				
+				$sql .= implode(",",$params) . ") RETURNS " . $returns . " AS $$\n";
+				$sql .= $src;
+				$sql .= "\n$$ LANGUAGE $language";
+				
+				return($sql);
+			}
+			
+			/**
+			 * Apaga uma function
+			 */
+			protected function sqlDropFunction($funcname, $argcount, $arglist, $argtypes) {
+				$sql = "DROP FUNCTION $funcname(";
+
+				$params = array();
+				
+				for($i=0;$i<count($arglist) && $i<count($argtypes) && $i<$argcount;$i++) {
+					$params[] = $arglist[$i] . " " . $argtypes[$i];
+				}
+				
+				$sql .= implode(",",$params) . ")";
+
+				return($sql);
+			}
+			
+			
 
 			/**
 			 * Comentarios SQL
@@ -1187,6 +1237,12 @@
 				if( !@$original["sequences"] ) $original["sequences"] = array();
 				if( !@$novo["sequences"] ) $novo["sequences"] = array();
 				
+				if( !@$original["languages"] ) $original["languages"] = array();
+				if( !@$novo["languages"] ) $novo["languages"] = array();
+				
+				if( !@$original["procedures"] ) $original["procedures"] = array();
+				if( !@$novo["procedures"] ) $novo["procedures"] = array();
+				
 				//if( !@$original["indexes"] ) $original["indexes"] = array();
 				//if( !@$novo["indexes"] ) $novo["indexes"] = array();
 
@@ -1232,6 +1288,22 @@
 				// Sequences faltando/sobrando
 				$seqFaltando = array_diff($seqNovo,$seqOriginal);
 				$seqSobrando = array_diff($seqOriginal,$seqNovo);
+				
+				// Lista de Languages 
+				$langOriginal		= @$original["languages"];
+				$langNovo			= @$novo["languages"];
+				
+				// Linguagens faltando/sobrando
+				$langFaltando = array_diff($langNovo,$langOriginal);
+				$langSobrando = array_diff($langOriginal,$langNovo);
+				
+				// Lista de Procedures
+				$procOriginal		= array_keys(@$original["procedures"]);
+				$procNovo			= array_keys(@$novo["procedures"]);
+				
+				// Procedures faltando/sobrando
+				$procFaltando = array_diff($procNovo,$procOriginal);
+				$procSobrando = array_diff($procOriginal,$procNovo);
 
 				// Define uma array de estrutura
 
@@ -1398,12 +1470,6 @@
 				$indicesFaltando = array_diff($indicesNovo,$indicesOriginal);
 				$indicesSobrando = array_diff($indicesOriginal,$indicesNovo);
 
-				//echo "<pre>"; 
-				//print_r($indicesFaltando);
-				//print_r($indicesSobrando);
-				
-				//print
-				
 				for($i=0;$i<count($indicesFaltando);$i++) {
 					$idx = $indicesFaltando[$i];
 					$tabela = $novo["indexes"][ $idx ]["table"];
@@ -1411,7 +1477,31 @@
 					$sql = $this->sqlCreateIndex($idx,$tabela,$fields);
 					$script["end"][] = $sql;
 				}
-				//echo "</pre>";
+				
+				// LANGUAGES
+				for($i=0;$i<count($langFaltando);$i++) {
+					$sql = $this->sqlCreateLanguage($langFaltando[$i]);
+					$script["end"][] = $sql;
+				}
+				
+				// PROCEDURES
+				for($i=0;$i<count($procNovo);$i++) {
+					$idx = $procNovo[$i];
+					$funcname = $idx;
+					$returns = $novo["procedures"][ $idx ]["returns"];
+					$funclang = $novo["procedures"][ $idx ]["language"];
+					$argcount = $novo["procedures"][ $idx ]["argcount"];
+					$arglist = $novo["procedures"][ $idx ]["arglist"];
+					$argtypes = $novo["procedures"][ $idx ]["argtypes"];
+					$src = $novo["procedures"][ $idx ]["src"];
+					
+					if( in_array($idx,$procOriginal) ) {
+						$script["end"][] = $this->sqlDropFunction($funcname, $argcount, $arglist, $argtypes);
+					}
+
+					$sql = $this->sqlCreateFunction($funcname, $funclang, $returns, $argcount, $arglist, $argtypes, $src);
+					$script["end"][] = $sql;
+				}
 
 
 
@@ -1595,7 +1685,6 @@
 				
 				$retorno = true;
 				
-				// echo "<pre>";
 				while(!feof($fd)) {
 					$linha = fgets($fd,4096);
 					
@@ -1634,31 +1723,119 @@
 					}
 					
 				}
-				//echo "</pre>";
 				fclose($fd);
 				
 				return($retorno);
 			
 			}
 			
+			/**
+			 * Obtem o tipo de dados pelo ID
+			 */
+			public function getTypeDefinition($id) {
+			
+				if( !@$this->cacheTypes[$id] ) {
+					$sql = "SELECT oid, typname, typnamespace, typowner, typlen, typbyval, typtype, typisdefined, typdelim, typrelid, typelem, typinput, typoutput, typreceive, typsend, typanalyze, typalign, typstorage, typnotnull, typbasetype, typtypmod, typndims, typdefaultbin, typdefault FROM pg_type";
+					$tipos = $this->obtemRegistros($sql);
+					for($i=0;$i<count($tipos);$i++) {
+						$this->cacheTypes[ $tipos[$i]["oid"] ] = $tipos[$i]["typname"];
+					}
+					
+				}
+				
+				return(@$this->cacheTypes[$id]);
+			
+			}
+			
+			public function externalLanguageList() {
+				$sql = "SELECT lanname, lanispl, lanpltrusted, lanplcallfoid, lanvalidator, lanacl FROM pg_language WHERE lanispl is true";
+				$languages = $this->obtemRegistros($sql);
+				
+				$retorno = array();
+				
+				for($i=0;$i<count($languages);$i++) {
+					$retorno[] = $languages[$i]["lanname"];
+				}
+				return($retorno);
+			}
+			
+			public function userProcedureList() {
+				$sql  = "SELECT ";
+				$sql .= "  p.proname, p.prorettype,  ";
+				$sql .= "    p.pronamespace, p.proowner, p.prolang, l.lanname, p.proisagg, p.prosecdef,  ";
+				$sql .= "    p.proisstrict, p.proretset, p.provolatile, p.pronargs, p.prorettype, t.typname as rettypename, p.proargtypes, p.probin, p.prosrc, p.proacl, ";
+				$sql .= "    p.proargnames, u.usename, u.usesysid, u.usecreatedb, u.usesuper, u.usecatupd, u.passwd, ";
+				$sql .= "    u.valuntil, u.useconfig ";
+				$sql .= "FROM ";
+				$sql .= "    pg_proc p INNER JOIN pg_user u ON (p.proowner = u.usesysid) ";
+				$sql .= "    INNER JOIN pg_language l on (p.prolang = l.oid) ";
+				$sql .= "    INNER JOIN pg_type t on (p.prorettype = t.oid) ";				
+				$sql .= "WHERE ";
+				$sql .= "   u.usename not in ('pgsql', 'postgresql', 'postgres', '_postgres', '_pgsql', '_postgresql') ";
+				
+				$procs = $this->obtemRegistros($sql);
+				
+				$retorno = array();
+				
+				for($i=0;$i<count($procs);$i++) {
+					$tipos = explode(" ",trim($procs[$i]["proargtypes"]));
+
+					for($x=0;$x<count($tipos);$x++) {
+						$tipos[$x] = $this->getTypeDefinition($tipos[$x]);
+					}
+					
+					$procs[$i]["proargtypes"] = $tipos;
+					unset($tipos);
+					
+					$retorno[ $procs[$i]["proname"] ] = array(
+											"name" => $procs[$i]["proname"],
+											"language" => $procs[$i]["lanname"],
+											"returns" => $procs[$i]["rettypename"],
+											"argcount" => $procs[$i]["pronargs"],
+											"arglist" => $procs[$i]["proargnames"],
+											"argtypes" => $procs[$i]["proargtypes"],
+											"src" => $procs[$i]["prosrc"]
+										);
+					
+					//
+					
+					
+					
+				
+				}
+
+				return($retorno);
+
+			}
+			
 		}
 		
 	}
 
-/**
-
-$dsn="pgsql://virtex:vtx123@192.168.0.1/virtex";
+//$dsn="pgsql://virtex:vtx123@192.168.0.1/virtex";
 //$dsn="pgsql://postgres:xingling@192.168.0.1/teste";
 
-$tmp = MDatabase::getInstance($dsn);
-$tmp->preparaReverso();
-$struct = $tmp->obtemEstrutura();
+//$tmp = MDatabase::getInstance($dsn);
+
+
+//$tmp->userProceduresList();
+//$tmp->externalLanguageList();
+
+//echo "<pre>"; 
+//$tmp->preparaReverso();
+//$struct = $tmp->obtemEstrutura();
+//print_r($struct);
+//$tmp->scriptModificacao(array(),$struct);
+//print_r($tmp->script2text($tmp->scriptModificacao($struct,$struct)));
+
+//echo "</pre>"; 
+
+//$struct = $tmp->obtemEstrutura();
 
 //$tmp->scriptModificacao(array(),$struct);
 
-echo "<pre>";
-echo $tmp->script2text($tmp->scriptModificacao(array(),$struct));
-echo "</pre>"; 
+//echo "<pre>";
+//echo $tmp->script2text($tmp->scriptModificacao(array(),$struct));
+//echo "</pre>"; 
 // print_r($tmp);
-*/
 ?>
