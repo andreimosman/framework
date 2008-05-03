@@ -1373,8 +1373,11 @@
 							$_atual = $original["tables"][$tabela]["fields"][$campo];
 							
 							if( $_novo["length"] > $_atual["length"] ) {
+								echo "NL: " . $_novo["length"] . "\n";
+								echo "AT: " . $_atual["length"] . "\n";
+								echo "------------------------------\n";
 								$tipoNovo = "";
-								if( $_novo["nativetype"] == $_atual["nativetype"] ) {
+								if( trim(strtolower($_novo["nativetype"])) == trim(strtolower($_atual["nativetype"])) ) {
 									// Permite troca somente para tipos caracter
 									if( in_array($_novo["nativetype"], $_CHAR) ) {
 										$tipoNovo = $_novo["nativetype"] . "(" . $_novo["length"] . ")";
