@@ -285,7 +285,7 @@
 				if( $vr == "value" ) {
 					return($vl);
 				} else {
-					if( ($vr == "fields" || $vr == "foreign_fields" || $vr == "arglist" || $vr == "argtypes") && $this->onlyNumericKeys($vl) ) {
+					if( ($vr == "fields" || $vr == "foreign_fields" || $vr == "arglist" || $vr == "argtypes" || $vr == "languages" ) && $this->onlyNumericKeys($vl) ) {
 						$retorno[$vr] = $vl;
 					} else {
 						if( is_array($vl) ) {
