@@ -55,7 +55,7 @@
 			
 			$comando = $pg_dump . " " . trim($param) . " 2>&1";
 			self::executa($comando,NULL,$arquivoOutput);
-						
+			
 		}
 		
 		public static function obtemPHP() {
@@ -264,8 +264,8 @@
 		 *
 		 * Cria um diretório
 		 */
-		public static function installDir($target,$mode=755) {
-		
+		public static function installDir($target,$mode=755,$owner="") {
+
 		}
 
 		/**
@@ -282,6 +282,18 @@
 		 * Atualiza a data via NTP
 		 */
 		public static function ntpDate($server="") {
+		
+		}
+		
+		/**
+		 * mailDirMake
+		 * Cria um diretório de maildir
+		 */
+		public static function mailDirMake($target,$uid,$gid) {
+		
+			self::installDir($target . "/cur","700",$uid,$gid);
+			self::installDir($target . "/new","700",$uid,$gid);
+			self::installDir($target . "/tmp","700",$uid,$gid);
 		
 		}
 

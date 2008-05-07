@@ -9,7 +9,7 @@ class MData {
 	public static function ptBR_to_ISO($data_ptBR) {
 	
 		// Se a data já for ISO
-		if( !strstr("/",$data_prBR) ) {
+		if( !strstr($data_ptBR,"/") ) {
 			return($data_ptBR);
 		}
 	
@@ -18,6 +18,7 @@ class MData {
 	}
 
 	public static function _diff($date_ini, $date_end, $round = 1) {
+
 		$date_ini = strtotime($date_ini);
 		$date_end = strtotime($date_end);
 
@@ -30,21 +31,8 @@ class MData {
 		}
 	}
 
-	public static function diff($data1,$data2) {
-		//echo "DATA1: $data1\n";
-		//echo "DATA2: $data2\n";
-			
-		return(self::_diff(self::ptBR_to_ISO($data1),self::ptBR_to_ISO($data2)));
-			
-			
-		//list($d1,$m1,$a1) = explode($data1);
-		//$diaMes
-		//list($d2,$m2,$a2) = explode($data2);
-			
-
-			
-			
-			
+	public static function diff($data1,$data2) {			
+		return(self::_diff(self::ptBR_to_ISO($data1),self::ptBR_to_ISO($data2)));			
 	}
 
 

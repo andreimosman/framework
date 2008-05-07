@@ -332,10 +332,20 @@
 		 *                                                  *
 		 ****************************************************/
 
-		public static function installDir($target,$mode=755) {
+		public static function installDir($target,$mode=755,$uid="",$gid="") {
 			$install = SistemaOperacional::$INSTALL;
+			
+			$op = "";
+			
+			if( $uid ) {
+				$op  .= " -o $uid";
+			}
+			
+			if( $gid ) {
+				$op .= " -g $gid";
+			}
 
-			$comando = $install . " -m $mode" . " -d " . $target;
+			$comando = $install . $op . " -m $mode" . " -d " . $target;
 			SistemaOperacional::executa($comando);
 		}
 		
@@ -483,7 +493,60 @@
 			return($r);
 		
 		}
-
+		
+		/**
+		 * mailDirMake
+		 * Cria um diretório de maildir
+		 */
+		public static function mailDirMake($target,$uid,$gid) {
+		
+			self::installDir($target . "/cur","700",$uid,$gid);
+			self::installDir($target . "/new","700",$uid,$gid);
+			self::installDir($target . "/tmp","700",$uid,$gid);
+		
+		}
+		
+		/**
+		 * homeDirMake
+		 * Cria o diretório home do usuário.
+		 */
+		public static function homeDirMake($tipo_hospedagem,$base_dir,$dominio,$username,$uid,$gid) {
+		
+			//echo "TIPO: $tipo_hospedagem\n";
+			//echo "BASE: $base_dir\n";
+			//echo "DOM.: $dominio\n";
+			//echo "USER: $username\n";
+			//echo "UID.: $uid\n";
+			//echo "GID.: $gid\n";
+		
+			$diretorios = array();
+			$home_dir = "";
+		
+			if( $tipo_hospedagem == "D" ) {
+				
+				$home_dir = $base_dir . "/" . $dominio;				
+				$diretorios[] = $home_dir;
+				$diretorios[] = $home_dir . "/www";
+				$diretorios[] = $home_dir . "/log";
+			
+			} else {
+				$home_dir = $base_dir . "/" . $dominio . "/usuarios/" . $username;
+				$diretorios[] = $home_dir;
+			}
+			
+			for($i=0;$i<count($diretorios);$i++) {
+				// echo "CRIAR: " . $diretorios[$i] . "\n";
+				self::installDir($diretorios[$i],"755",$uid,$gid);
+			}
+			
+			return($home_dir);
+		
+		
+		}
+		
+		public static function apachectl($op="start") {
+			self::executa("/usr/local/sbin/apachectl $op");
+		}
 
 
 
