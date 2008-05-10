@@ -275,7 +275,7 @@
 			
 			$temparq = tempnam("/tmp","varb");
 			$fd = fopen($temparq,"w");
-			fputs($fd,$this->obtemCabecalho() . "\n");
+			fputs($fd,$this->obtemCabecalho() . "\r\n");
 			
 			for($i=0;$i<count($faturas);$i++) {
 				$cliente = $faturas[$i]["cliente"];
@@ -303,7 +303,7 @@
 
 				fputs($fd,$this->registroDetalhe($instrucao_alegacao,$identificacao_titulo,$id,$vencimento,$valor,
 										$tipo_pessoa,$cpf_cnpj_sacado,$nome_razao_sacado, $logradouro_sacado,
-										$bairro_sacado, $cep_sacado, $cidade_sacado, $uf_sacado, $nome_produto) . "\n" );
+										$bairro_sacado, $cep_sacado, $cidade_sacado, $uf_sacado, $nome_produto) . "\r\n" );
 				
 				
 				// LIMPEZA
@@ -313,7 +313,7 @@
 				
 			}
 			
-			fputs($fd, $this->obtemRodape() . "\n");
+			fputs($fd, $this->obtemRodape() . "\r\n");
 			fclose($fd);
 			
 			copy($temparq, $arquivo);
