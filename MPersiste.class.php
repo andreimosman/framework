@@ -307,7 +307,7 @@
       
       $this->debug("MPersiste","obtem",$sql);
       
-      //echo "SQL: $sql<br>\n";
+      ////echo "SQL: $sql<br>\n";
       
       
       return( $unico?$this->bd->obtemUnicoRegistro($sql):$this->bd->obtemRegistros($sql));

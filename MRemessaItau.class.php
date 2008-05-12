@@ -174,7 +174,7 @@
 			$registro .= $codigo_inscricao;
 			
 			// NUMERO DE INSCRICAO
-			$inscricao_sacado = str_replace(".","",str_replace("-","",str_replace("/","",$cpf_cnpj_sacado)));
+			$inscricao_sacado = trim(str_replace(".","",str_replace("-","",str_replace("/","",$cpf_cnpj_sacado))));
 			$registro .= $this->padZero($inscricao_sacado,14);
 			
 			// NOME DO SACADO

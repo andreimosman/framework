@@ -19,6 +19,9 @@ class MData {
 
 	public static function _diff($date_ini, $date_end, $round = 1) {
 
+		//echo "DI: $date_ini\n"; 
+		//echo "DE: $date_end\n"; 
+
 		$date_ini = strtotime($date_ini);
 		$date_end = strtotime($date_end);
 
