@@ -114,7 +114,7 @@
 			$registro .= $this->obtemCodigoCarteira();		// NOTA 5
 			
 			// TODO: CÓDIGO DE OCORRÊNCIA (NOTA 06)
-			$registro .= $this->padZero(0,2);
+			$registro .= $this->padZero(1,2); // 01 - Remessa
 			
 			// NUMERO DO DOCUMENTO DE COBRANÇA X(10)
 			$registro .= $this->padZero($id, 10);
