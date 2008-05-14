@@ -20,6 +20,9 @@
 		
 		protected $_sequencia;
 		
+		
+		protected $mensagemPersonalizada;
+		
 
 
 		public function __construct() {
@@ -41,8 +44,18 @@
 			$this->_juros = $juros; // Em porcentagem
 			
 			$this->_sequencia = 0;
+
+			$this->mensagemPersonalizada = "";
 			
 			$this->_init = 1;
+		}
+		
+		public function atribuiMensagemPersonalizada($mensagem) {
+			$this->mensagemPersonalizada = strtoupper(substr($mensagem,0,30));
+		}
+		
+		public function obtemMensagemPersonalizada() {
+			return($this->mensagemPersonalizada);
 		}
 				
 		protected function obtemCabecalho() {
@@ -200,8 +213,9 @@
 			// UF
 			$registro .= str_pad(strtoupper(substr($uf_sacado,0,2)),2," ",STR_PAD_RIGHT);
 			
-			// SACADOR/AVALISTA X(30)
-			$registro .= str_pad(strtoupper(substr($nome_produto,0,30)),30," ",STR_PAD_RIGHT);
+			// SACADOR/AVALISTA X(30) - NOTA 16
+			$sacador_avalista = $this->mensagemPersonalizada ? $this->mensagemPersonalizada : $nome_produto;
+			$registro .= str_pad(strtoupper(substr($sacador_avalista,0,30)),30," ",STR_PAD_RIGHT);
 			
 			// BRANCOS X(4)
 			$registro .= str_repeat(" ", 4);
