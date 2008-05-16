@@ -8,7 +8,7 @@
 		 * Soma()
 		 * Realiza a soma de todos os dígitos de uma sequencia
 		 */
-		protected static function soma($p) {
+		public static function soma($p) {
 		   $soma = 0;
 		   $c=0;
 		   
@@ -46,7 +46,7 @@
 		 * Modulo10()
 		 * Calcula o Modulo10 (utilizado no digito verificador)
 		 */
-		protected static function modulo10($soma) {
+		public static function modulo10($soma) {
 		   $dv = 10 - ($soma % 10);
 		   if( $dv==10 ) $dv = 0;
 		   return($dv);
@@ -154,21 +154,21 @@
 		 * Entra com a variável e o tamanho do campo, 
 		 * Preenche o resto com zeros à esquerda
 		 */
-		static function padZero($variavel,$tamanho) {
+		public static function padZero($variavel,$tamanho) {
 			return( str_pad($variavel, $tamanho, "0", STR_PAD_LEFT) );
 		}
 
 		/**
 		 * Insere um ponto na posição especificada
 		 */
-		protected static function inserePonto($str,$p) {
+		public static function inserePonto($str,$p) {
 		   return( substr($str,0,$p) . "." . substr($str,$p) );
 		}
 
 		/**
 		 * Obtem o fator da data com base em 07/10/1997 conforme regulamentação Febraban
 		 */
-		function static fatorData($data) {
+		public static function fatorData($data) {
 		   list($d,$m,$a) = explode("/",$data);
 
 		   // Constante: 07/10/1997

@@ -26,7 +26,7 @@ if(!defined('_M_JSON')) {
 		}
 		
 		protected static function escape($str) {
-			$str = str_replace('"','\"',str_replace('/','\/',str_replace("\n",'\n',$str)));
+			$str = str_replace('"','\"',str_replace('/','\/',str_replace("\n",'\n',str_replace("\r\n","\n",$str))));
 			return(addcslashes($str,"\r\n"));
 		}
 		
@@ -69,6 +69,10 @@ if(!defined('_M_JSON')) {
 				
 				$retorno[] = $ret;
 			}
+			
+			//echo "<pre>"; 
+			//echo "ENCODE: [" . implode(",",$retorno) . "]\n"; 
+			//echo "</pre>";
 			
 			return(implode(",",$retorno));
 		}
