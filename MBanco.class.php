@@ -19,10 +19,8 @@
 			  $mul = ($c)%2 ? 2 : 1;
 			  $v = $p[$i] * $mul;
 			  if($v>9) $v-=9;
-			  //echo $p[$i] . " x " . $mul . " = " . $v . "<br>\n";
 			  $soma += $v;
 		   }
-		   //echo "<hr>" ;
 
 		   return($soma);
 
@@ -38,7 +36,6 @@
 			
 			for ($i = $Quant-1; $i >= 0; $i--) { 
 				$Y = $Partes[$i]*$Mod11[$ptrMod]; 
-				//echo $Partes[$i] . "*" . $Mod11[$ptrMod] . " = $Y\n";
 				$Soma += $Y; 
 				--$ptrMod;
 			} 
@@ -69,16 +66,6 @@
 			}
 			return($dv);
 		}
-
-		/**
-		 * Imprime a imagem do codigo de barras
-		 * Esta função usava o MImage_Barcode
-		 */
-		//public static function barCode($cod,$target='') {
-		//   // Imprime o código de barras.
-		//   $bc = new MImage_Barcode_int25();
-		//   $bc->draw($cod, "png", $target);
-		//}
 		
 		/**
 		 * Gera o código de barras em HTML
@@ -113,8 +100,6 @@
 			$retorno .= "<img src='$urlBranco' width='$fino' height='$altura' border=0>";
 			$retorno .= "<img src='$urlPreto' width='$fino' height='$altura' border=0>";
 			$retorno .= "<img src='$urlBranco' width='$fino' height='$altura' border=0>";
-			
-			
 			
 			// Checando para saber se o conteúdo é impar 
 			if ( strlen($CodBarras) % 2 != 0) { 
@@ -170,27 +155,25 @@
 		 * Preenche o resto com zeros à esquerda
 		 */
 		static function padZero($variavel,$tamanho) {
-			//echo "VAR: $variavel<br>\n";
-			//echo "T: $tamanho<br>\n";
-			//echo "Zrs: " . (
 			return( str_pad($variavel, $tamanho, "0", STR_PAD_LEFT) );
 		}
 
 		/**
 		 * Insere um ponto na posição especificada
 		 */
-		protected function inserePonto($str,$p) {
+		protected static function inserePonto($str,$p) {
 		   return( substr($str,0,$p) . "." . substr($str,$p) );
 		}
 
 		/**
 		 * Obtem o fator da data com base em 07/10/1997 conforme regulamentação Febraban
 		 */
-		function fatorData($data) {
+		function static fatorData($data) {
 		   list($d,$m,$a) = explode("/",$data);
 
 		   // Constante: 07/10/1997
 		   $dt_const = mktime(0,0,0,10,7,1997);
+
 		   // Retorna o valor em dias (e não em segundos)
 		   return( (int)((mktime(0,0,0,$m,$d,$a) - $dt_const)/(24*60*60)) );
 
