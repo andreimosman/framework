@@ -203,7 +203,7 @@
 			$registro .= str_pad(strtoupper(substr($bairro_sacado,0,12)),12," ",STR_PAD_RIGHT);
 			
 			// CEP
-			$cep = str_replace(".","",str_replace("-","",substr(trim($cep_sacado),0,8)));
+			$cep = substr(trim(str_replace(".","",str_replace("-","",$cep_sacado)),0,8);
 			$registro .= $this->padZero($cep,8);
 			
 			// CIDADE
