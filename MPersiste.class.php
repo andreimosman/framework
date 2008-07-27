@@ -89,7 +89,7 @@
     protected function _where($condArray,$recursive=false,$forceop="AND") {
       $cond = array();
       
-      $operadores = array( "=" => "=", "%" => "ilike", "!=" => "!=", "!" => "!=", "in" => "*especial*", "!in" => "*especial*", "array in" => "*especial*", "null" => "*especial*", "~" => '~', "~*" => '~*' );
+      $operadores = array( "=" => "=", "%" => "ilike", "!=" => "!=", "!" => "!=", "in" => "*especial*", "!in" => "*especial*", "array in" => "*especial*", "null" => "*especial*", "~" => '~', "~*" => '~*', '>' => '>', '<' => '<', '>=' => '>=', '<=', '<=' );
       
       $keys = array_keys($condArray);
       
@@ -307,7 +307,7 @@
       
       $this->debug("MPersiste","obtem",$sql);
       
-      ////echo "SQL: $sql<br>\n";
+      //echo "SQL: $sql<br>\n";
       
       
       return( $unico?$this->bd->obtemUnicoRegistro($sql):$this->bd->obtemRegistros($sql));

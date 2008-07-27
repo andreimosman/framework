@@ -16,6 +16,18 @@ class MData {
 		list($d,$m,$a)=explode("/",$data_ptBR);
 		return("$a-$m-$d");
 	}
+	
+	public static function ISO_to_ptBR($data_ISO) {
+		$data_ISO = self::ptBR_to_ISO($data_ISO); // Assegura que a data está realmente em ISO.
+
+		if( !strstr($data_ISO,"-") ) {
+			return($data_ISO);
+		}
+		
+		list($a,$m,$d)=explode("-",$data_ISO);
+		return("$d/$m/$a");
+		
+	}
 
 	public static function _diff($date_ini, $date_end, $round = 1) {
 
@@ -34,8 +46,8 @@ class MData {
 		}
 	}
 
-	public static function diff($data1,$data2) {			
-		return(self::_diff(self::ptBR_to_ISO($data1),self::ptBR_to_ISO($data2)));			
+	public static function diff($data1,$data2,$round=1) {			
+		return(self::_diff(self::ptBR_to_ISO($data1),self::ptBR_to_ISO($data2),$round));			
 	}
 
 
@@ -71,7 +83,8 @@ class MData {
 	 *   - Formato: DD/MM/AAAA
 	 */
 	public static function adicionaMes($data,$meses) {
-		list($dia,$mes,$ano) = explode("/",$data);
+		$data = self::ptBR_to_ISO($data);
+		list($ano,$mes,$dia) = explode("-",$data);
 
 		if( $meses >= 12 ) {
 			$anos = floor($meses/12);
@@ -126,10 +139,12 @@ class MData {
 
 	public static function proximoDia($dia,$dataBase="") {
 		if( !$dataBase ) {
-			$dataBase = date("d/m/Y");
+			$dataBase = date("Y/m/d");
+		} else {
+			$dataBase = self::ptBR_to_ISO($dataBase);
 		}
 
-		list($d,$m,$a) = explode("/",$dataBase);
+		list($a,$m,$d) = explode("-",$dataBase);
 
 		if( $dia > $d ) {
 			// O próximo dia está neste mês

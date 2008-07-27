@@ -86,6 +86,10 @@
 		 * 		17 posições no caso da id emitido pela Febraban)
 		 */
 		public static function obtemCodigoBarras($id_produto,$id_segmento,$codigo_moeda,$valor,$id_empresa,$nosso_numero,$vencimento) {
+			if( strstr($vencimento,"/") || strstr($vencimento,"-") ) {
+				$vencimento = MData::ptBR_to_ISO($vencimento);
+				$vencimento = str_replace("-","",$vencimento);
+			}
 
 			/**
 			 * Gerando o código de barras (inicialmente sem o DV)
