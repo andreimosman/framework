@@ -19,7 +19,7 @@
  * @author     Marcelo Subtil Marcal <msmarcal@php.net>
  * @copyright  2005 The PHP Group
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    CVS: $Id: mbarcode_int25.class.php,v 1.2 2006/09/05 12:18:34 mosman Exp $
+ * @version    CVS: $Id: mbarcode_int25.class.php,v 1.3 2008/08/07 21:23:06 mosman Exp $
  * @link       http://pear.php.net/package/Image_Barcode
  */
 
@@ -46,34 +46,34 @@ class Image_Barcode_int25 extends Image_Barcode
      * Barcode type
      * @var string
      */
-    var $_type = 'int25';
+    protected $_type = 'int25';
 
     /**
      * Barcode height
      *
-     * @var integer
+     * @protected integer
      */
-    var $_barcodeheight = 50;
+    protected $_barcodeheight = 50;
 
     /**
      * Bar thin width
      *
-     * @var integer
+     * @protected integer
      */
-    var $_barthinwidth = 1;
+    protected $_barthinwidth = 1;
 
     /**
      * Bar thick width
      *
-     * @var integer
+     * @protected integer
      */
-    var $_barthickwidth = 3;
+    protected $_barthickwidth = 3;
 
     /**
      * Coding map
-     * @var array
+     * @protected array
      */
-    var $_coding_map = array(
+    protected $_coding_map = array(
            '0' => '00110',
            '1' => '10001',
            '2' => '01001',
@@ -102,7 +102,7 @@ class Image_Barcode_int25 extends Image_Barcode
 
     function draw($text, $imgtype = 'png')
     {
-
+    
         $text = trim($text);
 
         if (!preg_match("/[0-9]/",$text)) return;

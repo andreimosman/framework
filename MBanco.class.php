@@ -1,6 +1,7 @@
 <?
 
 	require_once("MException.class.php");
+	require_once("mbarcode_int25.class.php");
 
 	abstract class MBanco {
 	
@@ -65,6 +66,12 @@
 				$dv = 11 - $resto;
 			}
 			return($dv);
+		}
+		
+		public static function imageBarcode($CodBarras) {
+			$cb = new Image_Barcode_int25();
+			$cb->draw($CodBarras);//, 'jpg');
+			return;
 		}
 		
 		/**
@@ -169,6 +176,7 @@
 		 * Obtem o fator da data com base em 07/10/1997 conforme regulamentação Febraban
 		 */
 		public static function fatorData($data) {
+		   $data = MData::ISO_to_ptBR($data);
 		   list($d,$m,$a) = explode("/",$data);
 
 		   // Constante: 07/10/1997
