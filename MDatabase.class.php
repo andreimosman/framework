@@ -480,6 +480,46 @@
 			public function obtemListaCampos($tabela) {
 				return($this->bd->manager->listTableFields($tabela));
 			}
+			
+			/**
+			 * Obtem o tamanho correto de campos numeric, money ou decimal.
+			 */
+			
+			protected function obtemTamanhoCampoNumerico($tabela,$campo) {
+			
+				$sql  = "SELECT ";
+				$sql .= "   c.relname, a.attname AS name, t.typname AS type, a.atttypmod, ";
+				$sql .= "   CASE WHEN ";
+				$sql .= "     t.typname IN('numeric','decimal','money') ";
+				$sql .= "   THEN ";
+				$sql .= "      a.atttypmod / 65536 ";
+				$sql .= "   ELSE ";
+				$sql .= "      0 ";
+				$sql .= "   END as length, ";
+				$sql .= "   CASE WHEN ";
+				$sql .= "     t.typname IN('numeric','decimal','money') ";
+				$sql .= "   THEN ";
+				$sql .= "      (a.atttypmod % 65536) - 4 ";
+				$sql .= "   ELSE ";
+				$sql .= "      0 ";
+				$sql .= "   END as scale ";
+				$sql .= "FROM ";
+				$sql .= "   pg_attribute a  ";
+				$sql .= "   INNER JOIN pg_type t ON a.atttypid = t.oid ";
+				$sql .= "   INNER JOIN  ";
+				$sql .= "pg_class c ON a.attrelid = c.oid ";
+				$sql .= "WHERE ";
+				$sql .= "   c.relname = '$tabela' AND a.attname = '$campo' ";
+				
+				$ret = $this->obtemUnicoRegistro($sql);
+				
+				if( empty($ret) ) return 0;
+				
+				return( $ret["length"] . "," . $ret["scale"] );
+			
+			}
+			
+			
 
 			/**
 			 * Obtem a definicão do camp
@@ -490,11 +530,17 @@
 				if($info[0]["nativetype"] == "numeric"){
 					// Calcular o camanho
 					$len = $info[0]["length"];
+
 					if( $len != "-1" ) {
-						$sSQL = "SELECT (int4($len)) >> 16 AS inteiro, (int4($len)) & int4('65535') AS decimal";
-						$ilen = $this->obtemUnicoRegistro($sSQL);
-						$info[0]["length"] = $ilen["inteiro"] . "," . $ilen["decimal"];
+						//$sSQL = "SELECT (int4($len)) >> 16 AS inteiro, (int4($len)) & int4('65535') AS decimal";
+						//$ilen = $this->obtemUnicoRegistro($sSQL);
+						$info[0]["length"] = $this->obtemTamanhoCampoNumerico($tabela,$campo);						
+						// $ilen["inteiro"] . "," . $ilen["decimal"];
 					}
+
+					// print_r($info);
+
+
 				}
 				return($info);
 			}
@@ -794,6 +840,7 @@
 			*/
 
 			protected function sqlFieldDefinition($fieldinfo) {
+			
 				$sql="";
 				switch(trim(strtolower($fieldinfo["nativetype"]))) {
 					case 'smallint':
@@ -853,6 +900,12 @@
 						/**
 						 * Campos que recebem um único parametro (tamanho)
 						 */
+
+						if( strstr($fieldinfo["length"],",") ) {
+							list($a,$b) = explode(",",$fieldinfo["length"]);							
+							if( $b > $a ) $fieldinfo["length"] = "$b,$a";
+						}
+						
 						$sql .= $fieldinfo["nativetype"] . "(" . $fieldinfo["length"] . ")";
 						break;
 
@@ -891,6 +944,11 @@
 				while(list($field,$fieldinfo)=each($fields)) {
 					$sql .= "   " . $field . " ";
 					$sql .= $this->sqlFieldDefinition($fieldinfo);
+					
+					/////
+					/////
+					//////
+					
 
 					if( $cnt++ < count($fields) ) {
 						$sql .= ",";
@@ -1371,6 +1429,18 @@
 						
 							$_novo  = $novo["tables"][$tabela]["fields"][$campo];
 							$_atual = $original["tables"][$tabela]["fields"][$campo];
+
+							// Corrige 
+							if( strstr( $_novo["length"], "," ) ) {
+								list($a,$b) = explode(",",$novo["length"]);							
+								if( $b > $a ) $novo["length"] = "$b,$a";
+							}
+							// Corrige os problemas com os numerics
+							if( strstr( $_atual["length"], "," ) ) {
+								list($a,$b) = explode(",",$atual["length"]);							
+								if( $b > $a ) $atual["length"] = "$b,$a";
+							}
+
 							
 							// Gambi pra corrigir erro no pg_field_size do php (no FreeBSD mostra invertido).
 							//$_diferenca = $_novo;
@@ -1378,8 +1448,8 @@
 							//	list($a,$b) = explode(",",$_atual["length"]);
 							//	$_diferenca = "$b,$a";
 							//}
-							
-							if( $_novo["length"] != $_diferenca && $_novo["length"] != $_atual["length"] && ((float)str_replace(",",".",$_novo["length"])) > ((float)str_replace(",",".",$_atual["length"])) ) {
+														
+							if( $_novo["length"] != $_atual["length"] && ((float)str_replace(",",".",$_novo["length"])) > ((float)str_replace(",",".",$_atual["length"])) ) {
 								//echo "NL: " . $_novo["length"] . "\n";
 								//echo "AT: " . $_atual["length"] . "\n";
 								//echo "------------------------------\n";
