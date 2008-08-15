@@ -1373,11 +1373,11 @@
 							$_atual = $original["tables"][$tabela]["fields"][$campo];
 							
 							// Gambi pra corrigir erro no pg_field_size do php (no FreeBSD mostra invertido).
-							$_diferenca = $_novo;
-							if( strstr($_atual["length"],",") || strstr($_novo["length"],",") ) {
-								list($a,$b) = explode(",",$_atual["length"]);
-								$_diferenca = "$b,$a";
-							}
+							//$_diferenca = $_novo;
+							//if( strstr($_atual["length"],",") || strstr($_novo["length"],",") ) {
+							//	list($a,$b) = explode(",",$_atual["length"]);
+							//	$_diferenca = "$b,$a";
+							//}
 							
 							if( $_novo["length"] != $_diferenca && $_novo["length"] != $_atual["length"] && ((float)str_replace(",",".",$_novo["length"])) > ((float)str_replace(",",".",$_atual["length"])) ) {
 								//echo "NL: " . $_novo["length"] . "\n";
