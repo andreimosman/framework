@@ -305,7 +305,7 @@
 					$retorno[$i]["destination"] = $tmp[$i]["destination"] . "/" . $rede->obtemBitmask();
 				} else {
 					if( $tmp[$i]["destination"] == "default" ) {
-						$retorno[$i]["destination"] == "0.0.0.0/0";
+						$retorno[$i]["destination"] = "0.0.0.0/0";
 					}
 				}
 
