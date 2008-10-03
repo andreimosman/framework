@@ -1,6 +1,8 @@
 <?
 
 require_once("MConfig.class.php");
+require_once("SistemaOperacional.class.php");
+require_once("SOFreeBSD.class.php");
 
 class MLicenca extends MConfig{
 
@@ -11,14 +13,20 @@ class MLicenca extends MConfig{
 	
 	protected $extraOpt;	// Utilizado para a string extra para a geração do localid
 	
+	protected $SO;
+	
 	/**
 	 * Recebe o arquivo de licença
 	 */
 
 	public function MLicenca($arquivo="",$extraopt="") {
-		
+	
+		$this->SO = new SOFreeBSD();
+	
+	
 		$this->arquivo = $arquivo;
 		$this->extraOpt = $extraopt;
+		
 		// Verifica se o arquivo de licença existe
 		
 		// Instancia $cfg
@@ -42,7 +50,7 @@ class MLicenca extends MConfig{
 	/**
 	 * Gera a licença em um formato especifico
 	 */
-	protected function encode($conteudo) {
+	public function encode($conteudo) {
 		$chave = $this->getKey();
 		
 		srand();
@@ -96,6 +104,11 @@ class MLicenca extends MConfig{
 		
 		$conteudo = fread($fd,filesize($arquivo));
 		$dec_cont = $this->decode($conteudo);
+		
+		//echo "<pre>";
+		//print_r($dec_cont);
+		//echo "</pre>";
+		
 		
 		if( !$this->verificaConteudo($dec_cont) ) return "";
 		
@@ -245,6 +258,9 @@ class MLicenca extends MConfig{
 	 * Gera a array de chaves válidas locais
 	 */
 	public function obtemChaves() {
+	
+		$extIf = SistemaOperacional::getExtIf();
+		$defGw = SistemaOperacional::getDefaultRoute();
 		
 		$hostname = $this->obtemInfoHostname();
 		$netinfo = $this->obtemInfoRede();
@@ -252,19 +268,29 @@ class MLicenca extends MConfig{
 		$chaves = array();
 		
 		while( list($iface,$dados) = each($netinfo) ) {
-			if(@$dados["mac"]) {
-				// A interface têm que ter MAC pra gente considerá-la no sistema.
-				if(count($dados["ips"])) {
-					for($i=0;$i<count($dados["ips"]);$i++) {
+			// if( $extIf && $iface == $extIf ) {
+				if(@$dados["mac"]) {
 
-					   //echo " -----&gt; " . $dados["ips"][$i] . "(" . $this->localId($hostname,$dados["mac"],$dados["ips"][$i]). " --- " . $this->localIdFormatado($hostname,$dados["mac"],$dados["ips"][$i]) . ") <br>\n";
-					   $local_id = $this->localId($hostname,$dados["mac"],$dados["ips"][$i]);
-					   //echo "LOCAL ID: $local_id<bR>\n";
-					   $chaves[] = $this->geraChave($local_id,$this->arqCheckSum);
+					// A interface têm que ter MAC pra gente considerá-la no sistema.
+					if(count($dados["inet"])) {
+						for($i=0;$i<count($dados["inet"]);$i++) {
+						
+						   $ipaddr = $dados["inet"][$i]->obtemIP();
+						   // somente o ip de saída tem id válido
+						   if( !$dados["inet"][$i]->contem($defGw) ) {
+						      continue;
+						   }
+						   						   
+						   $local_id = $this->localId($hostname,$dados["mac"],$ipaddr);
+						   
+						   
+						   //echo "LOCAL ID: $local_id<bR>\n";
+						   $chaves[] = $this->geraChave($local_id,$this->arqCheckSum);
 
+						}
 					}
 				}
-			}
+			// }
 		}
 		
 		
@@ -313,18 +339,47 @@ class MLicenca extends MConfig{
 		$hostname = $this->obtemInfoHostname();
 		$inforede = $this->obtemInfoRede();
 		
+		
+		
+		
+		
+		//echo "<pre>";
+		//print_r($inforede);
+		// print_r(SistemaOperacional::getNetstat());
+		// print_r(SistemaOperacional::getDefaultRoute());
+		// print_r(SistemaOperacional::getOutNetwork());
+		//echo "</pre>";
+		
+		
 		$retorno = array();
 		
+		$extIf = SistemaOperacional::getExtIf();
+		$defGw = SistemaOperacional::getDefaultRoute();
+
+		
 		while(list($iface,$dados)=each($inforede)){
-			if(@$dados["mac"] && count(@$dados["ips"])){
-				$i=0;
-				while($ip=@$dados["ips"][$i++]) {
-					$retorno[] = array( "interface" => $iface, "mac" => $dados["mac"],
-					                    "ip" => $ip, "local_id" => $this->localIdFormatado($hostname,$dados["mac"],$ip) );
+			//if( $extIf && $extIf == $iface ) {
+				if(@$dados["mac"] && count(@$dados["inet"])){
+					$i=0;
+					while($ip=@$dados["inet"][$i++]) {
 					
-					//
+					   if( !is_a($ip,'MInet') ) continue;
+					   
+					   $ipaddr = $ip->obtemIP();
+					   // somente o ip de saída tem id válido
+					   if( !$ip->contem($defGw) ) {
+						  continue;
+					   }
+					
+					
+					
+						$retorno[] = array( "interface" => $iface, "mac" => $dados["mac"],
+											"ip" => $ip->obtemIP(), "local_id" => $this->localIdFormatado($hostname,$dados["mac"],$ip->obtemIP()) );
+
+						//
+					}
 				}
-			}
+			//}
 		}
 		
 		return($retorno);
@@ -334,90 +389,24 @@ class MLicenca extends MConfig{
 	/**
 	 * Retorna um array com todas as linhas do resultado de uma execução.
 	 */
-	protected function executa($comando) {
-		$fd = popen($comando,"r");
-		$linhas = array();
-		while( ($linhas[]=fgets($fd)) && !feof($fd) ) { }
-		fclose($fd);
-		
-		return($linhas);
-	}
+	//protected function executa($comando) {
+	//	$fd = popen($comando,"r");
+	//	$linhas = array();
+	//	while( ($linhas[]=fgets($fd)) && !feof($fd) ) { }
+	//	fclose($fd);
+	//	
+	//	return($linhas);
+	//}
 	
 	public function obtemInfoHostname() {
-		return(trim(implode('',$this->executa("/bin/hostname"))));
+		return($this->SO->getHostname());
 	}
 	
 	/**
 	 * Retorna uma matriz associativa onde o índice é o nome da interface
 	 */
 	public function obtemInfoRede() {
-	
-		$mac_re = "/([0-9A-Fa-f]{2}\:){5}([0-9A-Fa-f]{2})/";
-		$ip_re = "/(?:\d{1,3}\.){3}\d{1,3}/";
-
-		$iflist = array();
-		$iface = "";
-		$ifmatch = false;
-
-		$linhas = $this->executa("/sbin/ifconfig");
-		
-		//echo "CL: " . count($linhas);
-		$i=0;
-
-		while( $linha = $linhas[$i++] ) {
-			//echo $linha;
-			$matches = array();
-			$ifaceinfo = array();
-			//$linha = preg_replace("/^[\s\t]/","",$linha);
-
-			/**
-			* Linux Match
-			*/
-			preg_match("/^[A-Za-z0-9]+[\s\t]/",$linha,$ifaceinfo,PREG_OFFSET_CAPTURE);
-			if(@$ifaceinfo[0][0]) {
-				$iface = @$ifaceinfo[0][0];
-				$ifmatch = true;
-			}
-
-			/**
-			* FreeBSD Match
-			*/
-			if( !$ifmatch ) {
-				preg_match("/^[A-Za-z0-9]+\:\s/",$linha,$ifaceinfo,PREG_OFFSET_CAPTURE);
-				if(@$ifaceinfo[0][0]) {
-					$iface = @$ifaceinfo[0][0];
-					$ifmatch = true;
-				}
-			}
-
-			if( $ifmatch ) {
-				$iface = str_replace(":","",trim($iface));
-				$iflist[$iface] = array();
-				$iflist[$iface]["ips"] = array();
-				$ifmatch = false;
-			}
-
-			$matches = array();
-
-			preg_match($ip_re,$linha,$matches,PREG_OFFSET_CAPTURE);
-			if(count($matches)) {
-				$iflist[$iface]["ips"][] = $matches[0][0];
-			}
-
-			$matches = array();
-
-			preg_match($mac_re,$linha,$matches,PREG_OFFSET_CAPTURE);
-			$linha = strtoupper($linha);
-
-			$mac = @$matches[0][0];
-				if($mac) {
-				$iflist[$iface]["mac"] = strtoupper($mac);
-			}      
-		}
-
-		return($iflist);
-
-
+		return($this->SO->getNetworkInfo());
 	}
 	
 	/**

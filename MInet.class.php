@@ -204,7 +204,53 @@
 							"maxhosts" => $this->obtemMaxHosts()
 						));
 		}
-	
+		
+		public static function hex2netmask($hexmask) {
+			$hexmask = str_replace("0x","",$hexmask);
+			
+			// $hexmask = "12345678";
+			
+			$parte01 = substr($hexmask,0,2);
+			$parte02 = substr($hexmask,2,2);
+			$parte03 = substr($hexmask,4,2);
+			$parte04 = substr($hexmask,6,2);
+			
+			//echo "<pre>\n$parte01.$parte02.$parte03.$parte04</pre>\n";
+			
+			
+			return( hexdec($parte01) . "." . hexdec($parte02) . "." . hexdec($parte03) . "." . hexdec($parte04) );
+			
+		}
+		
+		public function obtemLong() {
+			return($this->ipv4->long);
+		}
+		
+		/**
+		 * Retorna true se o objeto rede contem o ip especificado.
+		 */
+		public function contem($ip) {
+			$nm = $this->obtemBitmask();
+			
+			if( $nm < 24 ) {
+				return false;
+			}
+			
+			$rd = $this->obtemRede();
+
+			$tmp = new MInet($this->obtemPrimeiroIP() . "/" . $nm);
+			$ini = $tmp->obtemLong();
+			
+			$tmp = new MInet($this->obtemUltimoIP() . "/" . $nm);
+			$fim = $tmp->obtemLong();
+			
+			$tmp = new MInet($ip."/32");
+			$l = $tmp ->obtemLong();
+			
+			unset($tmp);
+			
+			return( $l >= $ini && $l <= $fim );		
+		}
 	
 	}
 	

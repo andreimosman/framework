@@ -29,6 +29,302 @@
 		}
 		
 		/**
+		 * Interfaces
+		 */
+		public static function getInterfaces() {
+			$so = self::getSO();
+			
+			if( $so == "Linux" ) {
+				$comando = self::$IFCONFIG . " | /bin/cut -f 1 -d ' '|/bin/grep -vE '^$|:|ppp|tun|lo'";
+				$l = chop(self::executa($comando));
+				$interfaces = explode("\n",$l);				
+			} else {
+				// FreeBSD
+				$comando = self::$IFCONFIG . " -l";
+				$l = chop(self::executa($comando));
+				
+				$tmp = explode(" ",$l);
+				
+				$interfaces = array();
+				
+				for($i=0;$i<count($tmp);$i++) {
+					if(trim($tmp[$i]) && !strstr($tmp[$i],"plip") && !strstr($tmp[$i],"slip") && !strstr($tmp[$i],"ppp") && !strstr($tmp[$i],"tun") && $tmp[$i] != "lo0" ) {
+						$interfaces[] = $tmp[$i];
+					}
+				}
+				
+				
+			}
+			
+			return($interfaces);
+			
+		}
+		
+		/**
+		 * Hostname
+		 */
+		public static function getHostname() {
+			$comando = self::$HOSTNAME;			
+			return(trim(chop(self::executa($comando))));
+		}
+		
+		/**
+		 * Network Info
+		 */
+		public static function getNetworkInfo() {
+		
+			$so = self::getSO();
+
+			$mac_re = "/([0-9A-Fa-f]{2}\:){5}([0-9A-Fa-f]{2})/";
+			$ip_re = "/(?:\d{1,3}\.){3}\d{1,3}/";
+
+			$iflist = array();
+			$iface = "";
+			$ifmatch = false;
+
+			// $linhas = preg_split('/\n/',self::executa("/sbin/ifconfig"));
+			$linhas = self::executa(self::$IFCONFIG,NULL,"",true);
+			
+			//echo "<pre>";
+			//print_r($linhas);
+			//echo "</pre>";
+
+			//echo "CL: " . count($linhas);
+			$i=0;
+
+			while( $linha = $linhas[$i++] ) {
+				//$linha .= "\n";
+				// echo $linha . "<br>\n";
+				$matches = array();
+				$ifaceinfo = array();
+				//$linha = preg_replace("/^[\s\t]/","",$linha);
+
+				/**
+				 * Linux Match
+			 	 */
+				preg_match("/^[A-Za-z0-9]+[\s\t]/",$linha,$ifaceinfo,PREG_OFFSET_CAPTURE);
+				if(@$ifaceinfo[0][0]) {
+					$iface = @$ifaceinfo[0][0];
+					$ifmatch = true;
+				}
+
+				/**
+				 * FreeBSD Match
+			 	 */
+				if( !$ifmatch ) {
+					preg_match("/^[A-Za-z0-9]+\:\s/",$linha,$ifaceinfo,PREG_OFFSET_CAPTURE);
+					if(@$ifaceinfo[0][0]) {
+						$iface = @$ifaceinfo[0][0];
+						$ifmatch = true;
+					}
+				}
+				
+				//echo "IFACE: $iface<br>\n";
+
+				if( $ifmatch ) {
+					$iface = str_replace(":","",trim($iface));
+					$iflist[$iface] = array();
+					// $iflist[$iface]["ips"] = array();
+					$iflist[$iface]["inet"] = array();
+					$ifmatch = false;
+				}
+
+				$matches = array();
+				
+				preg_match($ip_re,$linha,$matches,PREG_OFFSET_CAPTURE);
+				if(count($matches)) {
+					// $iflist[$iface]["ips"][] = $matches[0][0];
+
+					$ipaddr = $matches[0][0];
+
+					if( $so == "Linux" ) {
+						// LINUX
+						$re_netmask = "/(Mask:)((\d{1,3}\.){3}\d{1,3})/";
+					} else {
+						// FREEBSD
+						//$linha = "       inet 200.217.241.68 netmask 0xfffffff8 broadcast 200.217.241.71";
+						$re_netmask = "/(netmask 0x)([0-9a-fA-F]{8})/";
+					}
+					
+					$matches = array();
+					preg_match($re_netmask,$linha,$matches,PREG_OFFSET_CAPTURE);
+
+					$netmask = @$matches[2][0];
+
+					if( $so == "FreeBSD" ) {
+						$netmask = MInet::hex2netmask($netmask);
+					}
+
+					$iflist[$iface]["inet"][] = MInet::calculadora($ipaddr,$netmask);
+
+				}
+
+				$matches = array();
+
+				preg_match($mac_re,$linha,$matches,PREG_OFFSET_CAPTURE);
+				$linha = strtoupper($linha);
+
+				$mac = @$matches[0][0];
+					if($mac) {
+					$iflist[$iface]["mac"] = strtoupper($mac);
+				}      
+			}
+
+			return($iflist);
+
+
+		}
+		
+		/**
+		 * uname
+		 */
+		public static function getSO() {
+			$uname = is_executable("/usr/bin/uname") ? "/usr/bin/uname" : "/bin/uname";
+			$so = trim(chop(self::executa($uname)));
+			return($so);
+		}
+
+		/**
+		 * Tenta identificar a interface externa pela rota padrão.
+		 */
+		public static function getExtIf() {
+			$ns = self::getNetstat();
+			
+			$extIf = "";
+			
+			for($i=0;$i<count($ns);$i++) {
+				if( $ns[$i]["destination"] == "0.0.0.0/0" ) {
+					$extIf = $ns[$i]["interface"];
+					break;
+				}
+			}
+			
+			return($extIf);
+		}
+
+		/**
+		 * Tenta identificar a rota padrão.
+		 */
+		public static function getDefaultRoute() {
+			$ns = self::getNetstat();
+			
+			$defGw = "";
+			
+			for($i=0;$i<count($ns);$i++) {
+				if( $ns[$i]["destination"] == "0.0.0.0/0" ) {
+					$defGw = $ns[$i]["gateway"];
+					break;
+				}
+			}
+			
+			return($defGw);
+		}
+
+		/**
+		 * Tenta identificar a rede de saída.
+		 */
+		public static function getOutNetwork($interface) {
+			$ns = self::getNetstat();
+			
+			$defGw = "";
+			
+			for($i=0;$i<count($ns);$i++) {
+				if( $ns[$i]["destination"] == "0.0.0.0/0" ) {
+					$defGw = $ns[$i]["gateway"];
+					break;
+				}
+			}
+			
+			return($defGw);
+		}
+		
+		/**
+		 * getNetstat
+		 */
+		public static function getNetstat() {
+		
+			$so = self::getSO();
+		
+			if( $so == "Linux" ) {
+				$grep = "/bin/grep";
+				$netstat = "/bin/netstat -rn --inet| $grep -vE 'Kernel IP routing table'";
+				$sed = "/bin/sed";
+				$sed_flag = "-r";
+				
+			} else {
+				$grep = "/usr/bin/grep";
+				$netstat = "/usr/bin/netstat -rn -f inet | $grep -vE '^$|Routing tables|Internet:'";
+				$sed_flag = "-E";
+				$sed = "/usr/bin/sed";
+			}
+			
+			// $comando = "$netstat -rn|$grep -E '^(0.0.0.0|default)'|$sed $sed_flag 's/[ ]+/\:/g'";
+			$comando = "$netstat|$sed $sed_flag 's/[ ]+/\::/g'";
+			
+			$ns = self::executa($comando);
+			
+			$rotas = explode("\n",$ns);
+			
+			$campos = array();
+			$tmp = array();
+			
+			$iR = 0;
+			
+			for($i=0;$i<count($rotas);$i++) {
+			
+				if( !strlen($rotas[$i]) ) {
+					continue;
+				}
+			
+				$dados = explode("::",$rotas[$i]);
+
+				if( $i == 0 ) {
+					$campos = $dados;
+					continue;
+				}
+				
+				$tmp[$iR] = array();
+				
+				for($x=0;$x<count($campos);$x++) {
+					$tmp[$iR][strtolower($campos[$x])] = @$dados[$x];
+				}
+				
+				$iR++;
+
+			}
+			
+			
+			$retorno = array();
+			
+			
+			// NORMALIZACAO
+			for($i=0;$i<count($tmp);$i++) {
+				$retorno[$i] = array();
+				if( $so == "Linux" ) {
+					$rede = MInet::calculadora($tmp[$i]["destination"],$tmp[$i]["genmask"]);
+					$retorno[$i]["destination"] = $tmp[$i]["destination"] . "/" . $rede->obtemBitmask();
+				} else {
+					if( $tmp[$i]["destination"] == "default" ) {
+						$retorno[$i]["destination"] == "0.0.0.0/0";
+					}
+				}
+
+				$retorno[$i]["gateway"] = (($so == "Linux" && $tmp[$i]["flags"] == "U") || ($so == "FreeBSD" && $tmp[$i]["flags"] == "UC")) ? "" : $tmp[$i]["gateway"];
+				if( (($so == "Linux" && $tmp[$i]["flags"] == "U") || ($so == "FreeBSD" && $tmp[$i]["flags"] == "UC")) ) {
+					$retorno[$i]["flags"] = "localnet";
+				} else {
+					$retorno[$i]["flags"] = "";
+				}
+				
+				$retorno[$i]["interface"] = $so == "Linux" ? $tmp[$i]["iface"] : $tmp[$i]["netif"];
+
+			}
+						
+			return($retorno);
+						
+		}
+		
+		/**
 		 * pgDump 
 		 */
 		public static function pgDump($host,$usuario,$senha,$banco,$arquivoOutput,$opcoes="") {
@@ -128,7 +424,18 @@
 		 *
 		 * retorna o resultado da execução deste comando.
 		 */
-		public static function executa($comando,$post=NULL,$outputFile="") {
+		public static function executa($comando,$post=NULL,$outputFile="",$retArray=false) {
+		
+			// Comportamento diferente para retorno em array();
+			if( $retArray ) {
+				$fd = popen($comando,"r");
+				$linhas = array();
+				while( ($linhas[]=fgets($fd)) && !feof($fd) ) { }
+				fclose($fd);
+				return($linhas);			
+			}
+		
+		
 			$retorno = "";
 			
 			// echo $comando . "\n";

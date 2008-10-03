@@ -48,6 +48,14 @@
 			
 			protected $cacheTypes;
 			
+			
+			/**
+			 * Log de erros.
+			 */
+			protected $logErros;
+			protected $arquivoErros;
+			
+			
 			/**
 			 * Construtor.
 			 *
@@ -60,6 +68,10 @@
 				$this->debug = $debug;
 				$this->arquivoDebug = "/tmp/debug.framework.log";
 				$this->zeraErro();
+				
+				// LOG DE ERROS.
+				$this->ativaLogErros();
+				$this->atribuiArquivoErro("/tmp/erros.framework.log");
 
 				if( $dsn ) {
 					$this->conecta($dsn);
@@ -68,6 +80,27 @@
 				$this->zeraListaSQL();
 				
 				$this->cacheTypes = array();
+			}
+			
+			public function atribuiArquivoErro($arquivo) {
+				$this->arquivoErros = $arquivo;
+			}
+			
+			public function ativaLogErros($bool=true) {
+				$this->logErros = $bool;
+			}
+			
+			public function gravaLogErros($codigo,$mensagem,$query) {
+				if( $this->logErros && $this->arquivoErros ) {
+					$fd = @fopen($this->arquivoErros,"a");
+					if( $fd ) {
+						$query = str_replace("\n","",$query);
+						$mensagem = str_replace("\n","",$mensagem);
+						$linha = "$codigo,$mensagem,$query\n";
+						fwrite($fd,$linha,strlen($linha));
+						fclose($fd);
+					}
+				}
 			}
 			
 			public static function parseDSN($dsn) {
@@ -324,8 +357,11 @@
 				 */
 				if( !$this->estaConectado() ) {
 					atribuiErro(MDATABASE_ERRO_NAO_CONECTADO,"Banco de dados desconectado.");
+					$this->gravaLogErros(MDATABASE_ERRO_NAO_CONECTADO,"Banco de dados desconectado.",$query);
 					return(MDATABASE_ERRO_NAO_CONECTADO);
 				}
+				
+				$this->bd->query("SET client_encoding TO latin1");
 
 
 				$this->debug("QUERY: " . $query . "\n");
@@ -344,6 +380,7 @@
 							break;
 
 					}
+					$this->gravaLogErros($codigo,$mensagem,$query);
 					$this->atribuiErro($codigo,$mensagem);
 					return($codigo);
 				}
@@ -1770,6 +1807,7 @@
 					
 					$linha = preg_replace("/^(--).*/","",$linha);
 					$linha = preg_replace("/^SET.*/","",$linha);
+					$linha = preg_replace("/\r/","",$linha); // Variação de formato (excluir o \r do windows)
 					$matches = array();
 					preg_match('/\;$/',$linha,$matches);
 					//print_r($matches);
@@ -1783,7 +1821,13 @@
 						$instrucao = trim(chop($instrucao));
 						
 						//echo "[".$instrucao."]\n";
-						$this->consulta($instrucao,false); 
+						$info = $this->consulta($instrucao,false); 
+						
+						// echo "INFO: $info<br>\n";
+						
+						//echo "<pre>";
+						//print_r($info);
+						//echo "</pre>";
 						
 						//if( $this->consulta($instrucao,false) == 255 ) {
 						//	$retorno = false;
@@ -1799,7 +1843,7 @@
 					$this->commit();
 					
 					if( $linha ) {
-						//echo "$linha";
+						// echo "$linha<br>\n";
 					}
 					
 				}
@@ -1892,10 +1936,12 @@
 		
 	}
 
-//$dsn="pgsql://virtex:vtx123@192.168.0.1/virtex";
+//$dsn="pgsql://virtex:vtx123@127.0.0.1/virtex";
 //$dsn="pgsql://postgres:xingling@192.168.0.1/teste";
 
 //$tmp = MDatabase::getInstance($dsn);
+
+//$tmp->obtemRegistros("select * from nada");
 
 
 //$tmp->userProceduresList();

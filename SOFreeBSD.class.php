@@ -9,6 +9,9 @@
 		public static $NTPDATE  = "/usr/sbin/ntpdate";
 		public static $ARP      = "/usr/sbin/arp";
 		
+		// mapa de tabelas (p/ ipfw)
+		public static $tablemap = array("desconhecidos" => "1","bloqueados" => "2","suspensos" => "3");
+		
 		
 		protected static $cacheTabela;
 		
@@ -72,12 +75,26 @@
 		}
 		
 		public static function adicionaEnderecoTabela($tabela,$ip) {
+			
+			if( @self::$tablemap[$tabela] ) {
+				$ipfw = self::$IPFW;
+				$comando = $ipfw . " -q table " . self::$tablemap[$tabela] . " add $ip";
+				SistemaOperacional::executa($comando);
+			}
+
 			$pfctl = SOFreeBSD::$PFCTL;
 			$comando = $pfctl . " -qt $tabela -T add $ip";
 			return(SistemaOperacional::executa($comando));
+						
 		}
 		
 		public static function removeEnderecoTabela($tabela,$ip) {
+			if( @self::$tablemap[$tabela] ) {
+				$ipfw = self::$IPFW;
+				$comando = $ipfw . " -q table " . self::$tablemap[$tabela] . " delete $ip";
+				SistemaOperacional::executa($comando);
+			}
+
 			$pfctl = SOFreeBSD::$PFCTL;
 			$comando = $pfctl . " -qt $tabela -T delete $ip";
 			return(SistemaOperacional::executa($comando));		
@@ -104,7 +121,7 @@
 			if( $cache ) return true;
 
 			$retorno = 0;
-			system("/sbin/pfctl -qt auth -T test $ip",$retorno);
+			system("/sbin/pfctl -qt $tabela -T test $ip",$retorno);
 			
 			if( $retorno != 0 ) return false;
 			self::adicionaCacheTabela($ip);
@@ -350,7 +367,7 @@
 		}
 		
 		public static function removeARP($ip) {
-			$comando = SOFreeBSD::$ARP . " -dn " . $ip . " > /dev/null 2>&1";
+			$comando = SOFreeBSD::$ARP . " -dn " . $ip . " 2>&1 > /dev/null ";
 			return(SistemaOperacional::executa($comando));		
 		}
 		
@@ -397,15 +414,6 @@
 			return($arp);
 
 		}
-
-
-
-
-
-
-
-
-
 
 
 		/**

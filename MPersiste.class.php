@@ -307,7 +307,7 @@
       
       $this->debug("MPersiste","obtem",$sql);
       
-     //echo "SQL: $sql<br>\n";
+     // echo "SQL: $sql<br>\n";
       
       
       return( $unico?$this->bd->obtemUnicoRegistro($sql):$this->bd->obtemRegistros($sql));
@@ -404,7 +404,7 @@
       
       // Monta a query 
       $sql = "INSERT INTO " . $this->_tabela . " ( " . implode(',',$campos) . " ) VALUES ( " . implode(",",$valores) . " )";
-      // echo "<pre>$sql</pre><br><br>\n";
+      //echo "<pre>$sql</pre><br><br>\n";
       
       $this->debug("MPersiste","insere",$sql);
       
@@ -447,7 +447,7 @@
       $sql .= "\n";
       
       $this->debug("MPersiste","update",$sql);
-      // echo "\n<hr>MPersiste::altera:: " . $sql . "<hr>\n";
+      //echo "\n<hr>MPersiste::altera:: " . $sql . "<hr>\n";
       
       return($this->bd->consulta($sql,false));
       
