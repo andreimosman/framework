@@ -430,6 +430,31 @@
 		}
 		
 		/**
+		 * fping em multiplos hosts
+		 */
+		public static function fpinglist($lista,$num_pacotes=2,$tamanho="",$timeout=1200) {
+			$lista_fping = implode(" ",$lista);
+						
+			$comando = "/usr/local/sbin/fping -qC $num_pacotes -Ae $lista_fping 2>&1 | grep ':'";
+			
+			$r = self::executa($comando);
+			
+			$linhas = explode("\n",$r);
+			
+			$retorno = array();
+			
+			for($i=0;$i<count($linhas);$i++) {
+				if( trim($linhas[$i]) ) {
+					list($ip,$resposta) = explode(":",$linhas[$i]);	
+					$retorno[trim($ip)] = explode(" ",trim($resposta));
+				}
+			}
+			
+			return($retorno);
+			
+		}
+		
+		/**
 		 * fping
 		 */
 		
