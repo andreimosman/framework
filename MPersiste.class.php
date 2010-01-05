@@ -162,7 +162,12 @@
               if( is_null($valor) ) {
                 $cnd = $campo . " is null";
               } else {
-                $cnd = $campo . " " . $operadores[$operador] . " '" . $this->bd->escape($valor) . "'";
+                $opr = $operadores[$operador];
+                if( !$opr ) {
+                   $valor = $operador . ":" . $valor;
+                   $opr = "=";
+                }
+                $cnd = $campo . " " . $opr . " '" . $this->bd->escape($valor) . "'";
               }
             }
           }
@@ -458,7 +463,7 @@
      */
     function exclui($condicao) {
       $sql = "DELETE FROM " . $this->_tabela . " " . $this->_where($condicao);
-      // echo $sql;
+      //echo $sql . "<br>\n";
       return($this->bd->consulta($sql,false));
     }
     
